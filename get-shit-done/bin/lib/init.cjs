@@ -60,6 +60,7 @@ function cmdInitExecutePhase(cwd, phase, raw) {
       has_research: false,
       has_context: false,
       has_verification: false,
+      has_reviews: false,
     };
   }
   const reqMatch = roadmapPhase?.section?.match(/^\*\*Requirements\*\*:[^\S\n]*([^\n]*)$/m);
@@ -152,6 +153,7 @@ function cmdInitPlanPhase(cwd, phase, raw) {
       has_research: false,
       has_context: false,
       has_verification: false,
+      has_reviews: false,
     };
   }
   const reqMatch = roadmapPhase?.section?.match(/^\*\*Requirements\*\*:[^\S\n]*([^\n]*)$/m);
@@ -184,6 +186,7 @@ function cmdInitPlanPhase(cwd, phase, raw) {
     // Existing artifacts
     has_research: phaseInfo?.has_research || false,
     has_context: phaseInfo?.has_context || false,
+    has_reviews: phaseInfo?.has_reviews || false,
     has_plans: (phaseInfo?.plans?.length || 0) > 0,
     plan_count: phaseInfo?.plans?.length || 0,
 
@@ -217,6 +220,10 @@ function cmdInitPlanPhase(cwd, phase, raw) {
       const uatFile = files.find(f => f.endsWith('-UAT.md') || f === 'UAT.md');
       if (uatFile) {
         result.uat_path = toPosixPath(path.join(phaseInfo.directory, uatFile));
+      }
+      const reviewsFile = files.find(f => f.endsWith('-REVIEWS.md') || f === 'REVIEWS.md');
+      if (reviewsFile) {
+        result.reviews_path = toPosixPath(path.join(phaseInfo.directory, reviewsFile));
       }
     } catch { /* intentionally empty */ }
   }
@@ -557,6 +564,7 @@ function cmdInitPhaseOp(cwd, phase, raw) {
     has_context: phaseInfo?.has_context || false,
     has_plans: (phaseInfo?.plans?.length || 0) > 0,
     has_verification: phaseInfo?.has_verification || false,
+    has_reviews: phaseInfo?.has_reviews || false,
     plan_count: phaseInfo?.plans?.length || 0,
 
     // File existence
@@ -588,6 +596,10 @@ function cmdInitPhaseOp(cwd, phase, raw) {
       const uatFile = files.find(f => f.endsWith('-UAT.md') || f === 'UAT.md');
       if (uatFile) {
         result.uat_path = toPosixPath(path.join(phaseInfo.directory, uatFile));
+      }
+      const reviewsFile = files.find(f => f.endsWith('-REVIEWS.md') || f === 'REVIEWS.md');
+      if (reviewsFile) {
+        result.reviews_path = toPosixPath(path.join(phaseInfo.directory, reviewsFile));
       }
     } catch { /* intentionally empty */ }
   }

@@ -86,8 +86,12 @@ Research, plan, and verify a phase.
 | Flag | Description |
 |------|-------------|
 | `--auto` | Skip interactive confirmations |
+| `--research` | Force re-research even if RESEARCH.md exists |
 | `--skip-research` | Skip domain research step |
+| `--gaps` | Gap closure mode (reads VERIFICATION.md, skips research) |
 | `--skip-verify` | Skip plan checker verification loop |
+| `--prd <file>` | Use a PRD file instead of discuss-phase for context |
+| `--reviews` | Replan with cross-AI review feedback from REVIEWS.md |
 
 **Prerequisites:** `.planning/ROADMAP.md` exists
 **Produces:** `{phase}-RESEARCH.md`, `{phase}-{N}-PLAN.md`, `{phase}-VALIDATION.md`
