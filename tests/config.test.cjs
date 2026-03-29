@@ -242,6 +242,16 @@ describe('config-set command', () => {
     assert.strictEqual(config.workflow.use_worktrees, false);
   });
 
+  test('sets git.base_branch for non-main default branches', () => {
+    writeConfig(tmpDir, {});
+
+    const result = runGsdTools('config-set git.base_branch master', tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const config = readConfig(tmpDir);
+    assert.strictEqual(config.git.base_branch, 'master');
+  });
+
   test('errors when no key path provided', () => {
     const result = runGsdTools('config-set', tmpDir);
     assert.strictEqual(result.success, false);
