@@ -218,6 +218,7 @@ function loadConfig(cwd) {
     context_window: 200000, // default 200k; set to 1000000 for Opus/Sonnet 4.6 1M models
     phase_naming: 'sequential', // 'sequential' (default, auto-increment) or 'custom' (arbitrary string IDs)
     project_code: null, // optional short prefix for phase dirs (e.g., 'CK' → 'CK-01-foundation')
+    subagent_timeout: 300000, // 5 min default; increase for large codebases or slower models (ms)
   };
 
   try {
@@ -310,6 +311,7 @@ function loadConfig(cwd) {
       context_window: get('context_window') ?? defaults.context_window,
       phase_naming: get('phase_naming') ?? defaults.phase_naming,
       project_code: get('project_code') ?? defaults.project_code,
+      subagent_timeout: get('subagent_timeout', { section: 'workflow', field: 'subagent_timeout' }) ?? defaults.subagent_timeout,
       model_overrides: parsed.model_overrides || null,
       agent_skills: parsed.agent_skills || {},
     };

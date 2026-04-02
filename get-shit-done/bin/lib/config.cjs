@@ -25,6 +25,7 @@ const VALID_CONFIG_KEYS = new Set([
   'workflow.use_worktrees',
   'git.branching_strategy', 'git.base_branch', 'git.phase_branch_template', 'git.milestone_branch_template', 'git.quick_branch_template',
   'planning.commit_docs', 'planning.search_gitignored',
+  'workflow.subagent_timeout',
   'hooks.context_warnings',
   'project_code', 'phase_naming',
 ]);
