@@ -384,18 +384,36 @@ describe('checkGraphifyVersion', () => {
     assert.ok(result.warning.includes('Could not parse'));
   });
 
-  test('calls python3 with importlib.metadata', () => {
-    let capturedCmd;
-    let capturedArgs;
+  test('tries graphify --version first before python3', () => {
+    const calls = [];
     mock.method(childProcess, 'spawnSync', (cmd, args) => {
-      capturedCmd = cmd;
-      capturedArgs = args;
+      calls.push({ cmd, args });
       return { status: 0, stdout: '0.4.3\n', stderr: '', error: undefined, signal: null };
     });
 
     checkGraphifyVersion();
-    assert.strictEqual(capturedCmd, 'python3');
-    assert.ok(capturedArgs.some(arg => arg.includes('importlib.metadata')));
+    assert.ok(calls.length >= 1, 'at least one spawnSync call');
+    assert.strictEqual(calls[0].cmd, 'graphify');
+    assert.deepStrictEqual(calls[0].args, ['--version']);
+  });
+
+  test('falls back to python3 importlib.metadata when graphify --version fails', () => {
+    const calls = [];
+    mock.method(childProcess, 'spawnSync', (cmd, args) => {
+      calls.push({ cmd, args });
+      if (cmd === 'graphify') {
+        return { status: 1, stdout: '', stderr: 'unknown option', error: undefined, signal: null };
+      }
+      // python3 fallback
+      return { status: 0, stdout: '0.4.3\n', stderr: '', error: undefined, signal: null };
+    });
+
+    const result = checkGraphifyVersion();
+    assert.strictEqual(result.version, '0.4.3');
+    assert.strictEqual(result.compatible, true);
+    const pythonCall = calls.find(c => c.cmd === 'python3');
+    assert.ok(pythonCall, 'python3 should be called as fallback');
+    assert.ok(pythonCall.args.some(arg => arg.includes('importlib.metadata')));
   });
 });
 
