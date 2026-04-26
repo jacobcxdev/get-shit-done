@@ -144,16 +144,18 @@ export const configPath: QueryHandler = async (_args, projectDir, workstream) =>
  *
  * @param args - args[0] is the agent type (e.g., 'gsd-planner')
  * @param projectDir - Project root directory
+ * @param workstream - Optional workstream name; forwarded to loadConfig so per-workstream
+ *   model_profile settings are respected (mirrors configGet/configPath behavior)
  * @returns QueryResult with { model, profile } or { model, profile, unknown_agent: true }
  * @throws GSDError with Validation classification if agent type not provided
  */
-export const resolveModel: QueryHandler = async (args, projectDir) => {
+export const resolveModel: QueryHandler = async (args, projectDir, workstream) => {
   const agentType = args[0];
   if (!agentType) {
     throw new GSDError('agent-type required', ErrorClassification.Validation);
   }
 
-  const config = await loadConfig(projectDir);
+  const config = await loadConfig(projectDir, workstream);
   const profile = String(config.model_profile || 'balanced').toLowerCase();
 
   // Check per-agent override first
