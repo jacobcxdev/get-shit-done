@@ -161,6 +161,46 @@ function parseCliArgsCompilePermissive(argv: string[]): ParsedCliArgs {
   };
 }
 
+function leadingTokensAreGlobalOptions(tokens: string[]): boolean {
+  const valueOptions = new Set(['--project-dir', '--ws', '--ws-port', '--model', '--max-budget']);
+  let i = 0;
+  while (i < tokens.length) {
+    const token = tokens[i];
+    if (!token) {
+      i += 1;
+      continue;
+    }
+    if (token === '-h' || token === '--help' || token === '-v' || token === '--version') {
+      i += 1;
+      continue;
+    }
+    if ([...valueOptions].some((option) => token.startsWith(`${option}=`))) {
+      i += 1;
+      continue;
+    }
+    if (valueOptions.has(token) && tokens[i + 1]) {
+      i += 2;
+      continue;
+    }
+    return false;
+  }
+  return true;
+}
+
+function parsePermissiveCommandAfterGlobalOptions(
+  argv: string[],
+  command: 'query' | 'compile',
+): ParsedCliArgs | null {
+  const commandIndex = argv.indexOf(command);
+  if (commandIndex <= 0) return null;
+  const before = argv.slice(0, commandIndex);
+  if (!leadingTokensAreGlobalOptions(before)) return null;
+  const normalizedArgv = [command, ...argv.slice(commandIndex + 1), ...before];
+  return command === 'query'
+    ? parseCliArgsQueryPermissive(normalizedArgv)
+    : parseCliArgsCompilePermissive(normalizedArgv);
+}
+
 /**
  * Parse CLI arguments into a structured object.
  * Exported for testing — the main() function uses this internally.
@@ -172,6 +212,10 @@ export function parseCliArgs(argv: string[]): ParsedCliArgs {
   if (argv[0] === 'compile') {
     return parseCliArgsCompilePermissive(argv);
   }
+  const queryAfterGlobalOptions = parsePermissiveCommandAfterGlobalOptions(argv, 'query');
+  if (queryAfterGlobalOptions) return queryAfterGlobalOptions;
+  const compileAfterGlobalOptions = parsePermissiveCommandAfterGlobalOptions(argv, 'compile');
+  if (compileAfterGlobalOptions) return compileAfterGlobalOptions;
 
   const { values, positionals } = parseArgs({
     args: argv,

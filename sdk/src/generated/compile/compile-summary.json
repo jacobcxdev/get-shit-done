@@ -1,0 +1,9 @@
+{
+  "counts": {
+    "agents": 33,
+    "commands": 86,
+    "hooks": 11,
+    "workflows": 84
+  },
+  "outlierCount": 5
+}

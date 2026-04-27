@@ -129,6 +129,16 @@ describe('parseCliArgs', () => {
     expect(result.queryArgv).toEqual(['state.load', '--pick', 'data']);
   });
 
+  it('parses query permissively when global options appear before the command', () => {
+    const result = parseCliArgs([
+      '--project-dir', '/tmp/proj', 'query', 'state', 'json',
+    ]);
+
+    expect(result.command).toBe('query');
+    expect(result.projectDir).toBe('/tmp/proj');
+    expect(result.queryArgv).toEqual(['state', 'json']);
+  });
+
   it('parses query with extra flags forwarded in queryArgv', () => {
     const result = parseCliArgs([
       'query', 'audit-open', '--json', '--project-dir', 'D:\\proj',
@@ -160,6 +170,14 @@ describe('parseCliArgs', () => {
 
   it('extracts compile project-dir before dispatch while preserving compile flags', () => {
     const result = parseCliArgs(['compile', '--project-dir', '/tmp/compile-project', '--json']);
+
+    expect(result.command).toBe('compile');
+    expect(result.projectDir).toBe('/tmp/compile-project');
+    expect(result.compileArgv).toEqual(['--json']);
+  });
+
+  it('extracts compile project-dir before the compile command', () => {
+    const result = parseCliArgs(['--project-dir', '/tmp/compile-project', 'compile', '--json']);
 
     expect(result.command).toBe('compile');
     expect(result.projectDir).toBe('/tmp/compile-project');

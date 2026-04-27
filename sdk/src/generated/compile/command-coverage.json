@@ -1,0 +1,1919 @@
+[
+  {
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "bdecb4ccd8fb4cb88580eb36edf1796cd4985f6948dfa55d5a7513054ffa38d3",
+    "id": "/gsd-add-backlog",
+    "name": "gsd:add-backlog",
+    "path": "commands/gsd/add-backlog.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "870634984aa2f514cd5dc294028701bfaee53a81bd44e9869a5dd09ef1a3ab0b",
+    "id": "/gsd-add-phase",
+    "name": "gsd:add-phase",
+    "path": "commands/gsd/add-phase.md",
+    "workflowRef": "/workflows/add-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/add-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/add-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "9b091199394d06e93a3b8fb7fc05fa2fd6370c936b21e75ddbd92a3a7629639d",
+    "id": "/gsd-add-tests",
+    "name": "gsd:add-tests",
+    "path": "commands/gsd/add-tests.md",
+    "workflowRef": "/workflows/add-tests",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/add-tests.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/add-tests"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "383ef1cfbba72e2dbe351e6fef27134c6fef05c1d47d4d56edef24fd2be747fb",
+    "id": "/gsd-add-todo",
+    "name": "gsd:add-todo",
+    "path": "commands/gsd/add-todo.md",
+    "workflowRef": "/workflows/add-todo",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/add-todo.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/add-todo"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "Read",
+      "Task",
+      "WebFetch",
+      "WebSearch",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "d4e8cdd838cb5dbe0d7dd154af0cf832a0c1e04c687e1dcfdf6a6377d7d40c40",
+    "id": "/gsd-ai-integration-phase",
+    "name": "gsd:ai-integration-phase",
+    "path": "commands/gsd/ai-integration-phase.md",
+    "workflowRef": "/workflows/ai-integration-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/ai-integration-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/ai-integration-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "1dc9f3431ee79e41018472b26a48a669d100b52b4dda48bfdc8cbd65af82648c",
+    "id": "/gsd-analyze-dependencies",
+    "name": "gsd:analyze-dependencies",
+    "path": "commands/gsd/analyze-dependencies.md",
+    "workflowRef": "/workflows/analyze-dependencies",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/analyze-dependencies.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/analyze-dependencies"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Agent",
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "d3c97a5a830ad1e327ba653ce049c8c15c7c417c256d759989d66f2093941904",
+    "id": "/gsd-audit-fix",
+    "name": "gsd:audit-fix",
+    "path": "commands/gsd/audit-fix.md",
+    "workflowRef": "/workflows/audit-fix",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/audit-fix.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/audit-fix"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "6a4eb2c20f5b20e328a133457edc33385c1060fae69c6b49f4362f33a9b62db2",
+    "id": "/gsd-audit-milestone",
+    "name": "gsd:audit-milestone",
+    "path": "commands/gsd/audit-milestone.md",
+    "workflowRef": "/workflows/audit-milestone",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/audit-milestone.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/audit-milestone"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "7247b0bf386011506595e10d24eee7500729dedc6ed7cea348422b24adca1ea2",
+    "id": "/gsd-audit-uat",
+    "name": "gsd:audit-uat",
+    "path": "commands/gsd/audit-uat.md",
+    "workflowRef": "/workflows/audit-uat",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/audit-uat.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/audit-uat"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Agent",
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "8bf9b9df5514633707e34516706f6be8b8505a9a7193720b897907358370dbe6",
+    "id": "/gsd-autonomous",
+    "name": "gsd:autonomous",
+    "path": "commands/gsd/autonomous.md",
+    "workflowRef": "/workflows/autonomous",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/autonomous.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/autonomous"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "64fc36aff56167b78802d9ecb2d9d68d3196b4a464ed088155fa6e10d749a164",
+    "id": "/gsd-check-todos",
+    "name": "gsd:check-todos",
+    "path": "commands/gsd/check-todos.md",
+    "workflowRef": "/workflows/check-todos",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/check-todos.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/check-todos"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "3e61bf2ac98f60a84d817205122cd5764df8a89225a205fe5083b82a4a19fd12",
+    "id": "/gsd-cleanup",
+    "name": "gsd:cleanup",
+    "path": "commands/gsd/cleanup.md",
+    "workflowRef": "/workflows/cleanup",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/cleanup.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/cleanup"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "fc5e4f65a89a64ce1f32f615a1e49c8939484913097c065afbac8a11c838e5cf",
+    "id": "/gsd-code-review",
+    "name": "gsd:code-review",
+    "path": "commands/gsd/code-review.md",
+    "workflowRef": "/workflows/code-review",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/code-review.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/code-review"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "a59437dd44f12861c02aa2fa8c35a48c212fd46209a99c96dbed7afa365ec1e5",
+    "id": "/gsd-code-review-fix",
+    "name": "gsd:code-review-fix",
+    "path": "commands/gsd/code-review-fix.md",
+    "workflowRef": "/workflows/code-review-fix",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/code-review-fix.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/code-review-fix"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "5463681b04d0100360ea7f0999e7d0edac03e025cc9a15007894fefee4841eb1",
+    "id": "/gsd-complete-milestone",
+    "name": "gsd:complete-milestone",
+    "path": "commands/gsd/complete-milestone.md",
+    "workflowRef": "/workflows/complete-milestone",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/complete-milestone.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/complete-milestone"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Task"
+    ],
+    "confidence": "extracted",
+    "hash": "ab3328459775227a80ad8f6987d2f20a3fd2aa9ba060e764b245b0650bde0514",
+    "id": "/gsd-debug",
+    "name": "gsd:debug",
+    "path": "commands/gsd/debug.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__query-docs",
+      "mcp__context7__resolve-library-id",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "ca997d49a98bc9943e2de6831367695ef290ed4aecdb9d9ad401e5009102df90",
+    "id": "/gsd-discuss-phase",
+    "name": "gsd:discuss-phase",
+    "path": "commands/gsd/discuss-phase.md",
+    "workflowRef": "/workflows/discuss-phase",
+    "workflowRefs": [
+      {
+        "branch": {
+          "condition": "If `DISCUSS_MODE` is `\"assumptions\"`",
+          "sourceText": "If `DISCUSS_MODE` is `\"assumptions\"`:"
+        },
+        "primary": false,
+        "rawRef": "~/.claude/get-shit-done/workflows/discuss-phase-assumptions.md",
+        "source": "mode-routing",
+        "workflowId": "/workflows/discuss-phase-assumptions"
+      },
+      {
+        "branch": {
+          "condition": "If `DISCUSS_MODE` is `\"discuss\"` (or unset, or any other value)",
+          "sourceText": "If `DISCUSS_MODE` is `\"discuss\"` (or unset, or any other value):"
+        },
+        "primary": true,
+        "rawRef": "~/.claude/get-shit-done/workflows/discuss-phase.md",
+        "source": "mode-routing",
+        "workflowId": "/workflows/discuss-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "2a2d8af22bea177c1d3964d6211b8bc1b82237d8e9fb8b6d0a131a483b250655",
+    "id": "/gsd-do",
+    "name": "gsd:do",
+    "path": "commands/gsd/do.md",
+    "workflowRef": "/workflows/do",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/do.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/do"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "85de99cf14a5467007d860d6308e87e03f1070a01e7f763edc28110b7390b7ee",
+    "id": "/gsd-docs-update",
+    "name": "gsd:docs-update",
+    "path": "commands/gsd/docs-update.md",
+    "workflowRef": "/workflows/docs-update",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/docs-update.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/docs-update"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "c3992da7a07b192fc16fe8a347e453355c9111ec8cbf8bb3c24af6175c774d8f",
+    "id": "/gsd-edit-phase",
+    "name": "gsd:edit-phase",
+    "path": "commands/gsd/edit-phase.md",
+    "workflowRef": "/workflows/edit-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/edit-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/edit-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "a1e54c86d58960a63b3ed8edaada3e9e56573bbeeebf052d79bc398cdca1f08f",
+    "id": "/gsd-eval-review",
+    "name": "gsd:eval-review",
+    "path": "commands/gsd/eval-review.md",
+    "workflowRef": "/workflows/eval-review",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/eval-review.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/eval-review"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "TodoWrite",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "d851e41b08330e3816138c3bb0f577a759250712ff5c2732848bd76275963509",
+    "id": "/gsd-execute-phase",
+    "name": "gsd:execute-phase",
+    "path": "commands/gsd/execute-phase.md",
+    "workflowRef": "/workflows/execute-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/execute-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/execute-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "6aa031d5949f4b9cc6a314196fe04e91d19dda2ca20c6ebdf7175958ba412c71",
+    "id": "/gsd-explore",
+    "name": "gsd:explore",
+    "path": "commands/gsd/explore.md",
+    "workflowRef": "/workflows/explore",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/explore.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/explore"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Agent",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "77b79056a27d192fa11c75be73e8825b550daf39f1af9cfae25a5f7fec2e3f81",
+    "id": "/gsd-extract_learnings",
+    "name": "gsd:extract-learnings",
+    "path": "commands/gsd/extract_learnings.md",
+    "workflowRef": "/workflows/extract_learnings",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/extract_learnings.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/extract_learnings"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "28244ef698a6a2bcbd93716f69026feb8b2cd2dcdc1e25004b90e8ea46f3681c",
+    "id": "/gsd-fast",
+    "name": "gsd:fast",
+    "path": "commands/gsd/fast.md",
+    "workflowRef": "/workflows/fast",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/fast.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/fast"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "9c0887a8641f32769fc959ab09f5803460dc0c251c05984fdc02f6c8104e33e7",
+    "id": "/gsd-forensics",
+    "name": "gsd:forensics",
+    "path": "commands/gsd/forensics.md",
+    "workflowRef": "/workflows/forensics",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/forensics.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/forensics"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "c9de4f7f776d7eaeb7ac25589cef5aa02e7e7616ccf7205ec80a5ce908fa52cb",
+    "id": "/gsd-from-gsd2",
+    "name": "gsd:from-gsd2",
+    "path": "commands/gsd/from-gsd2.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "confidence": "unknown",
+    "hash": "21b89962e30fb80c774650e983dd5aa75f1b30cb2aa3ff6de523574d44d8890e",
+    "id": "/gsd-graphify",
+    "path": "commands/gsd/graphify.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "fb6cb660db766c403aa05a40957659f5cf50bca15af15360c63b36864c21d80e",
+    "id": "/gsd-health",
+    "name": "gsd:health",
+    "path": "commands/gsd/health.md",
+    "workflowRef": "/workflows/health",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/health.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/health"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "f29ff12c7aa4e7624f2d186e6e58a6ca7e533fde99956a3e69efcb89fea57109",
+    "id": "/gsd-help",
+    "name": "gsd:help",
+    "path": "commands/gsd/help.md",
+    "workflowRef": "/workflows/help",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/help.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/help"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "34e3c42198e2a6e19dd66233ad20c2ad53bf15fb84f75dadfa90e368b8e6210d",
+    "id": "/gsd-import",
+    "name": "gsd:import",
+    "path": "commands/gsd/import.md",
+    "workflowRef": "/workflows/import",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/import.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/import"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "928e132fe3f9c501ac040480b3743cb0f5d6d331b0cc2098b9d2b0c9f77eaaf6",
+    "id": "/gsd-inbox",
+    "name": "gsd:inbox",
+    "path": "commands/gsd/inbox.md",
+    "workflowRef": "/workflows/inbox",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/inbox.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/inbox"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "c76c463033e0b16cd8f1e582c6a887cbea2d8b1fea6d2e3167d157dca319ce03",
+    "id": "/gsd-ingest-docs",
+    "name": "gsd:ingest-docs",
+    "path": "commands/gsd/ingest-docs.md",
+    "workflowRef": "/workflows/ingest-docs",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/ingest-docs.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/ingest-docs"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "0441ad9eef1e53b02827d4de9f7f7b318dcf33295e3d4bef5cf833415d4167ea",
+    "id": "/gsd-insert-phase",
+    "name": "gsd:insert-phase",
+    "path": "commands/gsd/insert-phase.md",
+    "workflowRef": "/workflows/insert-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/insert-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/insert-phase"
+      }
+    ]
+  },
+  {
+    "confidence": "unknown",
+    "hash": "dc3db3d5fbab0fa8a5590b6068a7a029482e4bc23f34cd1c1ca243048056fbb8",
+    "id": "/gsd-intel",
+    "path": "commands/gsd/intel.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "confidence": "extracted",
+    "hash": "3a87a2883375bde9898dd8ad0b199ad92157996d6351051b6d29b2c1d23d801e",
+    "id": "/gsd-join-discord",
+    "name": "gsd:join-discord",
+    "path": "commands/gsd/join-discord.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "0d5bd4e4e63463f62871662c41359d7590ce5046a330b0e2c5112e312393f622",
+    "id": "/gsd-list-phase-assumptions",
+    "name": "gsd:list-phase-assumptions",
+    "path": "commands/gsd/list-phase-assumptions.md",
+    "workflowRef": "/workflows/list-phase-assumptions",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/list-phase-assumptions.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/list-phase-assumptions"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "e4b66f46490bd12f0daa2cddb1d2ea4d5f50af4c1596c4fa05e08d65e02ac7e9",
+    "id": "/gsd-list-workspaces",
+    "name": "gsd:list-workspaces",
+    "path": "commands/gsd/list-workspaces.md",
+    "workflowRef": "/workflows/list-workspaces",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/list-workspaces.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/list-workspaces"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Skill",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "1eb56ba0bae0271e676a1b82a05fa718c0ce18140e98f72758ffa0f9e724163e",
+    "id": "/gsd-manager",
+    "name": "gsd:manager",
+    "path": "commands/gsd/manager.md",
+    "workflowRef": "/workflows/manager",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/manager.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/manager"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "3053a6697cd2161d2c6045adead96834d75963bb6a6a60c8a2ee59a62440bad9",
+    "id": "/gsd-map-codebase",
+    "name": "gsd:map-codebase",
+    "path": "commands/gsd/map-codebase.md",
+    "workflowRef": "/workflows/map-codebase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/map-codebase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/map-codebase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "7312b51f50a75a0af9b61c7f202004f8fa0137a58b38c8dee2e53448df2c64a9",
+    "id": "/gsd-milestone-summary",
+    "name": "gsd:milestone-summary",
+    "path": "commands/gsd/milestone-summary.md",
+    "workflowRef": "/workflows/milestone-summary",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/milestone-summary.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/milestone-summary"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "0ed8b9b4e53e9fdc8a78dba61e721dea5db6cd752dc470d6a269e64fd8744892",
+    "id": "/gsd-new-milestone",
+    "name": "gsd:new-milestone",
+    "path": "commands/gsd/new-milestone.md",
+    "workflowRef": "/workflows/new-milestone",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/new-milestone.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/new-milestone"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "dc5bf5af6bb1fc3372a724283d850605bde7119be556d0968e583c8d16967dad",
+    "id": "/gsd-new-project",
+    "name": "gsd:new-project",
+    "path": "commands/gsd/new-project.md",
+    "workflowRef": "/workflows/new-project",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/new-project.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/new-project"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "aa5c41d25c03dce9fdcd232ebc61d7611cd9097b8300568b65deda2a45aae82a",
+    "id": "/gsd-new-workspace",
+    "name": "gsd:new-workspace",
+    "path": "commands/gsd/new-workspace.md",
+    "workflowRef": "/workflows/new-workspace",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/new-workspace.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/new-workspace"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "SlashCommand"
+    ],
+    "confidence": "extracted",
+    "hash": "8b60cac406a6f5cdd7f13cf806af614ce919f785a2c438ce1a7ae04b6a99aad4",
+    "id": "/gsd-next",
+    "name": "gsd:next",
+    "path": "commands/gsd/next.md",
+    "workflowRef": "/workflows/next",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/next.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/next"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "bb695925c739a606bab7629d804108cf1d98bf7884c7301be8b5b436d762b51b",
+    "id": "/gsd-note",
+    "name": "gsd:note",
+    "path": "commands/gsd/note.md",
+    "workflowRef": "/workflows/note",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/note.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/note"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "acbb3a10b9abe968d14bc99e9e2960640b60868614aa9e55df8a7230a978caeb",
+    "id": "/gsd-pause-work",
+    "name": "gsd:pause-work",
+    "path": "commands/gsd/pause-work.md",
+    "workflowRef": "/workflows/pause-work",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/pause-work.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/pause-work"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "3e87051ef078990b13115f2fea90f16056cafcb68a2bdb81dd862427d237d8b2",
+    "id": "/gsd-plan-milestone-gaps",
+    "name": "gsd:plan-milestone-gaps",
+    "path": "commands/gsd/plan-milestone-gaps.md",
+    "workflowRef": "/workflows/plan-milestone-gaps",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/plan-milestone-gaps.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/plan-milestone-gaps"
+      }
+    ]
+  },
+  {
+    "agent": "gsd-planner",
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "Read",
+      "Task",
+      "WebFetch",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "c9f51204080be4f9b77632288353a8d1a837e19136dfd11b918547b5363b10ae",
+    "id": "/gsd-plan-phase",
+    "name": "gsd:plan-phase",
+    "path": "commands/gsd/plan-phase.md",
+    "workflowRef": "/workflows/plan-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/plan-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/plan-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Agent",
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "e4e73b32c4dcdc8764a52b715b5c143a5e598306b3361c4ec061513f2cc555fc",
+    "id": "/gsd-plan-review-convergence",
+    "name": "gsd:plan-review-convergence",
+    "path": "commands/gsd/plan-review-convergence.md",
+    "workflowRef": "/workflows/plan-review-convergence",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@$HOME/.claude/get-shit-done/workflows/plan-review-convergence.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/plan-review-convergence"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "3009e3209db644a57e1fbbc1ebe07ae8d30c9aba49e96561a614cc4c9e18d430",
+    "id": "/gsd-plant-seed",
+    "name": "gsd:plant-seed",
+    "path": "commands/gsd/plant-seed.md",
+    "workflowRef": "/workflows/plant-seed",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/plant-seed.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/plant-seed"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "b84791c1c1aa373fcfaf9a8c1a09ecaeb853cc15f1667a25222ecb5542ecade3",
+    "id": "/gsd-pr-branch",
+    "name": "gsd:pr-branch",
+    "path": "commands/gsd/pr-branch.md",
+    "workflowRef": "/workflows/pr-branch",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/pr-branch.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/pr-branch"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "83d44949928aefffd4ff1c4e7e665c878aa1562d5f033a2a9cb78e76a56266cc",
+    "id": "/gsd-profile-user",
+    "name": "gsd:profile-user",
+    "path": "commands/gsd/profile-user.md",
+    "workflowRef": "/workflows/profile-user",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/profile-user.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/profile-user"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "SlashCommand"
+    ],
+    "confidence": "extracted",
+    "hash": "d7934b77346addf74181b848cc43ecc361ff73076d96931eff4f85282a4d8df7",
+    "id": "/gsd-progress",
+    "name": "gsd:progress",
+    "path": "commands/gsd/progress.md",
+    "workflowRef": "/workflows/progress",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/progress.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/progress"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "a0f018544806f0014e125e987b146c920e71f306df3af9ce53f9e558f402736c",
+    "id": "/gsd-quick",
+    "name": "gsd:quick",
+    "path": "commands/gsd/quick.md",
+    "workflowRef": "/workflows/quick",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/quick.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/quick"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "21cb779622655857e104385e4414523f3b13773e8173c5a2e51148701d124f9f",
+    "id": "/gsd-reapply-patches",
+    "name": "gsd:reapply-patches",
+    "path": "commands/gsd/reapply-patches.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "22e23d073841405d831b9ef967bdb3c3d541085efdf70f6737996b2c337ca882",
+    "id": "/gsd-remove-phase",
+    "name": "gsd:remove-phase",
+    "path": "commands/gsd/remove-phase.md",
+    "workflowRef": "/workflows/remove-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/remove-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/remove-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "e98f6da0d413bdb37be14f70a57881b726287d3656318ecac1f425f3aebd2738",
+    "id": "/gsd-remove-workspace",
+    "name": "gsd:remove-workspace",
+    "path": "commands/gsd/remove-workspace.md",
+    "workflowRef": "/workflows/remove-workspace",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/remove-workspace.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/remove-workspace"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Task"
+    ],
+    "confidence": "inferred",
+    "hash": "37496fa430bb0622fe88083f25f2db54daa7cb81988046273de08653d9edad40",
+    "id": "/gsd-research-phase",
+    "name": "gsd:research-phase",
+    "path": "commands/gsd/research-phase.md",
+    "workflowRef": "/workflows/research-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "get-shit-done/workflows/research-phase.md",
+        "source": "inferred",
+        "workflowId": "/workflows/research-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "SlashCommand",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "aabd34cab277315c3ae497431428f2b9df98b8e7f396322de02bb555c107c657",
+    "id": "/gsd-resume-work",
+    "name": "gsd:resume-work",
+    "path": "commands/gsd/resume-work.md",
+    "workflowRef": "/workflows/resume-project",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/resume-project.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/resume-project"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "b621f916eb38419ef6f8e0369a342797be5d5edbcb92cb18d8d0549aef308bc4",
+    "id": "/gsd-review",
+    "name": "gsd:review",
+    "path": "commands/gsd/review.md",
+    "workflowRef": "/workflows/review",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/review.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/review"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "09867e0e2cfd3778d7a8d3a933cbed379d31ccbe2a671df7f2999711a7bd1963",
+    "id": "/gsd-review-backlog",
+    "name": "gsd:review-backlog",
+    "path": "commands/gsd/review-backlog.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "allowedTools": [
+      "Agent",
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "df481de3ece0aff5470693968c5cb1dae45dcc998ceb4899f973cb3aefc3e397",
+    "id": "/gsd-scan",
+    "name": "gsd:scan",
+    "path": "commands/gsd/scan.md",
+    "workflowRef": "/workflows/scan",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/scan.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/scan"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "758ada1d4e874031b07390f875a37c75fbe09559290a3637310646cf7bc8703d",
+    "id": "/gsd-secure-phase",
+    "name": "gsd:secure-phase",
+    "path": "commands/gsd/secure-phase.md",
+    "workflowRef": "/workflows/secure-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/secure-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/secure-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "423a2deec562dea5a4fe49ff2c5557dc0146ef6dbd48f3f13865ba1484789744",
+    "id": "/gsd-session-report",
+    "name": "gsd:session-report",
+    "path": "commands/gsd/session-report.md",
+    "workflowRef": "/workflows/session-report",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/session-report.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/session-report"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash"
+    ],
+    "confidence": "extracted",
+    "hash": "a726ee0c1abd7cdf6801fe5031e990142e79d84cd0ab2c1259f75e5b8a02ea62",
+    "id": "/gsd-set-profile",
+    "name": "gsd:set-profile",
+    "path": "commands/gsd/set-profile.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "66873449d2ff661474552a526cb530ac16a95616760a0cdcaf4ad3290859b549",
+    "id": "/gsd-settings",
+    "name": "gsd:settings",
+    "path": "commands/gsd/settings.md",
+    "workflowRef": "/workflows/settings",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/settings.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/settings"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "87c7eea7838576d5830f36135de279e5f8397d54e2145d6023e49a92da5431b0",
+    "id": "/gsd-settings-advanced",
+    "name": "gsd:settings-advanced",
+    "path": "commands/gsd/settings-advanced.md",
+    "workflowRef": "/workflows/settings-advanced",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/settings-advanced.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/settings-advanced"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "88c810d7435a4ccd7a8a2d795a5c1df7d79994b93e979ae237f06352ea02eff3",
+    "id": "/gsd-settings-integrations",
+    "name": "gsd:settings-integrations",
+    "path": "commands/gsd/settings-integrations.md",
+    "workflowRef": "/workflows/settings-integrations",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/settings-integrations.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/settings-integrations"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "025a0cfb03b17ea5100456766807ebf490dd211acd569c59d722236e70923bcf",
+    "id": "/gsd-ship",
+    "name": "gsd:ship",
+    "path": "commands/gsd/ship.md",
+    "workflowRef": "/workflows/ship",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/ship.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/ship"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "mcp__context7__query-docs",
+      "mcp__context7__resolve-library-id",
+      "Read",
+      "WebFetch",
+      "WebSearch",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "bca9a76bb0b68beba9089d1a5c247232f018a2508fee92627a955e2ad10667d2",
+    "id": "/gsd-sketch",
+    "name": "gsd:sketch",
+    "path": "commands/gsd/sketch.md",
+    "workflowRef": "/workflows/sketch",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/sketch.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/sketch"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "96f72077548fe6e20c382ac745fde16fb1f381319f09911d20d4ab42becb16d5",
+    "id": "/gsd-sketch-wrap-up",
+    "name": "gsd:sketch-wrap-up",
+    "path": "commands/gsd/sketch-wrap-up.md",
+    "workflowRef": "/workflows/sketch-wrap-up",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/sketch-wrap-up.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/sketch-wrap-up"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "bc3ccc6941d81933c032ff6564606ee7edfae88436d9aa8285fdde14c9e7586d",
+    "id": "/gsd-spec-phase",
+    "name": "gsd:spec-phase",
+    "path": "commands/gsd/spec-phase.md",
+    "workflowRef": "/workflows/spec-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/spec-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/spec-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "mcp__context7__query-docs",
+      "mcp__context7__resolve-library-id",
+      "Read",
+      "WebFetch",
+      "WebSearch",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "f5687495996018e12d213a36f0471f3d942bc37e2332a247d94555569122cc93",
+    "id": "/gsd-spike",
+    "name": "gsd:spike",
+    "path": "commands/gsd/spike.md",
+    "workflowRef": "/workflows/spike",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/spike.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/spike"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "57cb37c12d93659bdbc39e2c8ca0732fcacb82a44fe9e66e72e6d0f9d9de6f7f",
+    "id": "/gsd-spike-wrap-up",
+    "name": "gsd:spike-wrap-up",
+    "path": "commands/gsd/spike-wrap-up.md",
+    "workflowRef": "/workflows/spike-wrap-up",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/spike-wrap-up.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/spike-wrap-up"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "dcd748dfac3f05c25cc31b383e6de35f892526ed57f8feff00d10168edfabb6f",
+    "id": "/gsd-stats",
+    "name": "gsd:stats",
+    "path": "commands/gsd/stats.md",
+    "workflowRef": "/workflows/stats",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/stats.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/stats"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash"
+    ],
+    "confidence": "inferred",
+    "hash": "8d3a26baa62c45bd2ef0af4a2a5105e06ad61e98df6154b69ca522cbdaca67a4",
+    "id": "/gsd-sync-skills",
+    "name": "gsd:sync-skills",
+    "path": "commands/gsd/sync-skills.md",
+    "workflowRef": "/workflows/sync-skills",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "get-shit-done/workflows/sync-skills.md",
+        "source": "inferred",
+        "workflowId": "/workflows/sync-skills"
+      }
+    ]
+  },
+  {
+    "confidence": "unknown",
+    "hash": "451921fc8f1d8e7e63bc4ea7b651946ff4a0a17f44ad105e61cc6b6ed6112c6c",
+    "id": "/gsd-thread",
+    "path": "commands/gsd/thread.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "Read",
+      "Task",
+      "WebFetch",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "ae28b11b2e8e8ff9cec056dd7e5df16b38d95ff7010f7287aa847d60f196ac48",
+    "id": "/gsd-ui-phase",
+    "name": "gsd:ui-phase",
+    "path": "commands/gsd/ui-phase.md",
+    "workflowRef": "/workflows/ui-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/ui-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/ui-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "aa1c8d46d9ad0ad18732e0bf27d802fe8506b021e26657003162fabff0c04493",
+    "id": "/gsd-ui-review",
+    "name": "gsd:ui-review",
+    "path": "commands/gsd/ui-review.md",
+    "workflowRef": "/workflows/ui-review",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/ui-review.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/ui-review"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "ded10f41351e47c2a39c391bad561bf2b066fb304d51e86df3314c42cca6371a",
+    "id": "/gsd-ultraplan-phase",
+    "name": "gsd:ultraplan-phase",
+    "path": "commands/gsd/ultraplan-phase.md",
+    "workflowRef": "/workflows/ultraplan-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/ultraplan-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/ultraplan-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "9c9c7b5004646e9a58f5106a317bf1609d95b7c6723ed57593057da33d3332fe",
+    "id": "/gsd-undo",
+    "name": "gsd:undo",
+    "path": "commands/gsd/undo.md",
+    "workflowRef": "/workflows/undo",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/undo.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/undo"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash"
+    ],
+    "confidence": "extracted",
+    "hash": "c408b92f0aa94694ab7961a34d032b7f8a9989d188cf2f11646485cd394e40d8",
+    "id": "/gsd-update",
+    "name": "gsd:update",
+    "path": "commands/gsd/update.md",
+    "workflowRef": "/workflows/update",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/update.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/update"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "4f21183d26aa1a567f996949918050e832b4ec5f5d6e359f6ab4ea8e2c2e405d",
+    "id": "/gsd-validate-phase",
+    "name": "gsd:validate-phase",
+    "path": "commands/gsd/validate-phase.md",
+    "workflowRef": "/workflows/validate-phase",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/validate-phase.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/validate-phase"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "confidence": "extracted",
+    "hash": "012f3bc65deb63dad87160c919abd44ced83b666976f3df0ff726e0003a02ab1",
+    "id": "/gsd-verify-work",
+    "name": "gsd:verify-work",
+    "path": "commands/gsd/verify-work.md",
+    "workflowRef": "/workflows/verify-work",
+    "workflowRefs": [
+      {
+        "primary": true,
+        "rawRef": "@~/.claude/get-shit-done/workflows/verify-work.md",
+        "source": "execution_context",
+        "workflowId": "/workflows/verify-work"
+      }
+    ]
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read"
+    ],
+    "confidence": "extracted",
+    "hash": "61faa6e4505c84305b439978204c2cf847513bcac03c21565707f91ccef599cc",
+    "id": "/gsd-workstreams",
+    "name": "gsd:workstreams",
+    "path": "commands/gsd/workstreams.md",
+    "workflowRef": null,
+    "workflowRefs": []
+  }
+]

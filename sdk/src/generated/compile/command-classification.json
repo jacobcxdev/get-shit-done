@@ -1,0 +1,783 @@
+[
+  {
+    "agentTypes": [
+      "gsd-planner"
+    ],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-plan-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/plan-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "composite",
+    "commandId": "/gsd-ai-integration-phase",
+    "determinismPosture": "unknown",
+    "isHardOutlier": false,
+    "migrationDisposition": "composite-review",
+    "workflowId": "/workflows/ai-integration-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "composite",
+    "commandId": "/gsd-audit-fix",
+    "determinismPosture": "unknown",
+    "isHardOutlier": false,
+    "migrationDisposition": "composite-review",
+    "workflowId": "/workflows/audit-fix"
+  },
+  {
+    "agentTypes": [],
+    "category": "composite",
+    "commandId": "/gsd-autonomous",
+    "determinismPosture": "unknown",
+    "isHardOutlier": false,
+    "migrationDisposition": "composite-review",
+    "workflowId": "/workflows/autonomous"
+  },
+  {
+    "agentTypes": [],
+    "category": "composite",
+    "commandId": "/gsd-docs-update",
+    "determinismPosture": "unknown",
+    "isHardOutlier": false,
+    "migrationDisposition": "composite-review",
+    "workflowId": "/workflows/docs-update"
+  },
+  {
+    "agentTypes": [],
+    "category": "composite",
+    "commandId": "/gsd-ingest-docs",
+    "determinismPosture": "unknown",
+    "isHardOutlier": false,
+    "migrationDisposition": "composite-review",
+    "workflowId": "/workflows/ingest-docs"
+  },
+  {
+    "agentTypes": [],
+    "category": "composite",
+    "commandId": "/gsd-quick",
+    "determinismPosture": "unknown",
+    "isHardOutlier": false,
+    "migrationDisposition": "composite-review",
+    "workflowId": "/workflows/quick"
+  },
+  {
+    "agentTypes": [],
+    "category": "composite",
+    "commandId": "/gsd-ship",
+    "determinismPosture": "unknown",
+    "isHardOutlier": false,
+    "migrationDisposition": "composite-review",
+    "workflowId": "/workflows/ship"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-add-backlog",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-add-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/add-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-add-tests",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/add-tests"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-add-todo",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/add-todo"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-analyze-dependencies",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/analyze-dependencies"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-audit-uat",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/audit-uat"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-cleanup",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/cleanup"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-complete-milestone",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/complete-milestone"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-discuss-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/discuss-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-edit-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/edit-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-execute-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/execute-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-extract_learnings",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/extract_learnings"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-import",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/import"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-insert-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/insert-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-milestone-summary",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/milestone-summary"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-new-milestone",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/new-milestone"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-new-project",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/new-project"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-new-workspace",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/new-workspace"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-note",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/note"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-pause-work",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/pause-work"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-plan-milestone-gaps",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/plan-milestone-gaps"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-plant-seed",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/plant-seed"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-pr-branch",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/pr-branch"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-remove-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/remove-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-remove-workspace",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/remove-workspace"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-research-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/research-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-resume-work",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/resume-project"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-sketch-wrap-up",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/sketch-wrap-up"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-spec-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/spec-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-spike-wrap-up",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/spike-wrap-up"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-ui-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/ui-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-undo",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/undo"
+  },
+  {
+    "agentTypes": [],
+    "category": "core-lifecycle",
+    "commandId": "/gsd-verify-work",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "standard",
+    "workflowId": "/workflows/verify-work"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-check-todos",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/check-todos"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-do",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/do"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-explore",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/explore"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-forensics",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/forensics"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-inbox",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/inbox"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-manager",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/manager"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-next",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/next"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-plan-review-convergence",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/plan-review-convergence"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-review-backlog",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-settings-advanced",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/settings-advanced"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-settings-integrations",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/settings-integrations"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-sketch",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/sketch"
+  },
+  {
+    "agentTypes": [],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-spike",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": false,
+    "migrationDisposition": "dynamic-review",
+    "workflowId": "/workflows/spike"
+  },
+  {
+    "agentTypes": [],
+    "category": "hard-outlier",
+    "commandId": "/gsd-fast",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": true,
+    "migrationDisposition": "manual-posture-required",
+    "outlierPosture": "seed-outlier",
+    "workflowId": "/workflows/fast"
+  },
+  {
+    "agentTypes": [],
+    "category": "hard-outlier",
+    "commandId": "/gsd-from-gsd2",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": true,
+    "migrationDisposition": "manual-posture-required",
+    "outlierPosture": "seed-outlier",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "hard-outlier",
+    "commandId": "/gsd-graphify",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": true,
+    "migrationDisposition": "manual-posture-required",
+    "outlierPosture": "seed-outlier",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "hard-outlier",
+    "commandId": "/gsd-review",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": true,
+    "migrationDisposition": "manual-posture-required",
+    "outlierPosture": "seed-outlier",
+    "workflowId": "/workflows/review"
+  },
+  {
+    "agentTypes": [],
+    "category": "hard-outlier",
+    "commandId": "/gsd-ultraplan-phase",
+    "determinismPosture": "dynamic",
+    "isHardOutlier": true,
+    "migrationDisposition": "manual-posture-required",
+    "outlierPosture": "seed-outlier",
+    "workflowId": "/workflows/ultraplan-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-debug",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-health",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/health"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-help",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/help"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-intel",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-join-discord",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-list-phase-assumptions",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/list-phase-assumptions"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-list-workspaces",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/list-workspaces"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-progress",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/progress"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-reapply-patches",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-scan",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/scan"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-session-report",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/session-report"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-set-profile",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-settings",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/settings"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-stats",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/stats"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-sync-skills",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/sync-skills"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-thread",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-update",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": "/workflows/update"
+  },
+  {
+    "agentTypes": [],
+    "category": "query-utility",
+    "commandId": "/gsd-workstreams",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "advisory-passthrough",
+    "workflowId": null
+  },
+  {
+    "agentTypes": [],
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-audit-milestone",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "bounded-agent",
+    "workflowId": "/workflows/audit-milestone"
+  },
+  {
+    "agentTypes": [],
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-code-review-fix",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "bounded-agent",
+    "workflowId": "/workflows/code-review-fix"
+  },
+  {
+    "agentTypes": [],
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-code-review",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "bounded-agent",
+    "workflowId": "/workflows/code-review"
+  },
+  {
+    "agentTypes": [],
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-eval-review",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "bounded-agent",
+    "workflowId": "/workflows/eval-review"
+  },
+  {
+    "agentTypes": [],
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-map-codebase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "bounded-agent",
+    "workflowId": "/workflows/map-codebase"
+  },
+  {
+    "agentTypes": [],
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-profile-user",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "bounded-agent",
+    "workflowId": "/workflows/profile-user"
+  },
+  {
+    "agentTypes": [],
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-secure-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "bounded-agent",
+    "workflowId": "/workflows/secure-phase"
+  },
+  {
+    "agentTypes": [],
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-ui-review",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "bounded-agent",
+    "workflowId": "/workflows/ui-review"
+  },
+  {
+    "agentTypes": [],
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-validate-phase",
+    "determinismPosture": "deterministic",
+    "isHardOutlier": false,
+    "migrationDisposition": "bounded-agent",
+    "workflowId": "/workflows/validate-phase"
+  }
+]

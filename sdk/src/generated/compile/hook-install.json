@@ -1,0 +1,112 @@
+[
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-check-update.js",
+    "executable": false,
+    "hash": "5c06f9482265b7795926866b18fdaa69cd6bf7368021ecf433833b5867ba95c8",
+    "id": "gsd-check-update",
+    "installTargetClass": "codex-hook",
+    "kind": "js",
+    "path": "hooks/gsd-check-update.js"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-check-update-worker.js",
+    "executable": false,
+    "hash": "8caea6d1b9fa518980b00a4633b441ba1305d6a350da7781acf33531178d1d5f",
+    "id": "gsd-check-update-worker",
+    "installTargetClass": "worker",
+    "kind": "js",
+    "path": "hooks/gsd-check-update-worker.js"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-context-monitor.js",
+    "executable": false,
+    "hash": "34b7e9e13e83377922dc3a128f0c11a70cc3a24c96c385ff3b5e240dfd1528a5",
+    "id": "gsd-context-monitor",
+    "installTargetClass": "claude-hook",
+    "kind": "js",
+    "path": "hooks/gsd-context-monitor.js"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-phase-boundary.sh",
+    "executable": true,
+    "hash": "56f22793fc0d3b4c0feeb928f1d6769198b6e5ce3fe18b2d441ce7cb56d8cfbe",
+    "id": "gsd-phase-boundary",
+    "installTargetClass": "claude-hook",
+    "kind": "shell",
+    "path": "hooks/gsd-phase-boundary.sh"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-prompt-guard.js",
+    "executable": false,
+    "hash": "1232e7648cabf529a074ec4515e0f843284d721cea24eb7304a024a40acaae0f",
+    "id": "gsd-prompt-guard",
+    "installTargetClass": "claude-hook",
+    "kind": "js",
+    "path": "hooks/gsd-prompt-guard.js"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-read-guard.js",
+    "executable": false,
+    "hash": "424431c2011bdbc93e79c27bd3c1b6841480386a318c9621b82062413fb8d6a5",
+    "id": "gsd-read-guard",
+    "installTargetClass": "claude-hook",
+    "kind": "js",
+    "path": "hooks/gsd-read-guard.js"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-read-injection-scanner.js",
+    "executable": false,
+    "hash": "e2f0d19d9f8041133e949461f6f06b0423487c313dd9f5b2f17284a6fa6a1205",
+    "id": "gsd-read-injection-scanner",
+    "installTargetClass": "claude-hook",
+    "kind": "js",
+    "path": "hooks/gsd-read-injection-scanner.js"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-session-state.sh",
+    "executable": true,
+    "hash": "34b16c1f1db7c3acbc75d9542fc1037213c6830f1d6ddd4670cb4d2e57d94602",
+    "id": "gsd-session-state",
+    "installTargetClass": "claude-hook",
+    "kind": "shell",
+    "path": "hooks/gsd-session-state.sh"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-statusline.js",
+    "executable": false,
+    "hash": "19de3c72b75cfe20c112d0b8799391f1344e6f31450119a0c3d21e5b8fd0fd79",
+    "id": "gsd-statusline",
+    "installTargetClass": "claude-hook",
+    "kind": "js",
+    "path": "hooks/gsd-statusline.js"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-validate-commit.sh",
+    "executable": true,
+    "hash": "08ecf5e9f4f63f51f49956bb4fe6b77d1421b91c2d34a9f96ac8e37771792da6",
+    "id": "gsd-validate-commit",
+    "installTargetClass": "claude-hook",
+    "kind": "shell",
+    "path": "hooks/gsd-validate-commit.sh"
+  },
+  {
+    "distExists": true,
+    "distPath": "hooks/dist/gsd-workflow-guard.js",
+    "executable": false,
+    "hash": "21278ed311a2e5e78b73d487be51a944ef0a9aa826d5ed93738cb14a6954f0a8",
+    "id": "gsd-workflow-guard",
+    "installTargetClass": "claude-hook",
+    "kind": "js",
+    "path": "hooks/gsd-workflow-guard.js"
+  }
+]

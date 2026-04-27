@@ -1,0 +1,774 @@
+[
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "Read",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "color": "cyan",
+    "description": "Researches a single gray area decision and returns a structured comparison table with rationale. Spawned by discuss-phase advisor mode.",
+    "diskWriteMandate": false,
+    "hash": "1ec999a9c85ff87e40461fb06dd05f987c7324e206d851750dcca915b934988b",
+    "id": "gsd-advisor-researcher",
+    "name": "gsd-advisor-researcher",
+    "outputArtifacts": [],
+    "path": "agents/gsd-advisor-researcher.md",
+    "roleClass": "researcher",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "Read",
+      "WebFetch",
+      "WebSearch",
+      "Write"
+    ],
+    "color": "#34D399",
+    "description": "Researches a chosen AI framework's official docs to produce implementation-ready guidance — best practices, syntax, core patterns, and pitfalls distilled for the specific use case. Writes the Framework Quick Reference and Implementation Guidance sections of AI-SPEC.md. Spawned by /gsd-ai-integration-phase orchestrator.",
+    "diskWriteMandate": false,
+    "hash": "e9b8403055ae69ae4e2ff2b38652bda41b7b7c04728d604ab679b846e829ad32",
+    "id": "gsd-ai-researcher",
+    "name": "gsd-ai-researcher",
+    "outputArtifacts": [
+      "ai-frameworks.md",
+      "AI-SPEC.md"
+    ],
+    "path": "agents/gsd-ai-researcher.md",
+    "roleClass": "researcher",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read"
+    ],
+    "color": "cyan",
+    "description": "Deeply analyzes codebase for a phase and returns structured assumptions with evidence. Spawned by discuss-phase assumptions mode.",
+    "diskWriteMandate": false,
+    "hash": "fc71855620ada4e2487bc9ec697a9c28a6d2d3d838a0345449e8b82a94665cf9",
+    "id": "gsd-assumptions-analyzer",
+    "name": "gsd-assumptions-analyzer",
+    "outputArtifacts": [
+      "ROADMAP.md"
+    ],
+    "path": "agents/gsd-assumptions-analyzer.md",
+    "roleClass": "researcher",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [],
+    "description": "",
+    "diskWriteMandate": false,
+    "hash": "1a8de7a8f5f319671bdd42c2edd0234ef5c41b64e62adb163206018ea561f32b",
+    "id": "gsd-code-fixer",
+    "name": "",
+    "outputArtifacts": [
+      "02-REVIEW-FIX.md",
+      "CLAUDE.md",
+      "REVIEW-FIX.md",
+      "REVIEW.md"
+    ],
+    "path": "agents/gsd-code-fixer.md",
+    "roleClass": "verifier",
+    "worktreeRequired": true
+  },
+  {
+    "allowedTools": [],
+    "description": "",
+    "diskWriteMandate": false,
+    "hash": "e9d05e9a0018640335f3325866a8464f418970dec46fe75dd9ac363828b7dd5a",
+    "id": "gsd-code-reviewer",
+    "name": "",
+    "outputArtifacts": [
+      "02-REVIEW.md",
+      "package-lock.json",
+      "PLAN.md",
+      "REVIEW.md",
+      "ROADMAP.md",
+      "STATE.md",
+      "SUMMARY.md",
+      "VERIFICATION.md"
+    ],
+    "path": "agents/gsd-code-reviewer.md",
+    "roleClass": "debugger",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [],
+    "description": "",
+    "diskWriteMandate": true,
+    "hash": "7169a3b602724ccc74e3df32d21f14be99e2b4dcd6c3ec56e04c67562153ba9c",
+    "id": "gsd-codebase-mapper",
+    "name": "",
+    "outputArtifacts": [
+      "ARCHITECTURE.md",
+      "CONCERNS.md",
+      "CONVENTIONS.md",
+      "INTEGRATIONS.md",
+      "STACK.md",
+      "STRUCTURE.md",
+      "TESTING.md",
+      "UPPERCASE.md",
+      "user.ts"
+    ],
+    "path": "agents/gsd-codebase-mapper.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Task",
+      "Write"
+    ],
+    "color": "orange",
+    "description": "Manages multi-cycle /gsd-debug checkpoint and continuation loop in isolated context. Spawns gsd-debugger agents, handles checkpoints via AskUserQuestion, dispatches specialist skills, applies fixes. Returns compact summary to main context. Spawned by /gsd-debug command.",
+    "diskWriteMandate": false,
+    "hash": "582257bb063a5fffbeba8937470a329db6930d6af36f42ca335f8228d4d990f8",
+    "id": "gsd-debug-session-manager",
+    "name": "gsd-debug-session-manager",
+    "outputArtifacts": [],
+    "path": "agents/gsd-debug-session-manager.md",
+    "roleClass": "debugger",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [],
+    "completionMarker": "## DEBUG COMPLETE, ## ROOT CAUSE FOUND, ## CHECKPOINT REACHED",
+    "description": "",
+    "diskWriteMandate": true,
+    "hash": "7e29e57dd4a048df2bc9936e40a5ea0fd93ed9304feb560e6004205171c9bff8",
+    "id": "gsd-debugger",
+    "name": "",
+    "outputArtifacts": [
+      "## DEBUG COMPLETE, ## ROOT CAUSE FOUND, ## CHECKPOINT REACHED",
+      "knowledge-base.md"
+    ],
+    "path": "agents/gsd-debugger.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "color": "yellow",
+    "description": "Classifies a single planning document as ADR, PRD, SPEC, DOC, or UNKNOWN. Extracts title, scope summary, and cross-references. Spawned in parallel by /gsd-ingest-docs. Writes a JSON classification file and returns a one-line confirmation.",
+    "diskWriteMandate": false,
+    "hash": "e166652294feed779976aa569ade80d1aa4877338fd7a5a92df69e80d78c021e",
+    "id": "gsd-doc-classifier",
+    "name": "gsd-doc-classifier",
+    "outputArtifacts": [
+      "other.md"
+    ],
+    "path": "agents/gsd-doc-classifier.md",
+    "roleClass": "planner",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "color": "orange",
+    "description": "Synthesizes classified planning docs into a single consolidated context. Applies precedence rules, detects cross-ref cycles, enforces LOCKED-vs-LOCKED hard-blocks, and writes INGEST-CONFLICTS.md with three buckets (auto-resolved, competing-variants, unresolved-blockers). Spawned by /gsd-ingest-docs.",
+    "diskWriteMandate": false,
+    "hash": "18a7dc0504d30c79ac67a2792d62899e5ca1f055d413b2aca58bf456fd00c923",
+    "id": "gsd-doc-synthesizer",
+    "name": "gsd-doc-synthesizer",
+    "outputArtifacts": [
+      "decisions.md",
+      "doc-conflict-engine.md",
+      "INGEST-CONFLICTS.md",
+      "PROJECT.md",
+      "REQUIREMENTS.md",
+      "ROADMAP.md",
+      "STATE.md",
+      "SYNTHESIS.md"
+    ],
+    "path": "agents/gsd-doc-synthesizer.md",
+    "roleClass": "planner",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "color": "orange",
+    "description": "Verifies factual claims in generated docs against the live codebase. Returns structured JSON per doc.",
+    "diskWriteMandate": false,
+    "hash": "22b744cf593acc9f09349bfa180b693e8556aba37855ac021624f9680b22c3b4",
+    "id": "gsd-doc-verifier",
+    "name": "gsd-doc-verifier",
+    "outputArtifacts": [
+      "README.md",
+      "verify-README.md.json"
+    ],
+    "path": "agents/gsd-doc-verifier.md",
+    "roleClass": "verifier",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "color": "purple",
+    "description": "Writes and updates project documentation. Spawned with a doc_assignment block specifying doc type, mode (create/update/supplement), and project context.",
+    "diskWriteMandate": false,
+    "hash": "2c332d8040557df4853f07fd154dbb088868decad82f83c789a76e47b93407e8",
+    "id": "gsd-doc-writer",
+    "name": "gsd-doc-writer",
+    "outputArtifacts": [
+      "ARCHITECTURE.md",
+      "CONTRIBUTING.md",
+      "package.json",
+      "README.md",
+      "requirements.txt"
+    ],
+    "path": "agents/gsd-doc-writer.md",
+    "roleClass": "verifier",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "Read",
+      "WebFetch",
+      "WebSearch",
+      "Write"
+    ],
+    "color": "#A78BFA",
+    "description": "Researches the business domain and real-world application context of the AI system being built. Surfaces domain expert evaluation criteria, industry-specific failure modes, regulatory context, and what \"good\" looks like for practitioners in this field — before the eval-planner turns it into measurable rubrics. Spawned by /gsd-ai-integration-phase orchestrator.",
+    "diskWriteMandate": false,
+    "hash": "56d9683ea8ec0c51a4b30a067fab12e05a4e316433e7d8e9d0c17cb7cda0bcd8",
+    "id": "gsd-domain-researcher",
+    "name": "gsd-domain-researcher",
+    "outputArtifacts": [
+      "ai-evals.md",
+      "AI-SPEC.md",
+      "CONTEXT.md",
+      "REQUIREMENTS.md"
+    ],
+    "path": "agents/gsd-domain-researcher.md",
+    "roleClass": "researcher",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "color": "#EF4444",
+    "description": "Retroactive audit of an implemented AI phase's evaluation coverage. Checks implementation against the AI-SPEC.md evaluation plan. Scores each eval dimension as COVERED/PARTIAL/MISSING. Produces a scored EVAL-REVIEW.md with findings, gaps, and remediation guidance. Spawned by /gsd-eval-review orchestrator.",
+    "diskWriteMandate": true,
+    "hash": "be333ce408599d9ae154dd8a7307b9fc2f41bd8e9b7ab573300127c04eb30e6f",
+    "id": "gsd-eval-auditor",
+    "name": "gsd-eval-auditor",
+    "outputArtifacts": [
+      "AI-SPEC.md",
+      "EVAL-REVIEW.md",
+      "PLAN.md",
+      "SUMMARY.md"
+    ],
+    "path": "agents/gsd-eval-auditor.md",
+    "roleClass": "auditor",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "color": "#F59E0B",
+    "description": "Designs a structured evaluation strategy for an AI phase. Identifies critical failure modes, selects eval dimensions with rubrics, recommends tooling, and specifies the reference dataset. Writes the Evaluation Strategy, Guardrails, and Production Monitoring sections of AI-SPEC.md. Spawned by /gsd-ai-integration-phase orchestrator.",
+    "diskWriteMandate": true,
+    "hash": "a30ad7bfe3a2768da2bbd45e8dae3608c7811d549d8bd03f20e5d4a88b2ff565",
+    "id": "gsd-eval-planner",
+    "name": "gsd-eval-planner",
+    "outputArtifacts": [
+      "ai-evals.md",
+      "AI-SPEC.md"
+    ],
+    "path": "agents/gsd-eval-planner.md",
+    "roleClass": "researcher",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [],
+    "completionMarker": "## PLAN COMPLETE, ## CHECKPOINT REACHED",
+    "description": "",
+    "diskWriteMandate": true,
+    "hash": "ab4fb6ec7e10dac4b1fa59ced248883966e59a4dcf9126bd415d3829788b73a5",
+    "id": "gsd-executor",
+    "name": "",
+    "outputArtifacts": [
+      "## PLAN COMPLETE, ## CHECKPOINT REACHED",
+      "CONTEXT.md",
+      "mandatory-initial-read.md",
+      "QUERY-HANDLERS.md",
+      "REQUIREMENTS.md",
+      "ROADMAP.md",
+      "STATE.md",
+      "summary.md",
+      "SUMMARY.md"
+    ],
+    "path": "agents/gsd-executor.md",
+    "roleClass": "ui",
+    "worktreeRequired": true
+  },
+  {
+    "allowedTools": [
+      "AskUserQuestion",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "WebSearch"
+    ],
+    "color": "#38BDF8",
+    "description": "Presents an interactive decision matrix to surface the right AI/LLM framework for the user's specific use case. Produces a scored recommendation with rationale. Spawned by /gsd-ai-integration-phase and /gsd-select-framework orchestrators.",
+    "diskWriteMandate": false,
+    "hash": "050439c8db939a940a0f144c83f9d9bd811f76cee9db37582e1b5dc9b5de2ccf",
+    "id": "gsd-framework-selector",
+    "name": "gsd-framework-selector",
+    "outputArtifacts": [],
+    "path": "agents/gsd-framework-selector.md",
+    "roleClass": "auditor",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read"
+    ],
+    "color": "blue",
+    "completionMarker": "## Integration Check Complete",
+    "description": "Verifies cross-phase integration and E2E flows. Checks that phases connect properly and user workflows complete end-to-end.",
+    "diskWriteMandate": true,
+    "hash": "69a948bb2a6ff320478bde05b0d7fb4ab411c303160f46f7b328f45237b2b5d5",
+    "id": "gsd-integration-checker",
+    "name": "gsd-integration-checker",
+    "outputArtifacts": [
+      "## Integration Check Complete",
+      "SUMMARY.md"
+    ],
+    "path": "agents/gsd-integration-checker.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [],
+    "completionMarker": "## INTEL UPDATE COMPLETE, ## INTEL UPDATE FAILED",
+    "description": "",
+    "diskWriteMandate": false,
+    "hash": "f9d31dbb0ff4369a16e8d293d7288d3e576ad020d5442dd6fbd6652f9f30c2f4",
+    "id": "gsd-intel-updater",
+    "name": "",
+    "outputArtifacts": [
+      "## INTEL UPDATE COMPLETE, ## INTEL UPDATE FAILED",
+      "apis.json",
+      "arch.md",
+      "deps.json",
+      "files.json",
+      "last-refresh.json",
+      "package.json",
+      "requirements.txt",
+      "stack.json"
+    ],
+    "path": "agents/gsd-intel-updater.md",
+    "roleClass": "executor",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "color": "#8B5CF6",
+    "completionMarker": "## PARTIAL, ## ESCALATE",
+    "description": "Fills Nyquist validation gaps by generating tests and verifying coverage for phase requirements",
+    "diskWriteMandate": true,
+    "hash": "d00b334cdfc369d0a3d1c408c958e25815fc0772a3e894a4c00d2959c07ba8bb",
+    "id": "gsd-nyquist-auditor",
+    "name": "gsd-nyquist-auditor",
+    "outputArtifacts": [
+      "## PARTIAL, ## ESCALATE",
+      "VALIDATION.md"
+    ],
+    "path": "agents/gsd-nyquist-auditor.md",
+    "roleClass": "debugger",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [],
+    "description": "",
+    "diskWriteMandate": false,
+    "hash": "5fb7dfb6eb6c0f2a3cbced37a8165bfa281fe3db189adc86c0858d0f3adaa951",
+    "id": "gsd-pattern-mapper",
+    "name": "",
+    "outputArtifacts": [
+      "PADDED_PHASE-PATTERNS.md",
+      "PATTERNS.md"
+    ],
+    "path": "agents/gsd-pattern-mapper.md",
+    "roleClass": "mapper",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "mcp__exa__*",
+      "mcp__firecrawl__*",
+      "Read",
+      "WebFetch",
+      "WebSearch",
+      "Write"
+    ],
+    "color": "cyan",
+    "completionMarker": "## RESEARCH COMPLETE, ## RESEARCH BLOCKED",
+    "description": "Researches how to implement a phase before planning. Produces RESEARCH.md consumed by gsd-planner. Spawned by /gsd-plan-phase orchestrator.",
+    "diskWriteMandate": true,
+    "hash": "4e8f80cf96853fc4c4c20282b55f7eaa6b234ad1742735e5879a600aa461427b",
+    "id": "gsd-phase-researcher",
+    "name": "gsd-phase-researcher",
+    "outputArtifacts": [
+      "## RESEARCH COMPLETE, ## RESEARCH BLOCKED",
+      "CLAUDE.md",
+      "PADDED_PHASE-RESEARCH.md",
+      "PLAN.md",
+      "project-skills-discovery.md",
+      "RESEARCH.md"
+    ],
+    "path": "agents/gsd-phase-researcher.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read"
+    ],
+    "color": "green",
+    "completionMarker": "## VERIFICATION PASSED, ## ISSUES FOUND",
+    "description": "Verifies plans will achieve phase goal before execution. Goal-backward analysis of plan quality. Spawned by /gsd-plan-phase orchestrator.",
+    "diskWriteMandate": false,
+    "hash": "5d94f4c4a94b6ce5a53fa2644e8dea2d8f33d1b0bbabf8f59913e5df41854ab4",
+    "id": "gsd-plan-checker",
+    "name": "gsd-plan-checker",
+    "outputArtifacts": [
+      "## VERIFICATION PASSED, ## ISSUES FOUND",
+      "CLAUDE.md",
+      "cli.js",
+      "config.json",
+      "gates.md",
+      "PATTERNS.md",
+      "RESEARCH.md",
+      "route.ts",
+      "VALIDATION.md"
+    ],
+    "path": "agents/gsd-plan-checker.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [],
+    "completionMarker": "## PLANNING COMPLETE",
+    "description": "",
+    "diskWriteMandate": true,
+    "hash": "197778361e75d0a988740a34bb41d805da9c9acb8898522dacd1a490e6bc6f72",
+    "id": "gsd-planner",
+    "name": "",
+    "outputArtifacts": [
+      "## PLANNING COMPLETE",
+      "01-01-plan.md",
+      "01-PLAN-01.md",
+      "01-PLAN.md",
+      "02-PLAN.md",
+      "execute-plan.md",
+      "newFeature.ts",
+      "PLAN-01-auth.md",
+      "plan-01.md",
+      "PLAN.md",
+      "planner-gap-closure.md",
+      "PROJECT.md",
+      "ROADMAP.md",
+      "route.ts",
+      "STATE.md",
+      "summary.md",
+      "SUMMARY.md"
+    ],
+    "path": "agents/gsd-planner.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "mcp__exa__*",
+      "mcp__firecrawl__*",
+      "Read",
+      "WebFetch",
+      "WebSearch",
+      "Write"
+    ],
+    "color": "cyan",
+    "completionMarker": "## RESEARCH COMPLETE, ## RESEARCH BLOCKED",
+    "description": "Researches domain ecosystem before roadmap creation. Produces files in .planning/research/ consumed during roadmap creation. Spawned by /gsd-new-project or /gsd-new-milestone orchestrators.",
+    "diskWriteMandate": false,
+    "hash": "1b988c4b5504c5fca7e8944c96cc847033d3103271865ce6ab782a7176ee72ff",
+    "id": "gsd-project-researcher",
+    "name": "gsd-project-researcher",
+    "outputArtifacts": [
+      "## RESEARCH COMPLETE, ## RESEARCH BLOCKED",
+      "ARCHITECTURE.md",
+      "FEATURES.md",
+      "STACK.md",
+      "SUMMARY.md"
+    ],
+    "path": "agents/gsd-project-researcher.md",
+    "roleClass": "researcher",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Write"
+    ],
+    "color": "purple",
+    "completionMarker": "## SYNTHESIS COMPLETE, ## SYNTHESIS BLOCKED",
+    "description": "Synthesizes research outputs from parallel researcher agents into SUMMARY.md. Spawned by /gsd-new-project after 4 researcher agents complete.",
+    "diskWriteMandate": false,
+    "hash": "e8944f28dde24fb1f584ed993b2723e9c0882068e37c335d5830e9e6222e896a",
+    "id": "gsd-research-synthesizer",
+    "name": "gsd-research-synthesizer",
+    "outputArtifacts": [
+      "## SYNTHESIS COMPLETE, ## SYNTHESIS BLOCKED",
+      "ARCHITECTURE.md",
+      "FEATURES.md",
+      "PITFALLS.md",
+      "STACK.md",
+      "SUMMARY.md"
+    ],
+    "path": "agents/gsd-research-synthesizer.md",
+    "roleClass": "researcher",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "color": "purple",
+    "completionMarker": "## ROADMAP CREATED, ## ROADMAP REVISED, ## ROADMAP BLOCKED",
+    "description": "Creates project roadmaps with phase breakdown, requirement mapping, success criteria derivation, and coverage validation. Spawned by /gsd-new-project orchestrator.",
+    "diskWriteMandate": false,
+    "hash": "a03be778f55ae0249ae0bbfa602d2ad87b82fc1eb25bace2b167a992caa963c0",
+    "id": "gsd-roadmapper",
+    "name": "gsd-roadmapper",
+    "outputArtifacts": [
+      "## ROADMAP CREATED, ## ROADMAP REVISED, ## ROADMAP BLOCKED",
+      "config.json",
+      "PROJECT.md",
+      "REQUIREMENTS.md",
+      "ROADMAP.md",
+      "STATE.md",
+      "SUMMARY.md"
+    ],
+    "path": "agents/gsd-roadmapper.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "color": "#EF4444",
+    "completionMarker": "## OPEN_THREATS, ## ESCALATE",
+    "description": "Verifies threat mitigations from PLAN.md threat model exist in implemented code. Produces SECURITY.md. Spawned by /gsd-secure-phase.",
+    "diskWriteMandate": true,
+    "hash": "eedb70bfdfbc3e0b32430edc5439ea7be816d594f41e3108935c4afa1ffbf8c3",
+    "id": "gsd-security-auditor",
+    "name": "gsd-security-auditor",
+    "outputArtifacts": [
+      "## OPEN_THREATS, ## ESCALATE",
+      "PLAN.md",
+      "SECURITY.md",
+      "SUMMARY.md"
+    ],
+    "path": "agents/gsd-security-auditor.md",
+    "roleClass": "auditor",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [],
+    "completionMarker": "## UI REVIEW COMPLETE",
+    "description": "",
+    "diskWriteMandate": true,
+    "hash": "16362b35bf1673ccbf5bdc7547bed4048627c12cb88858f5a25031272ad01567",
+    "id": "gsd-ui-auditor",
+    "name": "",
+    "outputArtifacts": [
+      "## UI REVIEW COMPLETE",
+      "components.json",
+      "CONTEXT.md",
+      "PADDED_PHASE-UI-REVIEW.md",
+      "PLAN.md",
+      "SUMMARY.md",
+      "UI-REVIEW.md",
+      "UI-SPEC.md"
+    ],
+    "path": "agents/gsd-ui-auditor.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "Read"
+    ],
+    "color": "#22D3EE",
+    "completionMarker": "## ISSUES FOUND",
+    "description": "Validates UI-SPEC.md design contracts against 6 quality dimensions. Produces BLOCK/FLAG/PASS verdicts. Spawned by /gsd-ui-phase orchestrator.",
+    "diskWriteMandate": true,
+    "hash": "31fce80fa664b8420b7a4023270a9ad34b675c0aca51ee12613915830cbf9526",
+    "id": "gsd-ui-checker",
+    "name": "gsd-ui-checker",
+    "outputArtifacts": [
+      "## ISSUES FOUND",
+      "UI-SPEC.md"
+    ],
+    "path": "agents/gsd-ui-checker.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Bash",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "mcp__exa__*",
+      "mcp__firecrawl__*",
+      "Read",
+      "WebFetch",
+      "WebSearch",
+      "Write"
+    ],
+    "color": "#E879F9",
+    "completionMarker": "## UI-SPEC COMPLETE, ## UI-SPEC BLOCKED",
+    "description": "Produces UI-SPEC.md design contract for frontend phases. Reads upstream artifacts, detects design system state, asks only unanswered questions. Spawned by /gsd-ui-phase orchestrator.",
+    "diskWriteMandate": true,
+    "hash": "ad1810d4c3ad5b0412487fad8459c5499ef3a32584e00c54ec96682f9bb57077",
+    "id": "gsd-ui-researcher",
+    "name": "gsd-ui-researcher",
+    "outputArtifacts": [
+      "## UI-SPEC COMPLETE, ## UI-SPEC BLOCKED",
+      "components.json",
+      "CONTEXT.md",
+      "PADDED_PHASE-UI-SPEC.md",
+      "REQUIREMENTS.md",
+      "UI-SPEC.md"
+    ],
+    "path": "agents/gsd-ui-researcher.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [
+      "Read"
+    ],
+    "color": "magenta",
+    "description": "Analyzes extracted session messages across 8 behavioral dimensions to produce a scored developer profile with confidence levels and evidence. Spawned by profile orchestration workflows.",
+    "diskWriteMandate": false,
+    "hash": "f688cd60c33df6f6b81989092f1cbeac471b948ddc7c16eb5645b46f24acf10e",
+    "id": "gsd-user-profiler",
+    "name": "gsd-user-profiler",
+    "outputArtifacts": [],
+    "path": "agents/gsd-user-profiler.md",
+    "roleClass": "verifier",
+    "worktreeRequired": false
+  },
+  {
+    "allowedTools": [],
+    "completionMarker": "## Verification Complete",
+    "description": "",
+    "diskWriteMandate": true,
+    "hash": "d6852b84d151e275c74b30bb11af34322afdf357c062ee6cbc86579210dfb120",
+    "id": "gsd-verifier",
+    "name": "",
+    "outputArtifacts": [
+      "## Verification Complete",
+      "mandatory-initial-read.md",
+      "PLAN.md",
+      "REQUIREMENTS.md",
+      "SUMMARY.md",
+      "VERIFICATION.md"
+    ],
+    "path": "agents/gsd-verifier.md",
+    "roleClass": "ui",
+    "worktreeRequired": false
+  }
+]
