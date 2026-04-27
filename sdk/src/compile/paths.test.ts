@@ -27,6 +27,10 @@ describe('compile path helpers', () => {
     expect(result).not.toContain(homedir());
   });
 
+  it('rejects paths outside the project root', () => {
+    expect(() => toRepoRelative('/repo', '/tmp/outside.md')).toThrow('outside projectDir');
+  });
+
   it('re-exports POSIX path normalization from query helpers', () => {
     expect(toPosixPath('a\\b\\c')).toBe('a/b/c');
     expect(toPosixPath('a/b/c')).toBe('a/b/c');
