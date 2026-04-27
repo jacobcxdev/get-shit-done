@@ -370,6 +370,33 @@ describe('configSet', () => {
     expect(raw.workflow.research).toBe(true);
   });
 
+  it('stores /workflows route keys literally under agent_routing', async () => {
+    const { configSet } = await import('./config-mutation.js');
+    await writeFile(join(tmpDir, '.planning', 'config.json'), JSON.stringify({}));
+
+    await configSet(['agent_routing.gsd-planner::/workflows/plan.phase.md::check', 'codex:xhigh'], tmpDir);
+
+    const raw = JSON.parse(await readFile(join(tmpDir, '.planning', 'config.json'), 'utf-8'));
+    expect(raw.agent_routing['gsd-planner::/workflows/plan.phase.md::check']).toBe('codex:xhigh');
+    expect(raw.agent_routing['gsd-planner::/workflows/plan']).toBeUndefined();
+    expect(raw.agent_routing.phase).toBeUndefined();
+    expect(raw.agent_routing.md).toBeUndefined();
+  });
+
+  it('stores dotted workflow route keys literally under agent_routing', async () => {
+    const { configSet } = await import('./config-mutation.js');
+    await writeFile(join(tmpDir, '.planning', 'config.json'), JSON.stringify({}));
+
+    await configSet(['agent_routing.gsd-planner::workflow.v2.plan.md::check', 'codex:high'], tmpDir);
+
+    const raw = JSON.parse(await readFile(join(tmpDir, '.planning', 'config.json'), 'utf-8'));
+    expect(raw.agent_routing['gsd-planner::workflow.v2.plan.md::check']).toBe('codex:high');
+    expect(raw.agent_routing['gsd-planner::workflow']).toBeUndefined();
+    expect(raw.agent_routing.v2).toBeUndefined();
+    expect(raw.agent_routing.plan).toBeUndefined();
+    expect(raw.agent_routing.md).toBeUndefined();
+  });
+
   it('rejects invalid key with GSDError', async () => {
     const { configSet } = await import('./config-mutation.js');
     await writeFile(

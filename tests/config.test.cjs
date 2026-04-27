@@ -201,6 +201,26 @@ describe('config-set command', () => {
     assert.strictEqual(config.workflow.research, false);
   });
 
+  test('stores /workflows agent_routing route keys literally', () => {
+    writeConfig(tmpDir, {});
+
+    const result = runGsdTools([
+      'config-set',
+      'agent_routing.gsd-planner::/workflows/plan.phase.md::check',
+      'codex:xhigh',
+    ], tmpDir);
+    assert.ok(result.success, `Command failed: ${result.error}`);
+
+    const config = readConfig(tmpDir);
+    assert.strictEqual(
+      config.agent_routing['gsd-planner::/workflows/plan.phase.md::check'],
+      'codex:xhigh',
+    );
+    assert.strictEqual(config.agent_routing['gsd-planner::/workflows/plan'], undefined);
+    assert.strictEqual(config.agent_routing.phase, undefined);
+    assert.strictEqual(config.agent_routing.md, undefined);
+  });
+
   test('auto-creates nested objects for dot-notation', () => {
     // Start with empty config
     writeConfig(tmpDir, {});

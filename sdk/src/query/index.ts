@@ -18,6 +18,7 @@ import { QueryRegistry } from './registry.js';
 import { generateSlug, currentTimestamp } from './utils.js';
 import { frontmatterGet } from './frontmatter.js';
 import { configGet, configPath, resolveModel } from './config-query.js';
+import { configSnapshotHashQuery } from './config-snapshot.js';
 import { stateJson, stateGet, stateSnapshot } from './state.js';
 import { stateProjectLoad } from './state-project-load.js';
 import { findPhase, phasePlanIndex } from './phase.js';
@@ -282,6 +283,8 @@ export function createRegistry(
   registry.register('frontmatter.get', frontmatterGet);
   registry.register('config-get', configGet);
   registry.register('config-path', configPath);
+  registry.register('config.snapshot-hash', configSnapshotHashQuery);
+  registry.register('config snapshot-hash', configSnapshotHashQuery);
   registry.register('resolve-model', resolveModel);
   registry.register('state.load', stateProjectLoad);
   registry.register('state.json', stateJson);
