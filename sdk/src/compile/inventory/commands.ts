@@ -21,11 +21,14 @@ type WorkflowAssociationCandidate = {
 };
 
 const COMMAND_ONLY_IDS = new Set([
+  '/gsd-add-backlog',
   '/gsd-debug',
   '/gsd-graphify',
   '/gsd-from-gsd2',
   '/gsd-intel',
+  '/gsd-join-discord',
   '/gsd-reapply-patches',
+  '/gsd-review-backlog',
   '/gsd-set-profile',
   '/gsd-thread',
   '/gsd-workstreams',
@@ -361,6 +364,35 @@ function validateWorkflowRefs(
   }
 }
 
+function inferSameNameWorkflowAssociation(
+  id: string,
+  knownWorkflowIds: Set<string> | undefined,
+): {
+  workflowRef: string | null;
+  workflowRefs: WorkflowRefAssociation[];
+  candidates: WorkflowAssociationCandidate[];
+  inferred: boolean;
+} | null {
+  if (!knownWorkflowIds) return null;
+  const stem = id.replace(/^\/gsd-/, '');
+  const workflowId = `/workflows/${stem}`;
+  const rawRef = `get-shit-done/workflows/${stem}.md`;
+  if (!knownWorkflowIds.has(workflowId)) return null;
+  return {
+    workflowRef: workflowId,
+    workflowRefs: [
+      {
+        workflowId,
+        rawRef,
+        source: 'inferred',
+        primary: true,
+      },
+    ],
+    candidates: [{ workflowId, rawRef, source: 'inferred', index: 0 }],
+    inferred: true,
+  };
+}
+
 export async function collectCommands(
   projectDir: string,
   diagnostics: CompileDiagnostic[],
@@ -379,7 +411,11 @@ export async function collectCommands(
     const name = typeof fm.name === 'string' ? fm.name : undefined;
     const agent = typeof fm.agent === 'string' ? fm.agent : undefined;
     const allowedTools = parseAllowedTools(fm['allowed-tools']);
-    const workflowAssociations = extractWorkflowAssociations(id, relPath, content, fm, diagnostics);
+    const extractedWorkflowAssociations = extractWorkflowAssociations(id, relPath, content, fm, diagnostics);
+    const workflowAssociations =
+      extractedWorkflowAssociations.workflowRefs.length === 0
+        ? inferSameNameWorkflowAssociation(id, knownWorkflowIds) ?? { ...extractedWorkflowAssociations, inferred: false }
+        : { ...extractedWorkflowAssociations, inferred: false };
 
     validateWorkflowRefs(
       id,
@@ -412,7 +448,7 @@ export async function collectCommands(
       ...(allowedTools ? { allowedTools } : {}),
       workflowRef: workflowAssociations.workflowRef,
       workflowRefs: workflowAssociations.workflowRefs,
-      confidence: name ? 'extracted' : 'unknown',
+      confidence: workflowAssociations.inferred ? 'inferred' : name ? 'extracted' : 'unknown',
     });
   }
 

@@ -250,6 +250,43 @@ Read and execute ~/.claude/get-shit-done/workflows/discuss-phase.md end-to-end.
     expect(comp08(diagnostics)).toEqual([]);
   });
 
+  it('infers same-name workflow associations when commands omit explicit refs', async () => {
+    await writeDocsInventory(['/gsd-sync-skills']);
+    await writeManifest(['/gsd-sync-skills']);
+    await writeCommand('sync-skills.md', 'Routes to the sync-skills workflow.\n');
+    const diagnostics: CompileDiagnostic[] = [];
+
+    const [entry] = await collectCommands(projectDir, diagnostics, new Set(['/workflows/sync-skills']));
+
+    expect(entry.workflowRef).toBe('/workflows/sync-skills');
+    expect(entry.workflowRefs).toEqual([
+      {
+        workflowId: '/workflows/sync-skills',
+        rawRef: 'get-shit-done/workflows/sync-skills.md',
+        source: 'inferred',
+        primary: true,
+      },
+    ]);
+    expect(entry.confidence).toBe('inferred');
+    expect(comp07(diagnostics)).toEqual([]);
+  });
+
+  it.each(['add-backlog', 'join-discord', 'review-backlog'])(
+    'allows live inline command-only command %s to omit workflow references',
+    async (id) => {
+      await writeDocsInventory([`/gsd-${id}`]);
+      await writeManifest([`/gsd-${id}`]);
+      await writeCommand(`${id}.md`, 'inline command-only workflow prose\n');
+      const diagnostics: CompileDiagnostic[] = [];
+
+      const [entry] = await collectCommands(projectDir, diagnostics, new Set());
+
+      expect(entry.workflowRef).toBeNull();
+      expect(entry.workflowRefs).toEqual([]);
+      expect(comp07(diagnostics)).toEqual([]);
+    },
+  );
+
   it('emits a COMP-08 warning when a live command is absent from docs inventory', async () => {
     await writeDocsInventory([]);
     await writeManifest([]);

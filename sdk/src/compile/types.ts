@@ -39,7 +39,7 @@ export type CompileCounts = {
 export type WorkflowRefAssociation = {
   workflowId: string;
   rawRef: string;
-  source: 'frontmatter' | 'execution_context' | 'body' | 'mode-routing';
+  source: 'frontmatter' | 'execution_context' | 'body' | 'mode-routing' | 'inferred';
   primary: boolean;
   branch?: {
     condition: string;
