@@ -20,19 +20,16 @@ export const CATEGORIES = [
   'hard-outlier',
 ] as const;
 
-const [
-  CORE_LIFECYCLE_CATEGORY,
-  COMPOSITE_CATEGORY,
-  QUERY_UTILITY_CATEGORY,
-  SINGLE_AGENT_BOUNDED_CATEGORY,
-  DYNAMIC_BRANCH_CATEGORY,
-  HARD_OUTLIER_CATEGORY,
-] = CATEGORIES;
+const CORE_LIFECYCLE_CATEGORY = CATEGORIES[0];
+const COMPOSITE_CATEGORY = CATEGORIES[1];
+const QUERY_UTILITY_CATEGORY = CATEGORIES[2];
+const SINGLE_AGENT_BOUNDED_CATEGORY = CATEGORIES[3];
+const DYNAMIC_BRANCH_CATEGORY = CATEGORIES[4];
+const HARD_OUTLIER_CATEGORY = CATEGORIES[5];
 
 /** Five seed hard outliers. Any command classified as hard-outlier that is NOT in this set
  * requires explicit posture evidence and causes a CLSS-04 hard-fail. Per D-22. */
-export const SEED_HARD_OUTLIERS = new Set<string>([
-  '/gsd-graphify',
+export const SEED_HARD_OUTLIERS = new Set<string>(['/gsd-graphify',
   '/gsd-from-gsd2',
   '/gsd-ultraplan-phase',
   '/gsd-review',
