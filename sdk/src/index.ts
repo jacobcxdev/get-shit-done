@@ -35,6 +35,9 @@ import { PhaseRunner } from './phase-runner.js';
 import { ContextEngine } from './context-engine.js';
 import { PromptFactory } from './phase-prompt.js';
 
+export type { AdvisoryPacket, AdvisoryExecutionConstraints, AdvisoryPacketValidationIssue } from './advisory/packet.js';
+export { CURRENT_ADVISORY_PACKET_SCHEMA_VERSION, validateAdvisoryPacket } from './advisory/packet.js';
+
 // ─── GSD class ───────────────────────────────────────────────────────────────
 
 export class GSD {

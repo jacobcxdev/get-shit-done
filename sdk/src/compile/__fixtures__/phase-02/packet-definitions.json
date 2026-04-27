@@ -1,0 +1,90 @@
+[
+  {
+    "schemaVersion": 1,
+    "runId": "run-phase-02",
+    "workflowId": "workflow-a",
+    "stateId": "state-a",
+    "stepId": "step-a",
+    "goal": "Validate one packet candidate",
+    "instruction": "Inspect exactly one packet candidate.",
+    "requiredContext": [
+      "PROJECT.md"
+    ],
+    "allowedTools": [
+      "Read"
+    ],
+    "agents": [
+      "gsd-demo"
+    ],
+    "expectedEvidence": [
+      "packet checked"
+    ],
+    "allowedOutcomes": [
+      "success",
+      "failure"
+    ],
+    "reportCommand": "gsd-sdk report run-phase-02 step-a",
+    "onSuccess": "state-b",
+    "onFailure": "failed",
+    "checkpoint": false,
+    "configSnapshotHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "extensionIds": [],
+    "executionConstraints": {
+      "provider": "claude"
+    },
+    "sourcePath": "sdk/src/compile/__fixtures__/phase-02/packet-definitions.json#valid",
+    "actionCount": 1,
+    "actions": [
+      {
+        "id": "action-a",
+        "instruction": "Inspect exactly one packet candidate."
+      }
+    ]
+  },
+  {
+    "schemaVersion": 1,
+    "runId": "run-phase-02",
+    "workflowId": "workflow-a",
+    "stateId": "state-b",
+    "stepId": "step-b",
+    "goal": "Validate a coarse packet candidate",
+    "instruction": "Inspect a packet candidate and then update a report.",
+    "requiredContext": [
+      "PROJECT.md"
+    ],
+    "allowedTools": [
+      "Read"
+    ],
+    "agents": [
+      "gsd-demo"
+    ],
+    "expectedEvidence": [
+      "packet checked"
+    ],
+    "allowedOutcomes": [
+      "success",
+      "failure"
+    ],
+    "reportCommand": "gsd-sdk report run-phase-02 step-b",
+    "onSuccess": "state-c",
+    "onFailure": "failed",
+    "checkpoint": false,
+    "configSnapshotHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "extensionIds": [],
+    "executionConstraints": {
+      "provider": "claude"
+    },
+    "sourcePath": "sdk/src/compile/__fixtures__/phase-02/packet-definitions.json#coarse",
+    "actionCount": 2,
+    "actions": [
+      {
+        "id": "action-b1",
+        "instruction": "Inspect one packet candidate."
+      },
+      {
+        "id": "action-b2",
+        "instruction": "Update one report."
+      }
+    ]
+  }
+]

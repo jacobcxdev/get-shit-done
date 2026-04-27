@@ -1,9 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mkWarning } from './diagnostics.js';
 import { runCompiler } from './compiler.js';
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import type { PacketDefinitionCandidate } from './inventory/packets.js';
+
+async function loadPacketDefinitions(): Promise<PacketDefinitionCandidate[]> {
+  const raw = await readFile(new URL('./__fixtures__/phase-02/packet-definitions.json', import.meta.url), 'utf-8');
+  return JSON.parse(raw) as PacketDefinitionCandidate[];
+}
 
 async function makeProject(): Promise<string> {
   const projectDir = join(tmpdir(), `gsd-compiler-${process.pid}-${Date.now()}-${Math.random()}`);
@@ -100,6 +106,28 @@ describe('runCompiler', () => {
     const report = await runCompiler(projectDir, { json: false, check: false, write: false });
 
     expect(report.counts).toEqual({ commands: 1, workflows: 1, agents: 1, hooks: 1 });
+  });
+
+  it('validates non-empty packetDefinitions through compiler integration', async () => {
+    const projectDir = await makeProject();
+    projects.push(projectDir);
+    await writeFile(
+      join(projectDir, 'agents', 'gsd-demo.md'),
+      '---\nname: gsd-demo\ndescription: Demo agent\ntools: Read\n---\n\n# Demo\n',
+    );
+
+    const report = await runCompiler(projectDir, {
+      json: false,
+      check: false,
+      write: false,
+      packetDefinitions: await loadPacketDefinitions(),
+    });
+
+    expect(report.diagnostics).toContainEqual(expect.objectContaining({
+      code: 'PCKT-04',
+      field: 'actionCount',
+      message: expect.stringContaining('workflow-a step step-b'),
+    }));
   });
 
   it('uses deterministic diagnostic sorting independent of collector order', async () => {

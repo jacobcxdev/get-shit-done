@@ -12,7 +12,9 @@ import { sortDiagnostics } from './diagnostics.js';
 import { collectAgents } from './inventory/agents.js';
 import { collectCommands } from './inventory/commands.js';
 import { collectHooks } from './inventory/hooks.js';
+import { collectPacketDefinitionCandidates } from './inventory/packets.js';
 import { collectWorkflows } from './inventory/workflows.js';
+import { validateAdvisoryPacketDefinitions, validatePacketAtomicity } from './packet-contracts.js';
 import { compileCorpusPaths } from './paths.js';
 import {
   validateDuplicateIds,
@@ -24,6 +26,7 @@ import {
   validateTransformOrdering,
 } from './validators.js';
 import type { CompileDiagnostic, CompileReport } from './types.js';
+import type { PacketDefinitionCandidate } from './inventory/packets.js';
 
 export const REQUIRED_BASELINES = [
   'command-coverage',
@@ -39,6 +42,7 @@ type CompileOptions = {
   json: boolean;
   check: boolean;
   write: boolean;
+  packetDefinitions?: PacketDefinitionCandidate[];
 };
 
 type GeneratedArtifactDeclaration = {
@@ -87,9 +91,17 @@ export async function runCompiler(projectDir: string, opts: CompileOptions): Pro
   const agents = await collectAgents(projectDir, diagnostics);
   const hooks = await collectHooks(projectDir, diagnostics);
   const classification = classifyCommands(commands, diagnostics);
+  const packetCandidates = collectPacketDefinitionCandidates({ explicit: opts.packetDefinitions });
 
-  validateDuplicateIds(commands, diagnostics, workflows);
+  validateDuplicateIds(
+    commands,
+    diagnostics,
+    workflows,
+    packetCandidates.map((packet) => ({ id: `${packet.workflowId}#${packet.stepId}`, path: packet.sourcePath })),
+  );
   validatePacketBudgets([], diagnostics);
+  validateAdvisoryPacketDefinitions(packetCandidates, agents, diagnostics);
+  validatePacketAtomicity(packetCandidates, diagnostics);
   validateExtensionDeps([], diagnostics);
 
   const billing = await checkBillingBoundary(projectDir, diagnostics);
