@@ -47,6 +47,7 @@ function workflow(id: string, path = `get-shit-done/workflows/${id.replace('/wor
     runnerType: { value: 'fixture', inferred: true },
     determinism: { value: 'deterministic', inferred: true },
     semanticFeatures: { values: [], inferred: true },
+    semanticManifest: { workflowId: id, semantics: [] },
     isTopLevel: true,
   };
 }

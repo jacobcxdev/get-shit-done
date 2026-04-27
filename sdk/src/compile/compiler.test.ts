@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mkWarning } from './diagnostics.js';
-import { runCompiler } from './compiler.js';
+import { buildManifestRecord, runCompiler } from './compiler.js';
 import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -128,6 +128,20 @@ describe('runCompiler', () => {
       field: 'actionCount',
       message: expect.stringContaining('workflow-a step step-b'),
     }));
+  });
+
+  it('includes workflow-semantics in manifest records', async () => {
+    const projectDir = await makeProject();
+    projects.push(projectDir);
+    await writeWorkflow(projectDir, 'demo');
+
+    const report = await runCompiler(projectDir, { json: false, check: false, write: false });
+    const manifests = buildManifestRecord(report);
+
+    expect(report.manifests.workflowSemantics).toEqual([
+      expect.objectContaining({ workflowId: '/workflows/demo' }),
+    ]);
+    expect(manifests['workflow-semantics']).toEqual(report.manifests.workflowSemantics);
   });
 
   it('uses deterministic diagnostic sorting independent of collector order', async () => {

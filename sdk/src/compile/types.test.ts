@@ -55,6 +55,18 @@ describe('compile type contracts', () => {
         values: ['hitl', 'task-spawn', 'state-write'],
         inferred: true,
       },
+      semanticManifest: {
+        workflowId: 'execute-plan',
+        semantics: [
+          {
+            family: 'hitl',
+            suspensionPoints: ['checkpoint'],
+            resumableOutcomes: ['resume'],
+            mockInputSeam: 'AskUserQuestion',
+            provenance: 'workflow-text',
+          },
+        ],
+      },
       isTopLevel: true,
     };
 
@@ -103,6 +115,7 @@ describe('compile type contracts', () => {
       manifests: {
         commands: [],
         workflows: [],
+        workflowSemantics: [],
         agents: [],
         hooks: [],
         classification: [],

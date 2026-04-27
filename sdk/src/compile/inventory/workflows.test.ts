@@ -71,6 +71,10 @@ Use gsd-sdk advisory language.
       runnerType: { value: 'standalone', inferred: true },
       determinism: { inferred: true },
       semanticFeatures: { inferred: true },
+      semanticManifest: {
+        workflowId: '/workflows/execute-plan',
+        semantics: [],
+      },
       isTopLevel: true,
     });
     expect(entry.hash).toMatch(/^[a-f0-9]{64}$/);
@@ -117,6 +121,23 @@ Use gsd-sdk advisory language.
     expect(entry.semanticFeatures.values).toEqual(
       expect.arrayContaining(['mode-dispatch', 'hitl', 'provider-fallback', 'task-spawn', 'state-write']),
     );
+  });
+
+  it('attaches structured semantic manifests to workflow entries', async () => {
+    await writeDocsInventory(['/workflows/semantic']);
+    await writeManifest(['/workflows/semantic']);
+    await writeWorkflow('semantic.md', 'Use --auto mode, checkpoint, workflow.auto_advance, and SUMMARY evidence.\n');
+
+    const [entry] = await collectWorkflows(projectDir, []);
+
+    expect(entry.semanticManifest.workflowId).toBe('/workflows/semantic');
+    expect(entry.semanticManifest.semantics).toEqual(expect.arrayContaining([
+      expect.objectContaining({ family: 'mode-dispatch' }),
+      expect.objectContaining({ family: 'hitl' }),
+      expect.objectContaining({ family: 'config-gate' }),
+      expect.objectContaining({ family: 'completion-marker' }),
+      expect.objectContaining({ family: 'evidence-requirement' }),
+    ]));
   });
 
   it('returns POSIX relative paths', async () => {
