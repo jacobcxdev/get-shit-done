@@ -12,10 +12,6 @@ import { readFile } from 'node:fs/promises';
 import { resolve, join, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { GSD } from './index.js';
-import { CLITransport } from './cli-transport.js';
-import { WSTransport } from './ws-transport.js';
-import { InitRunner } from './init-runner.js';
 import { validateWorkstreamName } from './workstream-utils.js';
 
 // ─── Parsed CLI args ─────────────────────────────────────────────────────────
@@ -40,6 +36,8 @@ export interface ParsedCliArgs {
    * Extra flags are kept so handlers that share gsd-tools-style argv (e.g. `--pick`) still receive them.
    */
   queryArgv?: string[];
+  /** When `command === 'compile'`, compile-specific argv after top-level project-dir extraction. */
+  compileArgv?: string[];
 }
 
 /**
@@ -58,6 +56,10 @@ function parseCliArgsQueryPermissive(argv: string[]): ParsedCliArgs {
   let i = 1;
   while (i < argv.length) {
     const a = argv[i];
+    if (!a) {
+      i += 1;
+      continue;
+    }
     if (a === '--project-dir' && argv[i + 1]) {
       projectDir = argv[i + 1];
       i += 2;
@@ -114,12 +116,61 @@ function parseCliArgsQueryPermissive(argv: string[]): ParsedCliArgs {
 }
 
 /**
+ * Parse `gsd-sdk compile …` without rejecting compile-specific flags.
+ */
+function parseCliArgsCompilePermissive(argv: string[]): ParsedCliArgs {
+  let projectDir = process.cwd();
+  let version = false;
+  const compileArgv: string[] = [];
+
+  let i = 1;
+  while (i < argv.length) {
+    const a = argv[i];
+    if (a === '--project-dir' && argv[i + 1]) {
+      projectDir = argv[i + 1];
+      i += 2;
+      continue;
+    }
+    if (a.startsWith('--project-dir=')) {
+      projectDir = a.slice('--project-dir='.length);
+      i += 1;
+      continue;
+    }
+    if (a === '-v' || a === '--version') {
+      version = true;
+      i += 1;
+      continue;
+    }
+    compileArgv.push(a);
+    i += 1;
+  }
+
+  return {
+    command: 'compile',
+    prompt: undefined,
+    initInput: undefined,
+    init: undefined,
+    projectDir,
+    wsPort: undefined,
+    model: undefined,
+    maxBudget: undefined,
+    ws: undefined,
+    help: false,
+    version,
+    compileArgv,
+  };
+}
+
+/**
  * Parse CLI arguments into a structured object.
  * Exported for testing — the main() function uses this internally.
  */
 export function parseCliArgs(argv: string[]): ParsedCliArgs {
   if (argv[0] === 'query') {
     return parseCliArgsQueryPermissive(argv);
+  }
+  if (argv[0] === 'compile') {
+    return parseCliArgsCompilePermissive(argv);
   }
 
   const { values, positionals } = parseArgs({
@@ -175,6 +226,11 @@ Commands:
                           (empty)           Read from stdin
   query <argv...>       Registered query handlers only (longest-prefix argv match; see QUERY-HANDLERS.md)
                         Use --pick <field> to extract a specific field from JSON output
+  compile               Compile and audit the full GSD corpus
+                        --json  machine-readable CompileReport
+                        --check verify committed baselines (CI)
+                        --write regenerate committed baselines
+                        --check-billing-boundary accepted; billing checks always run
 
 Options:
   --init <input>        Bootstrap from a PRD before running (auto only)
@@ -187,6 +243,8 @@ Options:
   -h, --help            Show this help
   -v, --version         Show version
 `.trim();
+
+// USAGE includes the top-level compile entry for the billing-safe compiler path.
 
 /**
  * Read the package version from package.json.
@@ -447,8 +505,15 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
     return;
   }
 
+  // ─── Compile command ─────────────────────────────────────────────────────
+  if (args.command === 'compile') {
+    const { runCompileCommand } = await import('./compile/cli.js');
+    await runCompileCommand(args.compileArgv ?? [], args.projectDir);
+    return;
+  }
+
   if (args.command !== 'run' && args.command !== 'init' && args.command !== 'auto') {
-    console.error('Error: Expected "gsd-sdk run <prompt>", "gsd-sdk auto", "gsd-sdk init [input]", or "gsd-sdk query <command>"');
+    console.error('Error: Expected "gsd-sdk run <prompt>", "gsd-sdk auto", "gsd-sdk init [input]", "gsd-sdk query <command>", or "gsd-sdk compile"');
     console.error(USAGE);
     process.exitCode = 1;
     return;
@@ -463,6 +528,11 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 
   // ─── Init command ─────────────────────────────────────────────────────────
   if (args.command === 'init') {
+    const { GSD } = await import('./index.js');
+    const { CLITransport } = await import('./cli-transport.js');
+    const { WSTransport } = await import('./ws-transport.js');
+    const { InitRunner } = await import('./init-runner.js');
+
     let input: string;
     try {
       input = await resolveInitInput(args);
@@ -487,7 +557,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
     gsd.addTransport(cliTransport);
 
     // Optional WebSocket transport
-    let wsTransport: WSTransport | undefined;
+    let wsTransport: InstanceType<typeof WSTransport> | undefined;
     if (args.wsPort !== undefined) {
       wsTransport = new WSTransport({ port: args.wsPort });
       await wsTransport.start();
@@ -545,6 +615,11 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
 
   // ─── Auto command ─────────────────────────────────────────────────────────
   if (args.command === 'auto') {
+    const { GSD } = await import('./index.js');
+    const { CLITransport } = await import('./cli-transport.js');
+    const { WSTransport } = await import('./ws-transport.js');
+    const { InitRunner } = await import('./init-runner.js');
+
     const gsd = new GSD({
       projectDir: args.projectDir,
       model: args.model,
@@ -558,7 +633,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
     gsd.addTransport(cliTransport);
 
     // Optional WebSocket transport
-    let wsTransport: WSTransport | undefined;
+    let wsTransport: InstanceType<typeof WSTransport> | undefined;
     if (args.wsPort !== undefined) {
       wsTransport = new WSTransport({ port: args.wsPort });
       await wsTransport.start();
@@ -633,6 +708,9 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
   }
 
   // ─── Run command ─────────────────────────────────────────────────────────
+  const { GSD } = await import('./index.js');
+  const { CLITransport } = await import('./cli-transport.js');
+  const { WSTransport } = await import('./ws-transport.js');
 
   // Build GSD instance
   const gsd = new GSD({
@@ -647,7 +725,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
   gsd.addTransport(cliTransport);
 
   // Optional WebSocket transport
-  let wsTransport: WSTransport | undefined;
+  let wsTransport: InstanceType<typeof WSTransport> | undefined;
   if (args.wsPort !== undefined) {
     wsTransport = new WSTransport({ port: args.wsPort });
     await wsTransport.start();
