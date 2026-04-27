@@ -57,6 +57,7 @@ describe('collectWorkflows', () => {
       'execute-plan.md',
       `<step name="first"></step>
 ## Second Step
+## Third Step
 Use gsd-sdk advisory language.
 `,
     );
