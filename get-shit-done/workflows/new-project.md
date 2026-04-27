@@ -239,10 +239,10 @@ mkdir -p .planning
 gsd-sdk query commit "chore: add project config" .planning/config.json
 ```
 
-**Persist auto-advance chain flag to config (survives context compaction):**
+**Persist auto-advance chain flag to FSM state (survives context compaction):**
 
 ```bash
-gsd-sdk query config-set workflow._auto_chain_active true
+gsd-sdk query fsm.auto-mode.set true auto_chain
 ```
 
 Proceed to Step 4 (skip Steps 3 and 5).

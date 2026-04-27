@@ -6,6 +6,7 @@
  */
 
 import { CONFIG_DEFAULTS, loadConfig } from '../config.js';
+import { checkAutoMode } from './check-auto-mode.js';
 import type { QueryHandler } from './utils.js';
 
 /** Treat stringly YAML booleans safely (`Boolean('false')` is true — avoid that). */
@@ -23,8 +24,10 @@ function workflowBool(v: unknown, defaultVal: boolean): boolean {
 /**
  * Merge workflow defaults with project config, then expose stable keys for workflows.
  */
-export const checkConfigGates: QueryHandler = async (args, projectDir) => {
-  const config = await loadConfig(projectDir);
+export const checkConfigGates: QueryHandler = async (args, projectDir, workstream) => {
+  const config = await loadConfig(projectDir, workstream);
+  const autoMode = await checkAutoMode([], projectDir, workstream);
+  const autoModeData = autoMode.data as Record<string, unknown>;
   const wf: Record<string, unknown> = {
     ...CONFIG_DEFAULTS.workflow,
     ...(config.workflow as unknown as Record<string, unknown>),
@@ -50,7 +53,7 @@ export const checkConfigGates: QueryHandler = async (args, projectDir) => {
     ui_review: workflowBool(wf.ui_review, true),
     text_mode: workflowBool(wf.text_mode, false),
     auto_advance: workflowBool(wf.auto_advance, false),
-    auto_chain_active: workflowBool(wf._auto_chain_active, false),
+    auto_chain_active: workflowBool(autoModeData.auto_chain_active, false),
     code_review: workflowBool(wf.code_review, true),
     code_review_depth: wf.code_review_depth ?? 'standard',
     context_window: contextWindow,

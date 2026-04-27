@@ -75,8 +75,6 @@ export interface GSDConfig {
   project_code?: string | null;
   /** Interactive vs headless; mirrors gsd-tools flat `config.mode`. */
   mode?: string;
-  /** Internal auto-chain flag; mirrors gsd-tools `config._auto_chain_active`. */
-  _auto_chain_active?: boolean;
   [key: string]: unknown;
 }
 
@@ -123,7 +121,6 @@ export const CONFIG_DEFAULTS: GSDConfig = {
   gemini_config: {},
   project_code: null,
   mode: 'interactive',
-  _auto_chain_active: false,
 };
 
 // ─── Loader ──────────────────────────────────────────────────────────────────

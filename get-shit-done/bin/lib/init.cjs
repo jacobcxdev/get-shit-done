@@ -258,7 +258,7 @@ function cmdInitPlanPhase(cwd, phase, raw, options = {}) {
     // calls for these values, which causes infinite config-read loops on some models
     // (e.g. Kimi K2.5). See #2192.
     auto_advance: !!(config.auto_advance),
-    auto_chain_active: !!(config._auto_chain_active),
+    auto_chain_active: false,
     mode: config.mode || 'interactive',
 
     // Phase info

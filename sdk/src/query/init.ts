@@ -29,6 +29,7 @@ import { findPhase } from './phase.js';
 import { roadmapGetPhase, getMilestoneInfo, extractCurrentMilestone, extractPhasesFromSection } from './roadmap.js';
 import { planningPaths, normalizePhaseName, toPosixPath, resolveAgentsDir, detectRuntime } from './helpers.js';
 import { relPlanningPath } from '../workstream-utils.js';
+import { checkAutoMode } from './check-auto-mode.js';
 import type { QueryHandler } from './utils.js';
 
 // ─── Internal helpers ──────────────────────────────────────────────────────
@@ -272,7 +273,9 @@ export const initExecutePhase: QueryHandler = async (args, projectDir, workstrea
     return { data: { error: 'phase required for init execute-phase' } };
   }
 
-  const config = await loadConfig(projectDir);
+  const config = await loadConfig(projectDir, workstream);
+  const autoMode = await checkAutoMode([], projectDir, workstream);
+  const autoModeData = autoMode.data as Record<string, unknown>;
   const planningDir = join(projectDir, relPlanningPath(workstream));
 
   const { phaseInfo, roadmapPhase } = await getPhaseInfoWithFallback(phase, projectDir, workstream);
@@ -351,7 +354,9 @@ export const initPlanPhase: QueryHandler = async (args, projectDir, workstream) 
     return { data: { error: 'phase required for init plan-phase' } };
   }
 
-  const config = await loadConfig(projectDir);
+  const config = await loadConfig(projectDir, workstream);
+  const autoMode = await checkAutoMode([], projectDir, workstream);
+  const autoModeData = autoMode.data as Record<string, unknown>;
   const planningDir = join(projectDir, relPlanningPath(workstream));
 
   const { phaseInfo, roadmapPhase } = await getPhaseInfoWithFallback(phase, projectDir, workstream);
@@ -378,7 +383,7 @@ export const initPlanPhase: QueryHandler = async (args, projectDir, workstream) 
     commit_docs: config.commit_docs,
     text_mode: config.workflow.text_mode,
     auto_advance: !!config.workflow.auto_advance,
-    auto_chain_active: !!cfg._auto_chain_active,
+    auto_chain_active: !!autoModeData.auto_chain_active,
     mode: cfg.mode ?? 'interactive',
     phase_found: !!phaseInfo,
     phase_dir: (phaseInfo?.directory as string) ?? null,

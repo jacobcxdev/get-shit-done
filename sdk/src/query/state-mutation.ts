@@ -407,6 +407,13 @@ export const statePatch: QueryHandler = async (args, projectDir, workstream) => 
  * @returns QueryResult with phase metadata and `updated` field names (for raw parity)
  */
 export const stateBeginPhase: QueryHandler = async (args, projectDir, workstream) => {
+  for (const flag of ['phase', 'name', 'plans']) {
+    const idx = args.indexOf(`--${flag}`);
+    if (idx !== -1 && (args[idx + 1] === undefined || args[idx + 1].startsWith('--'))) {
+      throw new GSDError(`missing value for --${flag}`, ErrorClassification.Validation);
+    }
+  }
+
   const named = parseNamedArgs(args, ['phase', 'name', 'plans']);
   let phaseNumber = (named.phase as string | null) || '';
   let phaseName = (named.name as string | null) || '';
@@ -535,6 +542,7 @@ export const stateBeginPhase: QueryHandler = async (args, projectDir, workstream
     data: {
       updated,
       phase: phaseNumber,
+      name: phaseName || null,
       phase_name: phaseName || null,
       plan_count: planNum !== null && !Number.isNaN(planNum) ? planNum : null,
     },

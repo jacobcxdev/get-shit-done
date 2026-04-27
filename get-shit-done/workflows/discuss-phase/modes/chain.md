@@ -21,12 +21,12 @@
    next-steps after discussion completes.
 
 2. **Sync chain flag with intent** — if user invoked manually (no `--auto`
-   and no `--chain`), clear the ephemeral chain flag from any previous
+   and no `--chain`), clear the FSM-scoped ephemeral chain flag from any previous
    interrupted `--auto` chain. This does NOT touch `workflow.auto_advance`
    (the user's persistent settings preference):
    ```bash
    if [[ ! "$ARGUMENTS" =~ --auto ]] && [[ ! "$ARGUMENTS" =~ --chain ]]; then
-     gsd-sdk query config-set workflow._auto_chain_active false || true
+     gsd-sdk query fsm.auto-mode.set false none || true
    fi
    ```
 
@@ -36,9 +36,9 @@
    ```
 
 4. **If `--auto` or `--chain` flag present AND `AUTO_MODE` is not true:**
-   Persist chain flag to config (handles direct usage without new-project):
+   Persist the FSM chain flag (handles direct usage without new-project):
    ```bash
-   gsd-sdk query config-set workflow._auto_chain_active true
+   gsd-sdk query fsm.auto-mode.set true auto_chain
    ```
 
 5. **If `--auto` flag present OR `--chain` flag present OR `AUTO_MODE` is

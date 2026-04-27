@@ -2,7 +2,7 @@
  * Unit tests for STATE.md mutation handlers.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdtemp, writeFile, readFile, rm, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -248,6 +248,27 @@ describe('stateUpdate', () => {
     const { stateUpdate } = await import('./state-mutation.js');
 
     await expect(stateUpdate([], tmpDir)).rejects.toThrow(/field and value required/);
+  });
+
+  it('preserves STATE.md bytes around scoped field updates', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-27T12:00:00.000Z'));
+
+    const dir = await mkdtemp(join(tmpdir(), 'gsd-state-byte-fixture-'));
+    try {
+      const before = await readFile(new URL('./__fixtures__/phase-02/state-md-before.md', import.meta.url), 'utf-8');
+      const expectedAfter = await readFile(new URL('./__fixtures__/phase-02/state-md-after.md', import.meta.url), 'utf-8');
+      await setupTestProject(dir, before);
+
+      const { stateUpdate } = await import('./state-mutation.js');
+      await stateUpdate(['Status', 'Phase complete'], dir);
+
+      const actualAfter = await readFile(join(dir, '.planning', 'STATE.md'), 'utf-8');
+      expect(actualAfter).toBe(expectedAfter);
+    } finally {
+      vi.useRealTimers();
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });
 

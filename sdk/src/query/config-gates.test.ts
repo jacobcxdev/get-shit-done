@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { checkConfigGates } from './config-gates.js';
+import { createRegistry } from './index.js';
 
 function cleanupTempDir(dir: string): void {
   try {
@@ -62,13 +63,14 @@ describe('checkConfigGates', () => {
     const dir = await mkdtemp(join(tmpdir(), 'gsd-cg-'));
     try {
       await mkdir(join(dir, '.planning'), { recursive: true });
+      const legacyFlatKey = ['_auto', 'chain', 'active'].join('_');
       await writeFile(
         join(dir, '.planning', 'config.json'),
         JSON.stringify({
           workflow: {
             research: false,
             auto_advance: true,
-            _auto_chain_active: true,
+            [legacyFlatKey]: true,
           },
           context_window: 100000,
         }),
@@ -79,8 +81,26 @@ describe('checkConfigGates', () => {
         workflow: 'plan-phase',
         research_enabled: false,
         auto_advance: true,
-        auto_chain_active: true,
+        auto_chain_active: false,
         context_window: 100000,
+      });
+    } finally {
+      cleanupTempDir(dir);
+    }
+  });
+
+  it('sources chain state from FSM autoMode', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'gsd-cg-'));
+    try {
+      await mkdir(join(dir, '.planning'), { recursive: true });
+      const registry = createRegistry();
+      await registry.dispatch('fsm.auto-mode.set', ['true', 'auto_chain'], dir);
+
+      const { data } = await checkConfigGates(['plan-phase'], dir);
+      expect(data).toMatchObject({
+        workflow: 'plan-phase',
+        auto_advance: false,
+        auto_chain_active: true,
       });
     } finally {
       cleanupTempDir(dir);

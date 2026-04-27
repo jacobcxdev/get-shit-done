@@ -623,7 +623,7 @@ Check for auto-advance trigger:
 2. Sync chain flag:
    ```bash
    if [[ ! "$ARGUMENTS" =~ --auto ]]; then
-     gsd-sdk query config-set workflow._auto_chain_active false || true
+     gsd-sdk query fsm.auto-mode.set false none || true
    fi
    ```
 3. Read consolidated auto-mode (`active` = chain flag OR user preference):
@@ -633,7 +633,7 @@ Check for auto-advance trigger:
 
 **If `--auto` flag present AND `AUTO_MODE` is not true:**
 ```bash
-gsd-sdk query config-set workflow._auto_chain_active true
+gsd-sdk query fsm.auto-mode.set true auto_chain
 ```
 
 **If `--auto` flag present OR `AUTO_MODE` is true:**

@@ -8,7 +8,7 @@ Plans execute autonomously. Checkpoints formalize interaction points where human
 2. **Claude sets up the verification environment** - Start dev servers, seed databases, configure env vars
 3. **User only does what requires human judgment** - Visual checks, UX evaluation, "does this feel right?"
 4. **Secrets come from user, automation comes from Claude** - Ask for API keys, then Claude uses them via CLI
-5. **Auto-mode bypasses verification/decision checkpoints** — When `workflow._auto_chain_active` or `workflow.auto_advance` is true in config: human-verify auto-approves, decision auto-selects first option, human-action still stops (auth gates cannot be automated)
+5. **Auto-mode bypasses verification/decision checkpoints** — When FSM-scoped `autoMode` chain state or `workflow.auto_advance` is active: human-verify auto-approves, decision auto-selects first option, human-action still stops (auth gates cannot be automated)
 </overview>
 
 <checkpoint_types>
@@ -786,7 +786,7 @@ timeout 30 bash -c 'until node -e "fetch(\"http://localhost:3000\").then(r=>{pro
 </task>
 ```
 
-**Auto-mode behavior:** When `workflow._auto_chain_active` or `workflow.auto_advance` is true, the TDD review checkpoint auto-approves (advisory gate — never blocks).
+**Auto-mode behavior:** When FSM-scoped `autoMode` chain state or `workflow.auto_advance` is active, the TDD review checkpoint auto-approves (advisory gate — never blocks).
 </type>
 
 <summary>

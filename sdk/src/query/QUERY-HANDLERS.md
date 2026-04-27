@@ -205,7 +205,11 @@ These handlers implement `.planning/research/decision-routing-audit.md` — **no
 
 | Dispatch | Purpose |
 | -------- | ------- |
-| `check.auto-mode` / `check auto-mode` | `active` (OR of `workflow.auto_advance` and `workflow._auto_chain_active`), `source` (`none` / `auto_advance` / `auto_chain` / `both`), plus the two booleans. Replaces paired `config-get` calls in checkpoint and auto-advance steps. Use `--pick active` or `--pick auto_chain_active` when a workflow only needs one field. |
+| `check.auto-mode` / `check auto-mode [workstream]` | `active` (OR of `workflow.auto_advance` and FSM-scoped `autoMode` chain state), `source` (`none` / `auto_advance` / `auto_chain` / `both`), plus `auto_chain_active` and `auto_advance`. Replaces paired config reads in checkpoint and auto-advance steps. Use `--pick active` or `--pick auto_chain_active` when a workflow only needs one field. |
+| `fsm.state` / `fsm state [workstream]` | Reads the workstream-scoped FSM state JSON from `.planning/fsm-state.json` or `.planning/workstreams/<workstream>/fsm-state.json`. |
+| `fsm.state.init` / `fsm state init <runId> <workflowId> <currentState> [workstream]` | Creates the initial versioned FSM run-state JSON using the current effective config snapshot. |
+| `fsm.auto-mode.set` / `fsm auto-mode set <true\|false> <auto_chain\|auto_advance\|both\|none> [workstream]` | Updates only FSM `autoMode` for the target workstream, creating scoped FSM state when absent. |
+| `lock.status` / `lock status [workstream]` | Reports FSM lock `holder`, `acquiredAt`, `ageSeconds`, and `stale` without exposing command line, environment, cwd, or home paths. |
 | `detect.phase-type` / `detect phase-type <phase>` | Structured UI/schema/API/infra detection for a phase. Returns `has_frontend`, `frontend_indicators`, `has_schema`, `schema_orm`, `schema_files`, `has_api`, `has_infra`, `push_command` (null, reserved). Replaces fragile grep-based UI detection in `autonomous.md`, `plan-phase.md`, etc. (audit §3.6). |
 | `check.completion` / `check completion <phase\|milestone> <id>` | Phase or milestone completion rollup. Phase mode: `plans_total`, `plans_with_summaries`, `missing_summaries`, `verification_status`, `uat_status`, `debt` (`uat_gaps`, `verification_failures`, `human_needed`), `complete`. Milestone mode: `phase_count`, `phases_complete`, `phases_incomplete`, `complete`. Replaces PLAN/SUMMARY counting in `transition.md`, `complete-milestone.md` (audit §3.7). |
 
@@ -306,4 +310,3 @@ Disposition: **Registered** = handled in `createRegistry()` under the listed SDK
 
 - `**detect-custom-files`**: requires `--config-dir <path>`; scans installer manifest vs GSD-managed dirs (`detect-custom-files.ts`).
 - `**docs-init**`: docs-update workflow payload (`docs-init.ts`), aligned with `docs.cjs`. Golden tests omit `**agents_installed**` / `**missing_agents**` when comparing SDK vs CLI because the subprocess may resolve `~/.claude/...` differently than in-process checks.
-
