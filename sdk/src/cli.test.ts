@@ -1,8 +1,20 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { parseCliArgs, resolveInitInput, USAGE, type ParsedCliArgs } from './cli.js';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdir, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+
+vi.mock('@anthropic-ai/claude-agent-sdk', () => {
+  throw new Error('billing boundary violated: @anthropic-ai/claude-agent-sdk loaded on compile path');
+});
+
+vi.mock('./compile/cli.js', () => ({
+  runCompileCommand: vi.fn().mockResolvedValue(undefined),
+}));
+
+import { main, parseCliArgs, resolveInitInput, USAGE, type ParsedCliArgs } from './cli.js';
+import { runCompileCommand } from './compile/cli.js';
+
+const mockRunCompileCommand = vi.mocked(runCompileCommand);
 
 describe('parseCliArgs', () => {
   it('parses run <prompt> with defaults', () => {
@@ -124,6 +136,42 @@ describe('parseCliArgs', () => {
     expect(result.command).toBe('query');
     expect(result.projectDir).toBe('D:\\proj');
     expect(result.queryArgv).toEqual(['audit-open', '--json']);
+  });
+
+  it('allows compile-only flags through top-level parsing', () => {
+    expect(parseCliArgs(['compile', '--json']).compileArgv).toEqual(['--json']);
+    expect(parseCliArgs(['compile', '--check']).compileArgv).toEqual(['--check']);
+    expect(parseCliArgs(['compile', '--write']).compileArgv).toEqual(['--write']);
+    expect(parseCliArgs(['compile', '--check-billing-boundary']).compileArgv).toEqual([
+      '--check-billing-boundary',
+    ]);
+  });
+
+  it('forwards compile --ws and unknown flags to compile-specific parsing', () => {
+    const withWs = parseCliArgs(['compile', '--ws', 'foo']);
+    expect(withWs.command).toBe('compile');
+    expect(withWs.ws).toBeUndefined();
+    expect(withWs.compileArgv).toEqual(['--ws', 'foo']);
+
+    const withUnknown = parseCliArgs(['compile', '--unknown-flag']);
+    expect(withUnknown.command).toBe('compile');
+    expect(withUnknown.compileArgv).toEqual(['--unknown-flag']);
+  });
+
+  it('extracts compile project-dir before dispatch while preserving compile flags', () => {
+    const result = parseCliArgs(['compile', '--project-dir', '/tmp/compile-project', '--json']);
+
+    expect(result.command).toBe('compile');
+    expect(result.projectDir).toBe('/tmp/compile-project');
+    expect(result.compileArgv).toEqual(['--json']);
+  });
+
+  it('preserves compile help for the compile command instead of top-level help', () => {
+    const result = parseCliArgs(['compile', '--help']);
+
+    expect(result.command).toBe('compile');
+    expect(result.help).toBe(false);
+    expect(result.compileArgv).toEqual(['--help']);
   });
 
   // ─── Init command parsing ──────────────────────────────────────────────
@@ -267,6 +315,61 @@ describe('parseCliArgs', () => {
   });
 });
 
+// ─── Compile command dispatch tests ─────────────────────────────────────────
+
+describe('main compile dispatch', () => {
+  let originalExitCode: string | number | undefined;
+
+  beforeEach(() => {
+    originalExitCode = process.exitCode;
+    process.exitCode = undefined;
+    mockRunCompileCommand.mockClear();
+  });
+
+  afterEach(() => {
+    process.exitCode = originalExitCode;
+  });
+
+  it('forwards compile argv through main()', async () => {
+    await main(['compile', '--json']);
+    expect(mockRunCompileCommand).toHaveBeenLastCalledWith(['--json'], expect.any(String));
+
+    await main(['compile', '--check']);
+    expect(mockRunCompileCommand).toHaveBeenLastCalledWith(['--check'], expect.any(String));
+
+    await main(['compile', '--write']);
+    expect(mockRunCompileCommand).toHaveBeenLastCalledWith(['--write'], expect.any(String));
+
+    await main(['compile', '--check-billing-boundary']);
+    expect(mockRunCompileCommand).toHaveBeenLastCalledWith(
+      ['--check-billing-boundary'],
+      expect.any(String),
+    );
+
+    await main(['compile', '--ws', 'foo']);
+    expect(mockRunCompileCommand).toHaveBeenLastCalledWith(['--ws', 'foo'], expect.any(String));
+  });
+
+  it('forwards a resolved compile projectDir through main()', async () => {
+    const tmpDir = join(tmpdir(), `cli-compile-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    await mkdir(join(tmpDir, '.planning'), { recursive: true });
+
+    try {
+      await main(['compile', '--project-dir', tmpDir, '--json']);
+
+      expect(mockRunCompileCommand).toHaveBeenLastCalledWith(['--json'], tmpDir);
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('routes compile help to runCompileCommand', async () => {
+    await main(['compile', '--help']);
+
+    expect(mockRunCompileCommand).toHaveBeenLastCalledWith(['--help'], expect.any(String));
+  });
+});
+
 // ─── resolveInitInput tests ──────────────────────────────────────────────────
 
 describe('resolveInitInput', () => {
@@ -379,5 +482,10 @@ describe('USAGE', () => {
   it('documents --init option', () => {
     expect(USAGE).toContain('--init');
     expect(USAGE).toContain('Bootstrap from a PRD');
+  });
+
+  it('includes compile command', () => {
+    expect(USAGE).toContain('compile');
+    expect(USAGE).toContain('--check-billing-boundary');
   });
 });
