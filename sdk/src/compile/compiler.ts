@@ -16,6 +16,7 @@ import { collectPacketDefinitionCandidates } from './inventory/packets.js';
 import { collectWorkflows } from './inventory/workflows.js';
 import { validateAdvisoryPacketDefinitions, validatePacketAtomicity } from './packet-contracts.js';
 import { compileCorpusPaths } from './paths.js';
+import { validateWorkflowSemanticManifests } from './workflow-semantics.js';
 import {
   validateDuplicateIds,
   validateExtensionDeps,
@@ -31,6 +32,7 @@ import type { PacketDefinitionCandidate } from './inventory/packets.js';
 export const REQUIRED_BASELINES = [
   'command-coverage',
   'workflow-coverage',
+  'workflow-semantics',
   'agent-contracts',
   'hook-install',
   'command-classification',
@@ -57,6 +59,7 @@ export function buildManifestRecord(report: CompileReport): Record<string, unkno
   return {
     'command-coverage': report.manifests.commands,
     'workflow-coverage': report.manifests.workflows,
+    'workflow-semantics': report.manifests.workflowSemantics,
     'agent-contracts': report.manifests.agents,
     'hook-install': report.manifests.hooks,
     'command-classification': report.manifests.classification,
@@ -102,6 +105,8 @@ export async function runCompiler(projectDir: string, opts: CompileOptions): Pro
   validatePacketBudgets([], diagnostics);
   validateAdvisoryPacketDefinitions(packetCandidates, agents, diagnostics);
   validatePacketAtomicity(packetCandidates, diagnostics);
+  const workflowSemantics = workflows.map((workflow) => workflow.semanticManifest);
+  validateWorkflowSemanticManifests(workflowSemantics, diagnostics);
   validateExtensionDeps([], diagnostics);
 
   const billing = await checkBillingBoundary(projectDir, diagnostics);
@@ -122,6 +127,7 @@ export async function runCompiler(projectDir: string, opts: CompileOptions): Pro
     manifests: {
       commands,
       workflows,
+      workflowSemantics,
       agents,
       hooks,
       classification,

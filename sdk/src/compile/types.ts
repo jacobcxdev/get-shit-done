@@ -158,6 +158,7 @@ export type BillingBoundaryReport = {
 export type CompileManifests = {
   commands: CommandEntry[];
   workflows: WorkflowEntry[];
+  workflowSemantics: WorkflowSemanticManifest[];
   agents: AgentEntry[];
   hooks: HookEntry[];
   classification: ClassificationEntry[];

@@ -10,6 +10,7 @@ import { basename, join } from 'node:path';
 import { mkWarning } from '../diagnostics.js';
 import { fileContentHash } from '../hash.js';
 import { toRepoRelative } from '../paths.js';
+import { inferWorkflowSemanticManifest } from '../workflow-semantics.js';
 import type { CompileDiagnostic, WorkflowEntry } from '../types.js';
 
 type SemanticFeature = WorkflowEntry['semanticFeatures']['values'][number];
@@ -184,14 +185,16 @@ export async function collectWorkflows(projectDir: string, diagnostics: CompileD
     const absPath = join(dir, file);
     const content = await readFile(absPath, 'utf-8');
     const stepCount = countSteps(content);
+    const workflowId = `/workflows/${basename(file, '.md')}`;
     entries.push({
-      id: `/workflows/${basename(file, '.md')}`,
+      id: workflowId,
       path: toRepoRelative(projectDir, absPath),
       hash: await fileContentHash(absPath),
       stepCount: { value: stepCount, inferred: true },
       runnerType: { value: inferRunnerType(content), inferred: true },
       determinism: { value: inferDeterminism(content, stepCount), inferred: true },
       semanticFeatures: { values: inferSemanticFeatures(content), inferred: true },
+      semanticManifest: inferWorkflowSemanticManifest(workflowId, content),
       isTopLevel: true,
     });
   }
