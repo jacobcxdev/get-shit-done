@@ -1,4 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { mkdir, readFile, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { COMPILE_USAGE, parseCompileArgs, runCompileCommand } from './cli.js';
 
 describe('compile CLI parsing', () => {
@@ -41,10 +44,12 @@ describe('compile CLI parsing', () => {
 
 describe('runCompileCommand parser-only paths', () => {
   const originalExitCode = process.exitCode;
+  const projects: string[] = [];
 
-  afterEach(() => {
+  afterEach(async () => {
     process.exitCode = originalExitCode;
     vi.restoreAllMocks();
+    await Promise.all(projects.splice(0).map((projectDir) => rm(projectDir, { recursive: true, force: true })));
   });
 
   it('rejects --ws with a repo-scoped diagnostic before compiler loading', async () => {
@@ -67,5 +72,23 @@ describe('runCompileCommand parser-only paths', () => {
 
     expect(process.exitCode ?? 0).toBe(0);
     expect(logSpy).toHaveBeenCalledWith(COMPILE_USAGE);
+  });
+
+  it('writes compile-report.json for --json runs outside the committed baseline directory', async () => {
+    const projectDir = join(tmpdir(), `gsd-compile-cli-${process.pid}-${Date.now()}-${Math.random()}`);
+    projects.push(projectDir);
+    await mkdir(join(projectDir, 'commands', 'gsd'), { recursive: true });
+    await mkdir(join(projectDir, 'get-shit-done', 'workflows'), { recursive: true });
+    await mkdir(join(projectDir, 'agents'), { recursive: true });
+    await mkdir(join(projectDir, 'hooks'), { recursive: true });
+    await mkdir(join(projectDir, '.planning'), { recursive: true });
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    process.exitCode = undefined;
+
+    await runCompileCommand(['--json', '--project-dir', projectDir]);
+
+    const reportJson = await readFile(join(projectDir, '.planning', 'compile', 'compile-report.json'), 'utf-8');
+    expect(JSON.parse(reportJson).counts).toEqual({ commands: 0, workflows: 0, agents: 0, hooks: 0 });
+    expect(logSpy.mock.calls.flat().join('\n')).toContain('"counts"');
   });
 });
