@@ -3,6 +3,8 @@
  */
 
 import { parseArgs } from 'node:util';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
 export interface ParsedCompileArgs {
   projectDir: string;
@@ -93,13 +95,21 @@ export async function runCompileCommand(argv: string[], projectDir?: string): Pr
   const { runCompiler } = await import('./compiler.js');
   const report = await runCompiler(resolvedProjectDir, args);
   const errorCount = report.diagnostics.filter(d => d.severity === 'error').length;
+  const reportJson = `${JSON.stringify(report, null, 2)}\n`;
+  const shouldWriteReportFile = args.json || args.check || args.write || errorCount > 0;
+
+  if (shouldWriteReportFile) {
+    const reportsDir = join(resolvedProjectDir, '.planning', 'compile');
+    await mkdir(reportsDir, { recursive: true });
+    await writeFile(join(reportsDir, 'compile-report.json'), reportJson, 'utf-8');
+  }
 
   if (errorCount > 0) {
     process.exitCode = 1;
   }
 
   if (args.json) {
-    console.log(JSON.stringify(report, null, 2));
+    console.log(reportJson);
     return;
   }
 
