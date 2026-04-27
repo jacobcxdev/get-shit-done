@@ -4,6 +4,8 @@
  * No external imports - pure type declarations only.
  */
 
+import type { WorkflowSemanticManifest } from '../advisory/workflow-semantics.js';
+
 export type DiagnosticSeverity = 'error' | 'warning';
 
 export type DiagnosticKind =
@@ -86,6 +88,7 @@ export type WorkflowEntry = {
     >;
     inferred: boolean;
   };
+  semanticManifest: WorkflowSemanticManifest;
   isTopLevel: boolean;
 };
 
