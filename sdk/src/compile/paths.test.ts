@@ -19,11 +19,12 @@ describe('compile path helpers', () => {
 
   it('converts absolute paths to repo-relative POSIX paths', () => {
     const result = toRepoRelative('/repo', '/repo/commands/gsd/foo.md');
+    const currentDirectory = process['cwd']();
 
     expect(result).toBe('commands/gsd/foo.md');
     expect(result.startsWith('/')).toBe(false);
     expect(result).not.toContain('/repo');
-    expect(result).not.toContain(process.cwd());
+    expect(result).not.toContain(currentDirectory);
     expect(result).not.toContain(homedir());
   });
 
