@@ -8,6 +8,7 @@
 import { readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { validateRoutingConfig } from './advisory/routing.js';
 import { relPlanningPath } from './workstream-utils.js';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -64,6 +65,12 @@ export interface GSDConfig {
   workflow: WorkflowConfig;
   hooks: HooksConfig;
   agent_skills: Record<string, unknown>;
+  agent_routing?: Record<string, string>;
+  codex_model?: string;
+  gemini_model?: string;
+  codex_config: Record<string, unknown>;
+  gemini_config: Record<string, unknown>;
+  constraints?: Record<string, unknown>;
   /** Project slug for branch templates; mirrors gsd-tools `config.project_code`. */
   project_code?: string | null;
   /** Interactive vs headless; mirrors gsd-tools flat `config.mode`. */
@@ -112,6 +119,8 @@ export const CONFIG_DEFAULTS: GSDConfig = {
     context_warnings: true,
   },
   agent_skills: {},
+  codex_config: {},
+  gemini_config: {},
   project_code: null,
   mode: 'interactive',
   _auto_chain_active: false,
@@ -182,7 +191,7 @@ export async function loadConfig(projectDir: string, workstream?: string): Promi
   // honor user-level knobs like `resolve_model_ids: "omit"`.
   if (!projectConfigFound) {
     const userDefaults = await loadUserDefaults();
-    return mergeDefaults(userDefaults);
+    return validateMergedConfig(mergeDefaults(userDefaults));
   }
 
   const trimmed = raw.trim();
@@ -190,7 +199,7 @@ export async function loadConfig(projectDir: string, workstream?: string): Promi
     // Empty project config — treat as no project config (CJS core.cjs
     // catches JSON.parse on empty and falls through to the pre-project path).
     const userDefaults = await loadUserDefaults();
-    return mergeDefaults(userDefaults);
+    return validateMergedConfig(mergeDefaults(userDefaults));
   }
 
   let parsed: Record<string, unknown>;
@@ -207,7 +216,17 @@ export async function loadConfig(projectDir: string, workstream?: string): Promi
 
   // Project config exists — user-level defaults are ignored (CJS parity).
   // `buildNewProjectConfig` already baked them into config.json at /gsd:new-project.
-  return mergeDefaults(parsed);
+  return validateMergedConfig(mergeDefaults(parsed));
+}
+
+function validateMergedConfig(config: GSDConfig): GSDConfig {
+  const issues = validateRoutingConfig(config as Record<string, unknown>);
+  if (issues.length > 0) {
+    throw new Error(
+      `Config validation failed: ${issues.map((issue) => `${issue.code} ${issue.field}: ${issue.message}`).join('; ')}`,
+    );
+  }
+  return config;
 }
 
 function mergeDefaults(parsed: Record<string, unknown>): GSDConfig {

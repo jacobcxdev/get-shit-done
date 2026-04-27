@@ -15,6 +15,7 @@
 /** Exact-match config key paths accepted by config-set. */
 const VALID_CONFIG_KEYS = new Set([
   'mode', 'granularity', 'parallelization', 'commit_docs', 'model_profile',
+  'agent_routing', 'codex_model', 'gemini_model', 'codex_config', 'gemini_config',
   'search_gitignored', 'brave_search', 'firecrawl', 'exa_search',
   'workflow.research', 'workflow.plan_check', 'workflow.verifier',
   'workflow.nyquist_validation', 'workflow.ai_integration_phase', 'workflow.ui_phase', 'workflow.ui_safety_gate',
@@ -66,6 +67,7 @@ const VALID_CONFIG_KEYS = new Set([
   'graphify.build_timeout',
   'claude_md_path',
   'claude_md_assembly.mode',
+  'constraints.commit_planning_artifacts', 'constraints.planning_artifacts_ignored',
   // #2517 — runtime-aware model profiles
   'runtime',
 ]);
@@ -76,6 +78,8 @@ const VALID_CONFIG_KEYS = new Set([
  */
 const DYNAMIC_KEY_PATTERNS = [
   { topLevel: 'agent_skills',          test: (k) => /^agent_skills\.[a-zA-Z0-9_-]+$/.test(k),                   description: 'agent_skills.<agent-type>' },
+  { topLevel: 'agent_routing',         test: (k) => /^agent_routing\.[a-zA-Z0-9_-]+$/.test(k),                  description: 'agent_routing.<agentId>' },
+  { topLevel: 'agent_routing',         test: (k) => /^agent_routing\.[a-zA-Z0-9_-]+::[^:]+::[a-zA-Z0-9_-]+$/.test(k), description: 'agent_routing.<agentId>::<literalWorkflowId>::<stepId> step-scoped override' },
   { topLevel: 'review',                test: (k) => /^review\.models\.[a-zA-Z0-9_-]+$/.test(k),                 description: 'review.models.<cli-name>' },
   { topLevel: 'features',              test: (k) => /^features\.[a-zA-Z0-9_]+$/.test(k),                        description: 'features.<feature_name>' },
   { topLevel: 'claude_md_assembly',    test: (k) => /^claude_md_assembly\.blocks\.[a-zA-Z0-9_]+$/.test(k),      description: 'claude_md_assembly.blocks.<section>' },

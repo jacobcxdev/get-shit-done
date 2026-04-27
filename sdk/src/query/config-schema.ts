@@ -17,6 +17,7 @@
 /** Exact-match config key paths accepted by config-set. */
 export const VALID_CONFIG_KEYS: ReadonlySet<string> = new Set([
   'mode', 'granularity', 'parallelization', 'commit_docs', 'model_profile',
+  'agent_routing', 'codex_model', 'gemini_model', 'codex_config', 'gemini_config',
   'search_gitignored', 'brave_search', 'firecrawl', 'exa_search',
   'workflow.research', 'workflow.plan_check', 'workflow.verifier',
   'workflow.nyquist_validation', 'workflow.ai_integration_phase', 'workflow.ui_phase', 'workflow.ui_safety_gate',
@@ -68,6 +69,7 @@ export const VALID_CONFIG_KEYS: ReadonlySet<string> = new Set([
   'graphify.build_timeout',
   'claude_md_path',
   'claude_md_assembly.mode',
+  'constraints.commit_planning_artifacts', 'constraints.planning_artifacts_ignored',
   // #2517 — runtime-aware model profiles
   'runtime',
 ]);
@@ -88,6 +90,16 @@ export const DYNAMIC_KEY_PATTERNS: readonly DynamicKeyPattern[] = [
     source: '^agent_skills\\.[a-zA-Z0-9_-]+$',
     description: 'agent_skills.<agent-type>',
     test: (k) => /^agent_skills\.[a-zA-Z0-9_-]+$/.test(k),
+  },
+  {
+    source: '^agent_routing\\.[a-zA-Z0-9_-]+$',
+    description: 'agent_routing.<agentId>',
+    test: (k) => /^agent_routing\.[a-zA-Z0-9_-]+$/.test(k),
+  },
+  {
+    source: '^agent_routing\\.[a-zA-Z0-9_-]+::[^:]+::[a-zA-Z0-9_-]+$',
+    description: 'agent_routing.<agentId>::<literalWorkflowId>::<stepId> step-scoped override',
+    test: (k) => /^agent_routing\.[a-zA-Z0-9_-]+::[^:]+::[a-zA-Z0-9_-]+$/.test(k),
   },
   {
     source: '^review\\.models\\.[a-zA-Z0-9_-]+$',

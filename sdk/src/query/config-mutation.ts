@@ -148,8 +148,15 @@ export function parseConfigValue(value: string): unknown {
  * @param dotPath - Dot-notation key path (e.g., 'workflow.auto_advance')
  * @param value - Value to set
  */
+function configPathSegments(dotPath: string): string[] {
+  if (dotPath.startsWith('agent_routing.')) {
+    return ['agent_routing', dotPath.slice('agent_routing.'.length)];
+  }
+  return dotPath.split('.');
+}
+
 function getValueAtPath(obj: Record<string, unknown>, dotPath: string): unknown {
-  const keys = dotPath.split('.');
+  const keys = configPathSegments(dotPath);
   let current: unknown = obj;
   for (const key of keys) {
     if (current === undefined || current === null || typeof current !== 'object') {
@@ -161,7 +168,7 @@ function getValueAtPath(obj: Record<string, unknown>, dotPath: string): unknown 
 }
 
 function setConfigValue(obj: Record<string, unknown>, dotPath: string, value: unknown): void {
-  const keys = dotPath.split('.');
+  const keys = configPathSegments(dotPath);
   let current: Record<string, unknown> = obj;
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i];

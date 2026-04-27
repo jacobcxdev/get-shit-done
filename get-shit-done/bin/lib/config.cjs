@@ -244,6 +244,13 @@ function ensureConfigFile(cwd) {
   }
 }
 
+function configPathSegments(keyPath) {
+  if (keyPath.startsWith('agent_routing.')) {
+    return ['agent_routing', keyPath.slice('agent_routing.'.length)];
+  }
+  return keyPath.split('.');
+}
+
 /**
  * Command to ensure the config file exists (creates it if needed).
  *
@@ -280,8 +287,10 @@ function setConfigValue(cwd, keyPath, parsedValue) {
       error('Failed to read config.json: ' + err.message);
     }
 
-    // Set nested value using dot notation (e.g., "workflow.research")
-    const keys = keyPath.split('.');
+    // Set nested value using dot notation (e.g., "workflow.research").
+    // agent_routing.<rest> keeps <rest> as one literal route key so workflow IDs
+    // containing dots or slashes are not expanded into nested objects.
+    const keys = configPathSegments(keyPath);
     let current = config;
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];

@@ -15,7 +15,13 @@ GSD stores project settings in `.planning/config.json`. Created during `/gsd-new
   "mode": "interactive",
   "granularity": "standard",
   "model_profile": "balanced",
+  "commit_docs": true,
   "model_overrides": {},
+  "agent_routing": {},
+  "codex_model": null,
+  "codex_config": {},
+  "gemini_model": null,
+  "gemini_config": {},
   "planning": {
     "commit_docs": true,
     "search_gitignored": false,
@@ -102,6 +108,10 @@ GSD stores project settings in `.planning/config.json`. Created during `/gsd-new
   "intel": {
     "enabled": false
   },
+  "constraints": {
+    "commit_planning_artifacts": false,
+    "planning_artifacts_ignored": true
+  },
   "claude_md_path": "./CLAUDE.md"
 }
 ```
@@ -162,6 +172,20 @@ API key fields accept a string value (the key itself). They can also be set to t
 | `review.models.opencode` | string | `null` | Command for OpenCode review, e.g. `"opencode run --model claude-sonnet-4"` |
 
 The `<cli>` slug is validated against `[a-zA-Z0-9_-]+`. Empty or path-containing slugs are rejected by `config-set`.
+
+### Advisory agent routing
+
+`agent_routing` maps an agent or one workflow step to a provider target consumed by advisory packet emission. Values are `opus`, `sonnet`, `haiku`, `gemini`, or `codex:<effort>` where effort is `low`, `medium`, `high`, or `xhigh`.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `agent_routing` | object | `{}` | Map of agent route keys to provider target strings |
+| `agent_routing.<agentId>` | string | (none) | Default provider target for one agent id, e.g. `agent_routing.gsd-planner codex:xhigh` |
+| `agent_routing.<agentId>::<literalWorkflowId>::<stepId>` | string | (none) | Step-scoped override for one agent/workflow/step. The full config-set key is `agent_routing.<agentId>::<literalWorkflowId>::<stepId>`; `literalWorkflowId` may contain `/`, `.`, and `/workflows/...` but not `::` |
+| `codex_model` | string | (none) | Model id used by `codex:<effort>` routes; required when a Codex route is configured |
+| `codex_config` | object | `{}` | Extra JSON-compatible Codex provider config included in parsed routing targets |
+| `gemini_model` | string | (none) | Model id used by `gemini` routes; required when a Gemini route is configured |
+| `gemini_config` | object | `{}` | Extra JSON-compatible Gemini provider config included in parsed routing targets |
 
 ### Agent-skill injection (dynamic)
 
@@ -228,9 +252,12 @@ All workflow toggles follow the **absent = enabled** pattern. If a key is missin
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
+| `commit_docs` | boolean | `true` | Legacy top-level alias for planning artifact commit behavior. The current advisory FSM migration config sets `commit_docs: false` |
 | `planning.commit_docs` | boolean | `true` | Whether `.planning/` files are committed to git |
 | `planning.search_gitignored` | boolean | `false` | Add `--no-ignore` to broad searches to include `.planning/` |
 | `planning.sub_repos` | array of strings | `[]` | Paths of nested sub-repos relative to the project root. When set, GSD-aware tooling scopes phase-lookup, path-resolution, and commit operations per sub-repo instead of treating the outer repo as a monorepo |
+| `constraints.commit_planning_artifacts` | boolean | (none) | Project-level execution constraint for migration work. The current advisory FSM migration config sets `constraints.commit_planning_artifacts: false` |
+| `constraints.planning_artifacts_ignored` | boolean | (none) | Project-level marker that planning artifacts are intentionally uncommitted or ignored. The current advisory FSM migration config sets `constraints.planning_artifacts_ignored: true` |
 
 ### Project-Root Resolution in Multi-Repo Workspaces
 
