@@ -19,6 +19,7 @@ import { generateSlug, currentTimestamp } from './utils.js';
 import { frontmatterGet } from './frontmatter.js';
 import { configGet, configPath, resolveModel } from './config-query.js';
 import { configSnapshotHashQuery } from './config-snapshot.js';
+import { fsmAutoModeSet, fsmStateInit, fsmStateRead, lockStatus } from './fsm-state.js';
 import { stateJson, stateGet, stateSnapshot } from './state.js';
 import { stateProjectLoad } from './state-project-load.js';
 import { findPhase, phasePlanIndex } from './phase.js';
@@ -139,6 +140,8 @@ export const QUERY_MUTATION_COMMANDS = new Set<string>([
   'state.add-roadmap-evolution', 'state add-roadmap-evolution',
   'frontmatter.set', 'frontmatter.merge', 'frontmatter.validate', 'frontmatter validate',
   'config-set', 'config-set-model-profile', 'config-new-project', 'config-ensure-section',
+  'fsm.state.init', 'fsm state init',
+  'fsm.auto-mode.set', 'fsm auto-mode set',
   'commit', 'check-commit', 'commit-to-subrepo',
   'template.fill', 'template.select', 'template select',
   'validate.health', 'validate health',
@@ -285,6 +288,14 @@ export function createRegistry(
   registry.register('config-path', configPath);
   registry.register('config.snapshot-hash', configSnapshotHashQuery);
   registry.register('config snapshot-hash', configSnapshotHashQuery);
+  registry.register('fsm.state', fsmStateRead);
+  registry.register('fsm state', fsmStateRead);
+  registry.register('fsm.state.init', fsmStateInit);
+  registry.register('fsm state init', fsmStateInit);
+  registry.register('fsm.auto-mode.set', fsmAutoModeSet);
+  registry.register('fsm auto-mode set', fsmAutoModeSet);
+  registry.register('lock.status', lockStatus);
+  registry.register('lock status', lockStatus);
   registry.register('resolve-model', resolveModel);
   registry.register('state.load', stateProjectLoad);
   registry.register('state.json', stateJson);
@@ -571,8 +582,8 @@ export function createRegistry(
     for (const cmd of QUERY_MUTATION_COMMANDS) {
       const original = registry.getHandler(cmd);
       if (original) {
-        registry.register(cmd, async (args: string[], projectDir: string) => {
-          const result = await original(args, projectDir);
+        registry.register(cmd, async (args: string[], projectDir: string, workstream?: string) => {
+          const result = await original(args, projectDir, workstream);
           try {
             const event = buildMutationEvent(mutationSessionId, cmd, args, result);
             eventStream.emitEvent(event);
