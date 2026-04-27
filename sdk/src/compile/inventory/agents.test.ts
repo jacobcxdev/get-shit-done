@@ -95,6 +95,15 @@ describe('parseAgentTools', () => {
     expect(parseAgentTools('Read Write Bash')).toEqual(['Read', 'Write', 'Bash']);
   });
 
+  it('splits comma-separated frontmatter strings used by live agent files', () => {
+    expect(parseAgentTools('Read, Write, Bash, mcp__context7__*')).toEqual([
+      'Read',
+      'Write',
+      'Bash',
+      'mcp__context7__*',
+    ]);
+  });
+
   it('returns an empty array for undefined input', () => {
     expect(parseAgentTools(undefined)).toEqual([]);
   });

@@ -54,7 +54,7 @@ export function parseAgentTools(value: unknown): string[] {
   }
   if (typeof value === 'string') {
     return value
-      .split(/\s+/)
+      .split(/[\s,]+/)
       .map((item) => item.trim())
       .filter(Boolean);
   }
