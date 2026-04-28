@@ -309,7 +309,8 @@ describe('WorkflowRunner', () => {
     expect(result).toMatchObject({
       kind: 'error',
       code: 'dispatch-error',
-      message: 'branchId required for dynamic workflow /workflows/discuss-phase',
+      diagnosticCode: 'UNKNOWN_BRANCH_ID',
+      message: expect.stringContaining('UNKNOWN_BRANCH_ID'),
     });
   });
 
@@ -458,5 +459,153 @@ describe('WorkflowRunner', () => {
     expect(disabled.kind).toBe('packet');
     if (enabled.kind !== 'packet' || disabled.kind !== 'packet') throw new Error('Expected packet results');
     expect(enabled.packet.configSnapshotHash).not.toBe(disabled.packet.configSnapshotHash);
+  });
+});
+
+describe('WorkflowRunner.dispatch() - Wave 0 branch/provider hardening', () => {
+  function dynamicWorkflowCoverage(branchIds: string[]) {
+    return {
+      id: '/workflows/dynamic-test',
+      isTopLevel: true,
+      path: 'get-shit-done/workflows/dynamic-test.md',
+      hash: 'd'.repeat(64),
+      runnerType: { value: 'standalone', inferred: true },
+      determinism: { value: 'dynamic', inferred: true },
+      semanticFeatures: { values: ['mode-dispatch'], inferred: true },
+      semanticManifest: {
+        workflowId: '/workflows/dynamic-test',
+        semantics: [
+          {
+            family: 'mode-dispatch',
+            modes: ['plan', 'execute'],
+            branchIds,
+            priority: ['mode'],
+            provenance: 'audit-inference',
+            mandatoryProviders: ['codex'],
+          },
+        ],
+      },
+      stepCount: { value: 2, inferred: true },
+    } as WorkflowRunnerManifests['workflowCoverage'][number];
+  }
+
+  function makeManifestsWithDynamicBranch(branchIds = ['mode:plan', 'mode:execute']): WorkflowRunnerManifests {
+    const base = makeManifests();
+    const workflow = dynamicWorkflowCoverage(branchIds);
+    return {
+      ...base,
+      commandClassification: [
+        ...base.commandClassification,
+        {
+          commandId: '/gsd-dynamic-test',
+          workflowId: '/workflows/dynamic-test',
+          category: 'dynamic-branch',
+          determinismPosture: 'dynamic',
+          isHardOutlier: false,
+          migrationDisposition: 'dynamic-review',
+          outlierPosture: null,
+          agentTypes: [],
+        },
+      ],
+      workflowCoverage: [...base.workflowCoverage, workflow],
+      workflowSemantics: [...base.workflowSemantics, workflow.semanticManifest],
+    };
+  }
+
+  it('returns dispatch-error with UNKNOWN_BRANCH_ID when branchId is not in manifest allowlist', () => {
+    const runner = new WorkflowRunner(makeManifestsWithDynamicBranch());
+
+    const result = runner.dispatch(makeDispatchInput({
+      commandId: '/gsd-dynamic-test',
+      workflowId: '/workflows/dynamic-test',
+      branchId: 'mode:unknown',
+    }));
+
+    expect(result.kind).toBe('error');
+    expect((result as { message: string }).message).toContain('UNKNOWN_BRANCH_ID');
+    expect((result as { diagnosticCode?: string }).diagnosticCode).toBe('UNKNOWN_BRANCH_ID');
+  });
+
+  it('returns dispatch-error with UNKNOWN_BRANCH_ID when branchId is an empty string', () => {
+    const runner = new WorkflowRunner(makeManifestsWithDynamicBranch());
+
+    const result = runner.dispatch(makeDispatchInput({
+      commandId: '/gsd-dynamic-test',
+      workflowId: '/workflows/dynamic-test',
+      branchId: '',
+    }));
+
+    expect(result.kind).toBe('error');
+    expect((result as { message: string }).message).toContain('UNKNOWN_BRANCH_ID');
+    expect((result as { diagnosticCode?: string }).diagnosticCode).toBe('UNKNOWN_BRANCH_ID');
+  });
+
+  it('returns dispatch-error with UNKNOWN_BRANCH_ID when branchId is absent', () => {
+    const runner = new WorkflowRunner(makeManifestsWithDynamicBranch());
+
+    const result = runner.dispatch(makeDispatchInput({
+      commandId: '/gsd-dynamic-test',
+      workflowId: '/workflows/dynamic-test',
+      // branchId intentionally omitted - must produce UNKNOWN_BRANCH_ID, not a generic error
+    }));
+
+    expect(result.kind).toBe('error');
+    expect((result as { message: string }).message).toContain('UNKNOWN_BRANCH_ID');
+    expect((result as { diagnosticCode?: string }).diagnosticCode).toBe('UNKNOWN_BRANCH_ID');
+  });
+
+  it('returns dispatch-error with UNKNOWN_BRANCH_ID when dynamic workflow has empty branchIds in semantics', () => {
+    const runner = new WorkflowRunner(makeManifestsWithDynamicBranch([]));
+
+    const result = runner.dispatch(makeDispatchInput({
+      commandId: '/gsd-dynamic-test',
+      workflowId: '/workflows/dynamic-test',
+      branchId: 'mode:plan',
+    }));
+
+    expect(result.kind).toBe('error');
+    expect((result as { diagnosticCode?: string }).diagnosticCode).toBe('UNKNOWN_BRANCH_ID');
+    expect((result as { message: string }).message).toContain('No branchIds declared');
+  });
+
+  it('returns packet when branchId is valid in manifest allowlist', () => {
+    const runner = new WorkflowRunner(makeManifestsWithDynamicBranch());
+
+    const result = runner.dispatch(makeDispatchInput({
+      commandId: '/gsd-dynamic-test',
+      workflowId: '/workflows/dynamic-test',
+      branchId: 'mode:plan',
+    }));
+
+    expect(result.kind).toBe('packet');
+  });
+
+  it('returns dispatch-error when semantic-declared mandatory provider is unavailable and caller omits mandatoryProviders', () => {
+    const runner = new WorkflowRunner(makeManifestsWithDynamicBranch());
+
+    const result = runner.dispatch(makeDispatchInput({
+      commandId: '/gsd-dynamic-test',
+      workflowId: '/workflows/dynamic-test',
+      branchId: 'mode:plan',
+      providerAvailability: { available: [], unavailable: ['codex'] },
+      // mandatoryProviders intentionally omitted
+    }));
+
+    expect(result.kind).toBe('error');
+    expect((result as { message: string }).message).toContain('codex');
+    expect('packet' in result).toBe(false);
+  });
+
+  it('returns packet when semantic-declared mandatory provider is available', () => {
+    const runner = new WorkflowRunner(makeManifestsWithDynamicBranch());
+
+    const result = runner.dispatch(makeDispatchInput({
+      commandId: '/gsd-dynamic-test',
+      workflowId: '/workflows/dynamic-test',
+      branchId: 'mode:execute',
+      providerAvailability: { available: ['codex'], unavailable: ['gemini'] },
+    }));
+
+    expect(result.kind).toBe('packet');
   });
 });
