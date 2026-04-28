@@ -247,6 +247,79 @@ describe('PhaseRunner', () => {
       expect(result.steps.every(s => s.success)).toBe(true);
     });
 
+    it('keeps P4 compliance isolated from verify packet sequencing', async () => {
+      const workflowRunner = {
+        dispatch: vi.fn((input: {
+          runId: string;
+          workflowId?: string;
+          stateId: string;
+          stepId: string;
+          onSuccess?: string;
+          onFailure?: string;
+        }) => ({
+          kind: 'packet',
+          packet: {
+            schemaVersion: '1.0',
+            runId: input.runId,
+            workflowId: input.workflowId ?? '/workflows/phase-runner',
+            stateId: input.stateId,
+            stepId: input.stepId,
+            goal: `Execute ${input.stepId}`,
+            instruction: `Execute ${input.stepId}.`,
+            requiredContext: [],
+            allowedTools: [],
+            agents: [],
+            expectedEvidence: [`${input.stepId}EvidenceId`],
+            allowedOutcomes: ['success', 'failure', 'skipped'],
+            reportCommand: 'gsd-sdk query fsm.transition <workstream> <onSuccess> success',
+            onSuccess: input.onSuccess ?? 'next',
+            onFailure: input.onFailure ?? 'blocked',
+            checkpoint: false,
+            configSnapshotHash: '0'.repeat(64),
+            extensionIds: [],
+            executionConstraints: {},
+          },
+        })),
+      };
+      const deps = makeDeps({ workflowRunner: workflowRunner as any });
+
+      const runner = new PhaseRunner(deps);
+      const result = await runner.run('1');
+
+      const verifyStep = result.steps.find(s => s.step === PhaseStepType.Verify);
+      const p4Step = result.steps.find(s => s.step === PhaseStepType.P4Compliance);
+      expect(verifyStep?.packet).toMatchObject({
+        stateId: 'verify',
+        stepId: 'verify',
+      });
+      expect(JSON.stringify(verifyStep?.packet)).not.toContain('p4-compliance');
+      expect(JSON.stringify(verifyStep?.packet)).not.toContain('p4ComplianceEvidenceId');
+
+      expect(p4Step?.packet).toMatchObject({
+        stateId: 'p4-compliance',
+        stepId: 'p4-compliance',
+        expectedEvidence: ['p4ComplianceEvidenceId'],
+        onSuccess: 'advance',
+        onFailure: 'p4-gap-closure',
+      });
+
+      const dispatchInputs = workflowRunner.dispatch.mock.calls.map(([input]) => input);
+      const verifyDispatches = dispatchInputs.filter(input => input.stepId === 'verify');
+      const p4Dispatches = dispatchInputs.filter(input => input.stepId === 'p4-compliance');
+      expect(verifyDispatches).toHaveLength(1);
+      expect(p4Dispatches).toEqual([
+        expect.objectContaining({
+          stateId: 'p4-compliance',
+          stepId: 'p4-compliance',
+          onSuccess: 'advance',
+          onFailure: 'p4-gap-closure',
+        }),
+      ]);
+
+      const stepTypes = result.steps.map(s => s.step);
+      expect(stepTypes.indexOf(PhaseStepType.Verify)).toBeLessThan(stepTypes.indexOf(PhaseStepType.P4Compliance));
+    });
+
     it('records P4 disabled as a skipped outcome', async () => {
       const config = makeConfig({ workflow: { nyquist_validation: false } as any });
       const deps = makeDeps({ config });
@@ -333,6 +406,9 @@ describe('PhaseRunner', () => {
       const source = await readFile(new URL('./phase-runner.ts', import.meta.url), 'utf-8');
 
       expect(source).not.toContain("from './session-runner.js'");
+      expect(source).not.toContain('runPhaseStepSession(');
+      expect(source).not.toContain('runPlanSession(');
+      expect(source).not.toContain('@anthropic-ai/claude-agent-sdk');
     });
   });
 
