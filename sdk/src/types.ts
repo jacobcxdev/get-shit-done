@@ -627,6 +627,8 @@ export interface InitConfig {
   researchModel?: string;
   /** Model for synthesis/roadmap sessions. */
   orchestratorModel?: string;
+  /** Explicitly opt in to the legacy SDK-owned model-session init path. */
+  legacyModelBacked?: boolean;
   /** Max budget per individual session in USD. Default: 3.0. */
   maxBudgetPerSession?: number;
   /** Max turns per session. Default: 30. */
@@ -802,6 +804,7 @@ export interface GSDPhaseEditEvent extends GSDEventBase {
 export interface GSDInitRequiredEvent extends GSDEventBase {
   type: GSDEventType.InitRequired;
   code: 'init-required';
+  projectDir: string;
   message: string;
   recoveryHint: string;
   workstream: string | null;

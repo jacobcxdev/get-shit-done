@@ -733,7 +733,8 @@ describe('InitRunner', () => {
         projectDir: tmpDir,
         tools,
         eventStream,
-        config: configOverrides as any,
+        config: { legacyModelBacked: true, ...configOverrides } as any,
+        workflowRunner: makeWorkflowRunner() as any,
         sdkPromptsDir,
       });
       return { runner, tools, eventStream, events: eventStream.events as GSDEvent[] };
@@ -774,6 +775,8 @@ describe('InitRunner', () => {
         projectDir: tmpDir,
         tools,
         eventStream,
+        workflowRunner: makeWorkflowRunner() as any,
+        config: { legacyModelBacked: true } as any,
         sdkPromptsDir: emptySdkDir,
       });
 
@@ -808,6 +811,8 @@ describe('InitRunner', () => {
         projectDir: tmpDir,
         tools,
         eventStream,
+        workflowRunner: makeWorkflowRunner() as any,
+        config: { legacyModelBacked: true } as any,
         sdkPromptsDir: emptySdkDir,
       });
 

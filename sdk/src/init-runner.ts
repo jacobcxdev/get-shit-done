@@ -3,12 +3,9 @@
  *
  * Workflow: setup → config → PROJECT.md → parallel research (4 sessions)
  *         → synthesis → requirements → roadmap
- *
- * Each step calls Agent SDK `query()` via `runPhaseStepSession()` with
- * prompts derived from GSD-1 workflow/agent/template files on disk.
  */
 
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
@@ -25,16 +22,16 @@ import type {
   GSDInitStepCompleteEvent,
   GSDInitCompleteEvent,
   GSDInitResearchSpawnEvent,
+  GSDInitRequiredEvent,
   PlanResult,
 } from './types.js';
 import { GSDEventType, PhaseStepType } from './types.js';
 import type { GSDTools } from './gsd-tools.js';
 import type { GSDEventStream } from './event-stream.js';
 import { loadConfig } from './config.js';
-import { runPhaseStepSession } from './session-runner.js';
 import { sanitizePrompt } from './prompt-sanitizer.js';
 import { resolveAgentsDir } from './query/helpers.js';
-import type { WorkflowRunner } from './advisory/workflow-runner.js';
+import type { WorkflowRunner, WorkflowRunnerResult } from './advisory/workflow-runner.js';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -50,6 +47,21 @@ const RESEARCH_STEP_MAP: Record<ResearchType, InitStepName> = {
   ARCHITECTURE: 'research-architecture',
   PITFALLS: 'research-pitfalls',
 };
+
+const INIT_ADVISORY_SEQUENCE: InitStepName[] = [
+  'setup',
+  'config',
+  'project',
+  'research-stack',
+  'research-features',
+  'research-architecture',
+  'research-pitfalls',
+  'synthesis',
+  'requirements',
+  'roadmap',
+];
+
+const INIT_WORKFLOW_ID = '/workflows/new-project';
 
 /** Default config.json written during init for auto-mode projects. */
 const AUTO_MODE_CONFIG = {
@@ -72,7 +84,7 @@ export interface InitRunnerDeps {
   tools: GSDTools;
   eventStream: GSDEventStream;
   config?: Partial<InitConfig>;
-  workflowRunner?: WorkflowRunner;
+  workflowRunner: WorkflowRunner;
   /** Override for SDK prompts directory. Defaults to package-relative sdk/prompts/. */
   sdkPromptsDir?: string;
 }
@@ -84,7 +96,7 @@ export class InitRunner {
   private readonly config: InitConfig;
   private readonly sessionId: string;
   private readonly sdkPromptsDir: string;
-  private readonly workflowRunner?: WorkflowRunner;
+  private readonly workflowRunner: WorkflowRunner;
 
   constructor(deps: InitRunnerDeps) {
     this.projectDir = deps.projectDir;
@@ -95,6 +107,7 @@ export class InitRunner {
       maxTurnsPerSession: deps.config?.maxTurnsPerSession ?? 30,
       researchModel: deps.config?.researchModel,
       orchestratorModel: deps.config?.orchestratorModel,
+      legacyModelBacked: deps.config?.legacyModelBacked === true,
     };
     this.workflowRunner = deps.workflowRunner;
     this.sessionId = `init-${Date.now()}`;
@@ -120,6 +133,10 @@ export class InitRunner {
       input: input.slice(0, 200),
       projectDir: this.projectDir,
     });
+
+    if (!this.config.legacyModelBacked) {
+      return this.runAdvisoryInit(input, startTime, steps, artifacts);
+    }
 
     try {
       // ── Step 1: Setup — get project metadata ──────────────────────────
@@ -269,6 +286,141 @@ export class InitRunner {
         error: err instanceof Error ? err.message : String(err),
       });
       return this.buildResult(false, steps, artifacts, startTime);
+    }
+  }
+
+  private async runAdvisoryInit(
+    input: string,
+    startTime: number,
+    steps: InitStepResult[],
+    artifacts: string[],
+  ): Promise<InitResult> {
+    void input;
+
+    if (!await this.planningDirectoryExists()) {
+      this.emitEvent<GSDInitRequiredEvent>({
+        type: GSDEventType.InitRequired,
+        code: 'init-required',
+        projectDir: this.projectDir,
+        message: '.planning directory is required before advisory init can resume',
+        recoveryHint: 'Run gsd-sdk init from a project root or create .planning/config.json first',
+        workstream: null,
+      });
+      return this.buildResult(false, steps, artifacts, startTime);
+    }
+
+    for (const step of INIT_ADVISORY_SEQUENCE) {
+      const stepResult = await this.runAdvisoryInitStep(step, input);
+      steps.push(stepResult);
+      if (stepResult.artifacts) {
+        artifacts.push(...stepResult.artifacts);
+      }
+      if (!stepResult.success) {
+        return this.buildResult(false, steps, artifacts, startTime);
+      }
+    }
+
+    return this.buildResult(true, steps, artifacts, startTime);
+  }
+
+  private async planningDirectoryExists(): Promise<boolean> {
+    try {
+      const planning = await stat(join(this.projectDir, '.planning'));
+      return planning.isDirectory();
+    } catch (err) {
+      if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') {
+        return false;
+      }
+      throw err;
+    }
+  }
+
+  private async runAdvisoryInitStep(
+    step: InitStepName,
+    input: string,
+  ): Promise<InitStepResult> {
+    void input;
+    const stepStart = Date.now();
+
+    this.emitEvent<GSDInitStepStartEvent>({
+      type: GSDEventType.InitStepStart,
+      step,
+    });
+
+    try {
+      const runnerResult: WorkflowRunnerResult = this.workflowRunner.dispatch({
+        runId: this.sessionId,
+        workflowId: INIT_WORKFLOW_ID,
+        stateId: step,
+        stepId: step,
+        configSnapshot: { init: true, step },
+      });
+      const durationMs = Date.now() - stepStart;
+
+      if (runnerResult.kind === 'packet') {
+        const artifacts = [...runnerResult.packet.expectedEvidence];
+        const stepResult: InitStepResult = {
+          step,
+          success: true,
+          durationMs,
+          costUsd: 0,
+          artifacts,
+        };
+
+        this.emitEvent<GSDInitStepCompleteEvent>({
+          type: GSDEventType.InitStepComplete,
+          step,
+          success: true,
+          durationMs,
+          costUsd: 0,
+        });
+
+        return stepResult;
+      }
+
+      const error = runnerResult.kind === 'error'
+        ? runnerResult.message
+        : runnerResult.record.reason;
+
+      const stepResult: InitStepResult = {
+        step,
+        success: false,
+        durationMs,
+        costUsd: 0,
+        error,
+      };
+
+      this.emitEvent<GSDInitStepCompleteEvent>({
+        type: GSDEventType.InitStepComplete,
+        step,
+        success: false,
+        durationMs,
+        costUsd: 0,
+        error,
+      });
+
+      return stepResult;
+    } catch (err) {
+      const durationMs = Date.now() - stepStart;
+      const error = err instanceof Error ? err.message : String(err);
+      const stepResult: InitStepResult = {
+        step,
+        success: false,
+        durationMs,
+        costUsd: 0,
+        error,
+      };
+
+      this.emitEvent<GSDInitStepCompleteEvent>({
+        type: GSDEventType.InitStepComplete,
+        step,
+        success: false,
+        durationMs,
+        costUsd: 0,
+        error,
+      });
+
+      return stepResult;
     }
   }
 
@@ -601,12 +753,14 @@ export class InitRunner {
   // ─── Session execution ─────────────────────────────────────────────────────
 
   /**
-   * Run a single Agent SDK session via runPhaseStepSession.
+   * Run a single legacy model-backed session.
    */
   private async runSession(prompt: string, modelOverride?: string): Promise<PlanResult> {
     const config = await loadConfig(this.projectDir);
+    const sessionRunner = await import('./session-runner.js');
+    const runStep = sessionRunner['runPhaseStepSession'];
 
-    return runPhaseStepSession(
+    return runStep(
       prompt,
       PhaseStepType.Research, // Research phase gives broadest tool access
       config,
