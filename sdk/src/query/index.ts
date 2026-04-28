@@ -19,7 +19,20 @@ import { generateSlug, currentTimestamp } from './utils.js';
 import { frontmatterGet } from './frontmatter.js';
 import { configGet, configPath, resolveModel } from './config-query.js';
 import { configSnapshotHashQuery } from './config-snapshot.js';
-import { fsmAutoModeSet, fsmStateInit, fsmStateRead, lockStatus } from './fsm-state.js';
+import {
+  fsmAutoModeSet,
+  fsmConfidence,
+  fsmHistory,
+  fsmRunId,
+  fsmStateInit,
+  fsmStateRead,
+  fsmTransition,
+  lockStatus,
+  phaseEdit,
+  threadId,
+  threadSession,
+  threadWorkstream,
+} from './fsm-state.js';
 import { stateJson, stateGet, stateSnapshot } from './state.js';
 import { stateProjectLoad } from './state-project-load.js';
 import { findPhase, phasePlanIndex } from './phase.js';
@@ -99,6 +112,7 @@ import { checkGates } from './check-gates.js';
 import { checkVerificationStatus } from './check-verification-status.js';
 import { checkShipReady } from './check-ship-ready.js';
 import { GSDEventStream } from '../event-stream.js';
+import { FsmStateError } from '../advisory/fsm-state.js';
 import {
   GSDEventType,
   type GSDEvent,
@@ -107,6 +121,10 @@ import {
   type GSDFrontmatterMutationEvent,
   type GSDGitCommitEvent,
   type GSDTemplateFillEvent,
+  type GSDFSMTransitionEvent,
+  type GSDFSMTransitionRejectedEvent,
+  type GSDInitRequiredEvent,
+  type GSDLockStaleEvent,
 } from '../types.js';
 import type { QueryHandler, QueryResult } from './utils.js';
 
@@ -142,6 +160,8 @@ export const QUERY_MUTATION_COMMANDS = new Set<string>([
   'config-set', 'config-set-model-profile', 'config-new-project', 'config-ensure-section',
   'fsm.state.init', 'fsm state init',
   'fsm.auto-mode.set', 'fsm auto-mode set',
+  'fsm.transition', 'fsm transition',
+  'phase.edit', 'phase edit',
   'commit', 'check-commit', 'commit-to-subrepo',
   'template.fill', 'template.select', 'template select',
   'validate.health', 'validate health',
@@ -166,6 +186,84 @@ export const QUERY_MUTATION_COMMANDS = new Set<string>([
 
 // ─── Event builder ────────────────────────────────────────────────────────
 
+function stringDetail(value: unknown): string {
+  return typeof value === 'string' ? value : '';
+}
+
+function nullableStringDetail(value: unknown): string | null {
+  return typeof value === 'string' && value.length > 0 ? value : null;
+}
+
+function nullableNumberDetail(value: unknown): number | null {
+  return typeof value === 'number' ? value : null;
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function errorCode(error: unknown): string {
+  if (error instanceof FsmStateError) {
+    return error.code;
+  }
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    return String((error as { code: unknown }).code);
+  }
+  return 'transition-rejected';
+}
+
+function isFsmTransitionCommand(cmd: string): boolean {
+  return cmd === 'fsm.transition' || cmd === 'fsm transition';
+}
+
+function buildFsmTransitionFailureEvent(
+  correlationSessionId: string,
+  args: string[],
+  workstream: string | undefined,
+  error: unknown,
+): GSDEvent {
+  const base = {
+    timestamp: new Date().toISOString(),
+    sessionId: correlationSessionId,
+  };
+  const details = error instanceof FsmStateError ? error.details : {};
+
+  if (error instanceof FsmStateError && error.code === 'lock-stale') {
+    return {
+      ...base,
+      type: GSDEventType.LockStale,
+      code: 'lock-stale',
+      message: error.message,
+      holder: nullableStringDetail(details.holder),
+      ageSeconds: nullableNumberDetail(details.ageSeconds),
+      recoveryHint: 'Inspect the FSM lock holder and remove the stale lock only after confirming no writer is active',
+      workstream: workstream ?? (args[0] ? args[0] : null),
+    } as GSDLockStaleEvent;
+  }
+
+  if (error instanceof FsmStateError && error.code === 'init-required') {
+    return {
+      ...base,
+      type: GSDEventType.InitRequired,
+      code: 'init-required',
+      message: error.message,
+      recoveryHint: 'Run fsm.state.init before retrying fsm.transition',
+      workstream: workstream ?? (args[0] ? args[0] : null),
+    } as GSDInitRequiredEvent;
+  }
+
+  return {
+    ...base,
+    type: GSDEventType.FSMTransitionRejected,
+    fromState: stringDetail(details.fromState),
+    attemptedToState: stringDetail(details.attemptedToState) || args[1] || '',
+    runId: stringDetail(details.runId),
+    code: errorCode(error),
+    message: errorMessage(error),
+    recoveryHint: 'Inspect the FSM state file and retry fsm.transition after correcting the requested state/outcome',
+  } as GSDFSMTransitionRejectedEvent;
+}
+
 /**
  * Build a mutation event based on the command prefix and result.
  *
@@ -181,6 +279,25 @@ function buildMutationEvent(
     timestamp: new Date().toISOString(),
     sessionId: correlationSessionId,
   };
+
+  if (isFsmTransitionCommand(cmd)) {
+    const data = result.data as Record<string, unknown> | null;
+    const missingProviders = Array.isArray(data?.missingProviders)
+      ? data.missingProviders.filter((provider): provider is string => typeof provider === 'string')
+      : undefined;
+    return {
+      ...base,
+      type: GSDEventType.FSMTransition,
+      fromState: (data?.fromState as string) ?? '',
+      toState: (data?.toState as string) ?? '',
+      runId: (data?.runId as string) ?? '',
+      outcome: (data?.outcome as string) ?? '',
+      workflowId: (data?.workflowId as string) ?? '',
+      configSnapshotHash: (data?.configSnapshotHash as string) ?? '',
+      ...(typeof data?.reducedConfidence === 'boolean' ? { reducedConfidence: data.reducedConfidence } : {}),
+      ...(missingProviders ? { missingProviders } : {}),
+    } as GSDFSMTransitionEvent;
+  }
 
   if (cmd.startsWith('template.') || cmd.startsWith('template ')) {
     const data = result.data as Record<string, unknown> | null;
@@ -292,10 +409,26 @@ export function createRegistry(
   registry.register('fsm state', fsmStateRead);
   registry.register('fsm.state.init', fsmStateInit);
   registry.register('fsm state init', fsmStateInit);
+  registry.register('fsm.run-id', fsmRunId);
+  registry.register('fsm run-id', fsmRunId);
+  registry.register('fsm.transition', fsmTransition);
+  registry.register('fsm transition', fsmTransition);
+  registry.register('fsm.history', fsmHistory);
+  registry.register('fsm history', fsmHistory);
+  registry.register('fsm.confidence', fsmConfidence);
+  registry.register('fsm confidence', fsmConfidence);
   registry.register('fsm.auto-mode.set', fsmAutoModeSet);
   registry.register('fsm auto-mode set', fsmAutoModeSet);
   registry.register('lock.status', lockStatus);
   registry.register('lock status', lockStatus);
+  registry.register('phase.edit', phaseEdit);
+  registry.register('phase edit', phaseEdit);
+  registry.register('thread.id', threadId);
+  registry.register('thread id', threadId);
+  registry.register('thread.workstream', threadWorkstream);
+  registry.register('thread workstream', threadWorkstream);
+  registry.register('thread.session', threadSession);
+  registry.register('thread session', threadSession);
   registry.register('resolve-model', resolveModel);
   registry.register('state.load', stateProjectLoad);
   registry.register('state.json', stateJson);
@@ -583,14 +716,25 @@ export function createRegistry(
       const original = registry.getHandler(cmd);
       if (original) {
         registry.register(cmd, async (args: string[], projectDir: string, workstream?: string) => {
-          const result = await original(args, projectDir, workstream);
           try {
-            const event = buildMutationEvent(mutationSessionId, cmd, args, result);
-            eventStream.emitEvent(event);
-          } catch {
-            // T-11-12: Event emission is fire-and-forget; never block mutation success
+            const result = await original(args, projectDir, workstream);
+            try {
+              const event = buildMutationEvent(mutationSessionId, cmd, args, result);
+              eventStream.emitEvent(event);
+            } catch {
+              // T-11-12: Event emission is fire-and-forget; never block mutation success
+            }
+            return result;
+          } catch (error) {
+            if (isFsmTransitionCommand(cmd)) {
+              try {
+                eventStream.emitEvent(buildFsmTransitionFailureEvent(mutationSessionId, args, workstream, error));
+              } catch {
+                // Rejection events are best-effort diagnostics; the original error still controls flow.
+              }
+            }
+            throw error;
           }
-          return result;
         });
       }
     }

@@ -14,10 +14,16 @@ export type FsmStateErrorCode =
   | 'read-failed'
   | 'write-failed'
   | 'schema-version-mismatch'
-  | 'invalid-workstream';
+  | 'invalid-workstream'
+  | 'transition-rejected'
+  | 'init-required';
 
 export class FsmStateError extends Error {
-  constructor(public readonly code: FsmStateErrorCode, message: string) {
+  constructor(
+    public readonly code: FsmStateErrorCode,
+    message: string,
+    public readonly details: Record<string, unknown> = {},
+  ) {
     super(message);
     this.name = 'FsmStateError';
   }
@@ -32,6 +38,7 @@ export type FsmTransitionHistoryEntry = {
   configSnapshotHash: string;
   reducedConfidence?: boolean;
   missingProvider?: string;
+  missingProviders?: string[];
 };
 
 export type FsmRunState = {
@@ -55,6 +62,36 @@ export type FsmLockStatus = {
   ageSeconds: number | null;
   stale: boolean;
 };
+
+export type FsmTransitionInput = {
+  projectDir: string;
+  workstream?: string;
+  toState: string;
+  outcome: string;
+  configSnapshotHash?: string;
+  providerMetadata?: {
+    reducedConfidence?: boolean;
+    missingProvider?: string;
+    missingProviders?: string[];
+  };
+};
+
+export type FsmTransitionResult = {
+  timestamp: string;
+  fromState: string;
+  toState: string;
+  runId: string;
+  outcome: string;
+  workflowId: string;
+  workstream: string | null;
+  configSnapshotHash: string;
+  reducedConfidence?: boolean;
+  missingProviders?: string[];
+};
+
+export const MUTABLE_PHASE_FIELDS = new Set<string>([
+  'currentState',
+]);
 
 export const _heldFsmLocks = new Set<string>();
 
@@ -96,13 +133,31 @@ async function removeFileIfExists(path: string, code: FsmStateErrorCode): Promis
   }
 }
 
-async function removeStaleLockIfNeeded(lockPath: string): Promise<boolean> {
-  const s = await stat(lockPath);
-  if (Date.now() - s.mtimeMs <= 10000) {
-    return false;
+async function throwIfStaleLock(lockPath: string): Promise<void> {
+  let holder: string;
+  let acquiredAtMs: number;
+
+  try {
+    const [rawHolder, lockStat] = await Promise.all([
+      readFile(lockPath, 'utf-8'),
+      stat(lockPath),
+    ]);
+    holder = rawHolder.trim();
+    acquiredAtMs = lockStat.mtimeMs;
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return;
+    }
+    throw new FsmStateError('read-failed', `Failed to read FSM lock status: ${String(error)}`);
   }
-  await removeFileIfExists(lockPath, 'lock-stale');
-  return true;
+
+  const ageSeconds = Math.max(0, Math.floor((Date.now() - acquiredAtMs) / 1000));
+  if (ageSeconds > 10) {
+    throw new FsmStateError('lock-stale', `FSM lock is stale: ${lockPath}`, {
+      holder: holder || null,
+      ageSeconds,
+    });
+  }
 }
 
 export function fsmStatePath(projectDir: string, workstream?: string): string {
@@ -137,6 +192,13 @@ export function createInitialFsmRunState(input: {
   };
 }
 
+function sortFsmStateForWrite(state: FsmRunState): FsmRunState {
+  return {
+    ...(sortKeysDeep(state) as FsmRunState),
+    transitionHistory: state.transitionHistory.map((entry) => sortKeysDeep(entry) as FsmTransitionHistoryEntry),
+  };
+}
+
 export async function acquireFsmLock(fsmPath: string): Promise<string> {
   const lockPath = lockPathFor(fsmPath);
   const maxRetries = 10;
@@ -155,9 +217,7 @@ export async function acquireFsmLock(fsmPath: string): Promise<string> {
       }
 
       try {
-        if (await removeStaleLockIfNeeded(lockPath)) {
-          continue;
-        }
+        await throwIfStaleLock(lockPath);
       } catch (staleError) {
         if (staleError instanceof FsmStateError) {
           throw staleError;
@@ -211,7 +271,7 @@ export async function writeFsmState(
   projectDir: string,
   workstream: string | undefined,
   state: FsmRunState,
-  options?: { syncStateMd?: () => Promise<void> },
+  options?: { syncStateMd?: () => Promise<void>; heldLockPath?: string },
 ): Promise<void> {
   if (state.stateSchemaVersion !== CURRENT_FSM_STATE_SCHEMA_VERSION) {
     throw new FsmStateError(
@@ -222,12 +282,15 @@ export async function writeFsmState(
 
   const path = fsmStatePath(projectDir, workstream);
   const tmpPath = `${path}.${process.pid}.tmp`;
-  let lockPath: string | null = null;
+  const usesHeldLock = options?.heldLockPath !== undefined;
+  let lockPath: string | null = options?.heldLockPath ?? null;
 
   try {
     await mkdir(dirname(path), { recursive: true });
-    lockPath = await acquireFsmLock(path);
-    await writeFile(tmpPath, `${JSON.stringify(sortKeysDeep(state), null, 2)}\n`, 'utf-8');
+    if (!usesHeldLock) {
+      lockPath = await acquireFsmLock(path);
+    }
+    await writeFile(tmpPath, `${JSON.stringify(sortFsmStateForWrite(state), null, 2)}\n`, 'utf-8');
     await rename(tmpPath, path);
     await options?.syncStateMd?.();
   } catch (error) {
@@ -236,6 +299,123 @@ export async function writeFsmState(
     }
     await removeFileIfExists(tmpPath, 'write-failed');
     throw new FsmStateError('write-failed', `Failed to write FSM state: ${String(error)}`);
+  } finally {
+    if (!usesHeldLock && lockPath !== null) {
+      await releaseFsmLock(lockPath);
+    }
+  }
+}
+
+async function assertFsmStateInitialized(path: string): Promise<void> {
+  try {
+    await stat(dirname(path));
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      throw new FsmStateError('init-required', 'FSM state is not initialized; run fsm.state.init first');
+    }
+    throw new FsmStateError('read-failed', `Failed to inspect FSM state directory: ${String(error)}`);
+  }
+}
+
+async function readExistingFsmState(path: string): Promise<FsmRunState> {
+  let raw: string;
+  try {
+    raw = await readFile(path, 'utf-8');
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      throw new FsmStateError('init-required', 'FSM state is not initialized; run fsm.state.init first');
+    }
+    throw new FsmStateError('read-failed', `Failed to read FSM state file: ${String(error)}`);
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as FsmRunState;
+    if (parsed.stateSchemaVersion !== CURRENT_FSM_STATE_SCHEMA_VERSION) {
+      throw new FsmStateError(
+        'schema-version-mismatch',
+        `Unsupported FSM state schema version: ${parsed.stateSchemaVersion}`,
+      );
+    }
+    return parsed;
+  } catch (error) {
+    if (error instanceof FsmStateError) {
+      throw error;
+    }
+    throw new FsmStateError('read-failed', `Failed to parse FSM state file: ${String(error)}`);
+  }
+}
+
+function transitionRejected(
+  state: FsmRunState,
+  attemptedToState: string,
+  message: string,
+): FsmStateError {
+  return new FsmStateError('transition-rejected', message, {
+    fromState: state.currentState,
+    attemptedToState,
+    runId: state.runId,
+  });
+}
+
+export async function advanceFsmState(input: FsmTransitionInput): Promise<FsmTransitionResult> {
+  const path = fsmStatePath(input.projectDir, input.workstream);
+  await assertFsmStateInitialized(path);
+
+  let lockPath: string | null = null;
+  try {
+    lockPath = await acquireFsmLock(path);
+    const state = await readExistingFsmState(path);
+
+    if (input.workstream !== undefined && input.workstream.trim() === '') {
+      throw transitionRejected(state, input.toState, 'workstream, toState and outcome required for fsm.transition');
+    }
+    if (input.toState.trim() === '' || input.outcome.trim() === '') {
+      throw transitionRejected(state, input.toState, 'toState and outcome required for fsm.transition');
+    }
+
+    const timestamp = new Date().toISOString();
+    const fromState = state.currentState;
+    const configHash = input.configSnapshotHash ?? state.configSnapshotHash;
+    const missingProviders = input.providerMetadata?.missingProviders
+      ?? (input.providerMetadata?.missingProvider ? [input.providerMetadata.missingProvider] : undefined);
+    const entry: FsmTransitionHistoryEntry = {
+      timestamp,
+      fromState,
+      toState: input.toState,
+      runId: state.runId,
+      outcome: input.outcome,
+      configSnapshotHash: configHash,
+    };
+
+    if (input.providerMetadata?.reducedConfidence !== undefined) {
+      entry.reducedConfidence = input.providerMetadata.reducedConfidence;
+    }
+    if (input.providerMetadata?.missingProvider) {
+      entry.missingProvider = input.providerMetadata.missingProvider;
+    }
+    if (missingProviders && missingProviders.length > 0) {
+      entry.missingProviders = missingProviders;
+    }
+
+    state.transitionHistory = [...state.transitionHistory, entry];
+    state.currentState = input.toState;
+    state.configSnapshotHash = configHash;
+    state.updatedAt = timestamp;
+
+    await writeFsmState(input.projectDir, input.workstream, state, { heldLockPath: lockPath });
+
+    return {
+      timestamp,
+      fromState,
+      toState: input.toState,
+      runId: state.runId,
+      outcome: input.outcome,
+      workflowId: state.workflowId,
+      workstream: input.workstream ?? null,
+      configSnapshotHash: configHash,
+      ...(entry.reducedConfidence !== undefined ? { reducedConfidence: entry.reducedConfidence } : {}),
+      ...(entry.missingProviders ? { missingProviders: entry.missingProviders } : {}),
+    };
   } finally {
     if (lockPath !== null) {
       await releaseFsmLock(lockPath);

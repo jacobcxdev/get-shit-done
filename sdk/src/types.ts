@@ -268,6 +268,10 @@ export enum GSDEventType {
   FrontmatterMutation = 'frontmatter_mutation',
   GitCommit = 'git_commit',
   TemplateFill = 'template_fill',
+  FSMTransition = 'fsm_transition',
+  FSMTransitionRejected = 'fsm_transition_rejected',
+  InitRequired = 'init_required',
+  LockStale = 'lock_stale',
 }
 
 /**
@@ -747,6 +751,58 @@ export interface GSDTemplateFillEvent extends GSDEventBase {
 }
 
 /**
+ * FSM state transition completed through the query mutation surface.
+ */
+export interface GSDFSMTransitionEvent extends GSDEventBase {
+  type: GSDEventType.FSMTransition;
+  fromState: string;
+  toState: string;
+  runId: string;
+  outcome: string;
+  workflowId: string;
+  configSnapshotHash: string;
+  reducedConfidence?: boolean;
+  missingProviders?: string[];
+}
+
+/**
+ * FSM state transition was rejected before mutating transition history.
+ */
+export interface GSDFSMTransitionRejectedEvent extends GSDEventBase {
+  type: GSDEventType.FSMTransitionRejected;
+  fromState: string;
+  attemptedToState: string;
+  runId: string;
+  code: string;
+  message: string;
+  recoveryHint: string;
+}
+
+/**
+ * FSM state operation requires project initialization first.
+ */
+export interface GSDInitRequiredEvent extends GSDEventBase {
+  type: GSDEventType.InitRequired;
+  code: 'init-required';
+  message: string;
+  recoveryHint: string;
+  workstream: string | null;
+}
+
+/**
+ * FSM state operation detected a stale lock and aborted.
+ */
+export interface GSDLockStaleEvent extends GSDEventBase {
+  type: GSDEventType.LockStale;
+  code: 'lock-stale';
+  message: string;
+  holder: string | null;
+  ageSeconds: number | null;
+  recoveryHint: string;
+  workstream: string | null;
+}
+
+/**
  * Discriminated union of all GSD events.
  */
 export type GSDEvent =
@@ -783,7 +839,11 @@ export type GSDEvent =
   | GSDConfigMutationEvent
   | GSDFrontmatterMutationEvent
   | GSDGitCommitEvent
-  | GSDTemplateFillEvent;
+  | GSDTemplateFillEvent
+  | GSDFSMTransitionEvent
+  | GSDFSMTransitionRejectedEvent
+  | GSDInitRequiredEvent
+  | GSDLockStaleEvent;
 
 /**
  * Transport handler interface for consuming GSD events.
