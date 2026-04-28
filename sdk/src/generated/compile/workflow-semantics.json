@@ -6,6 +6,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "childStateKey": "childRunState",
         "family": "nested-fsm",
         "parentStateKey": "parentRunState",
@@ -72,23 +97,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "non-blocking-side-effect",
@@ -146,6 +154,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "childStateKey": "childRunState",
         "family": "nested-fsm",
         "parentStateKey": "parentRunState",
@@ -175,23 +208,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -227,6 +243,31 @@
   },
   {
     "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
       {
         "childStateKey": "childRunState",
         "family": "nested-fsm",
@@ -278,23 +319,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -338,6 +362,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "childStateKey": "childRunState",
         "family": "nested-fsm",
         "parentStateKey": "parentRunState",
@@ -390,23 +439,6 @@
         ]
       },
       {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
         "family": "quantitative-gate",
         "metric": "workflow-threshold",
         "operator": "gte",
@@ -446,41 +478,30 @@
   {
     "semantics": [
       {
-        "childStateKey": "childRunState",
-        "family": "nested-fsm",
-        "parentStateKey": "parentRunState",
-        "provenance": "audit-inference"
-      },
-      {
-        "configKeys": [
-          ".planning/config.json",
-          "workflow.*"
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
         ],
-        "family": "config-gate",
-        "guardName": "workflow-config-gate",
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
         ],
         "provenance": "audit-inference"
       },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      }
-    ],
-    "workflowId": "/workflows/node-repair"
-  },
-  {
-    "semantics": [
       {
         "configKeys": [
           ".planning/config.json",
@@ -542,23 +563,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -602,6 +606,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -650,23 +679,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -700,6 +712,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -750,23 +787,6 @@
         ]
       },
       {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
         "family": "quantitative-gate",
         "metric": "workflow-threshold",
         "operator": "gte",
@@ -788,6 +808,31 @@
   },
   {
     "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
       {
         "configKeys": [
           ".planning/config.json",
@@ -819,23 +864,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -869,6 +897,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -922,23 +975,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -972,6 +1008,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -1025,23 +1086,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -1066,6 +1110,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -1105,6 +1174,26 @@
         ]
       },
       {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      }
+    ],
+    "workflowId": "/workflows/forensics"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
         "family": "mode-dispatch",
         "modes": [
           "auto",
@@ -1121,18 +1210,6 @@
         ],
         "provenance": "audit-inference"
       },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      }
-    ],
-    "workflowId": "/workflows/forensics"
-  },
-  {
-    "semantics": [
       {
         "configKeys": [
           ".planning/config.json",
@@ -1175,23 +1252,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -1235,6 +1295,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -1258,23 +1343,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -1310,6 +1378,31 @@
   },
   {
     "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
       {
         "configKeys": [
           ".planning/config.json",
@@ -1362,23 +1455,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "non-blocking-side-effect",
@@ -1429,6 +1505,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -1480,23 +1581,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -1540,6 +1624,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -1591,23 +1700,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -1651,6 +1743,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -1704,23 +1821,6 @@
         ]
       },
       {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
         "family": "parallel-wave",
         "lifecycle": [
           "collect",
@@ -1761,6 +1861,31 @@
   },
   {
     "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
       {
         "configKeys": [
           ".planning/config.json",
@@ -1810,23 +1935,6 @@
         ]
       },
       {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
         "family": "non-blocking-side-effect",
         "provenance": "audit-inference",
         "sideEffects": [
@@ -1864,6 +1972,31 @@
   },
   {
     "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
       {
         "configKeys": [
           ".planning/config.json",
@@ -1904,23 +2037,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "non-blocking-side-effect",
@@ -1971,6 +2087,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2010,23 +2151,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -2070,6 +2194,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2109,23 +2258,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -2159,6 +2291,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2198,23 +2355,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -2248,6 +2388,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2289,23 +2454,6 @@
         ]
       },
       {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
         "family": "quantitative-gate",
         "metric": "workflow-threshold",
         "operator": "gte",
@@ -2337,6 +2485,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2358,23 +2531,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -2411,6 +2567,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2443,23 +2624,6 @@
         ]
       },
       {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
         "family": "quantitative-gate",
         "metric": "workflow-threshold",
         "operator": "gte",
@@ -2490,6 +2654,31 @@
   },
   {
     "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
       {
         "configKeys": [
           ".planning/config.json",
@@ -2535,23 +2724,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -2596,6 +2768,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2640,23 +2837,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -2690,6 +2870,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2736,23 +2941,6 @@
         ]
       },
       {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
         "family": "runtime-type-branch",
         "provenance": "audit-inference",
         "runtimes": [
@@ -2776,6 +2964,31 @@
   },
   {
     "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
       {
         "configKeys": [
           ".planning/config.json",
@@ -2805,23 +3018,6 @@
         "thresholds": [
           "context-window-limit"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -2856,6 +3052,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2888,23 +3109,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "non-blocking-side-effect",
@@ -2945,6 +3149,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -2977,23 +3206,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "non-blocking-side-effect",
@@ -3027,6 +3239,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3059,23 +3296,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -3119,6 +3339,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3151,23 +3396,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -3211,6 +3439,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3243,23 +3496,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -3303,6 +3539,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3335,23 +3596,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "parallel-wave",
@@ -3395,6 +3639,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3427,23 +3696,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -3485,6 +3737,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3517,23 +3794,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -3567,6 +3827,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3599,23 +3884,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -3649,6 +3917,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3681,23 +3974,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -3731,6 +4007,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3763,23 +4064,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -3813,6 +4097,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3845,23 +4154,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -3895,6 +4187,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -3927,23 +4244,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -3968,6 +4268,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4000,23 +4325,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "runtime-type-branch",
@@ -4043,6 +4351,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4075,23 +4408,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "runtime-type-branch",
@@ -4118,6 +4434,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4152,23 +4493,6 @@
         ]
       },
       {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
         "family": "runtime-type-branch",
         "provenance": "audit-inference",
         "runtimes": [
@@ -4193,6 +4517,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4207,23 +4556,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -4265,6 +4597,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4279,23 +4636,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -4332,6 +4672,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4346,23 +4711,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -4399,6 +4747,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4413,23 +4786,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -4456,6 +4812,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4470,23 +4851,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -4513,6 +4877,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4527,23 +4916,6 @@
           "COMPLETION",
           "PLAN COMPLETE",
           "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
         ],
         "provenance": "audit-inference"
       },
@@ -4570,45 +4942,30 @@
   {
     "semantics": [
       {
-        "configKeys": [
-          ".planning/config.json",
-          "workflow.*"
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
         ],
-        "family": "config-gate",
-        "guardName": "workflow-config-gate",
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
         "provenance": "audit-inference"
       },
-      {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/extract_learnings"
-  },
-  {
-    "semantics": [
       {
         "configKeys": [
           ".planning/config.json",
@@ -4645,23 +5002,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -4695,6 +5035,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4732,23 +5097,6 @@
         ]
       },
       {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
         "family": "quantitative-gate",
         "metric": "workflow-threshold",
         "operator": "gte",
@@ -4780,6 +5128,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4803,23 +5176,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "non-blocking-side-effect",
@@ -4870,6 +5226,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4893,23 +5274,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -4943,6 +5307,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -4966,23 +5355,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "quantitative-gate",
@@ -5016,6 +5388,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -5039,23 +5436,6 @@
           "human-verify",
           "pause"
         ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
       },
       {
         "family": "runtime-type-branch",
@@ -5090,6 +5470,31 @@
   {
     "semantics": [
       {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
         "configKeys": [
           ".planning/config.json",
           "workflow.*"
@@ -5115,6 +5520,614 @@
         ]
       },
       {
+        "family": "runtime-type-branch",
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
+        ]
+      },
+      {
+        "family": "text-mode-substitution",
+        "provenance": "audit-inference",
+        "substitutions": [
+          "AskUserQuestion fallback",
+          "text_mode",
+          "text-mode"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/do"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "fallbackPaths": [
+          "filesystem fallback"
+        ],
+        "family": "filesystem-fallback",
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "hitl",
+        "mockInputSeam": "AskUserQuestion",
+        "provenance": "audit-inference",
+        "resumableOutcomes": [
+          "failure",
+          "resume",
+          "success"
+        ],
+        "suspensionPoints": [
+          "AskUserQuestion",
+          "checkpoint",
+          "human-verify",
+          "pause"
+        ]
+      },
+      {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      },
+      {
+        "family": "runtime-type-branch",
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/resume-project"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "fallbackPaths": [
+          "filesystem fallback"
+        ],
+        "family": "filesystem-fallback",
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      },
+      {
+        "family": "runtime-type-branch",
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/milestone-summary"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "context-budget-branch",
+        "inputs": [
+          "context budget",
+          "context window",
+          "token"
+        ],
+        "provenance": "audit-inference",
+        "thresholds": [
+          "context-window-limit"
+        ]
+      },
+      {
+        "family": "hitl",
+        "mockInputSeam": "AskUserQuestion",
+        "provenance": "audit-inference",
+        "resumableOutcomes": [
+          "failure",
+          "resume",
+          "success"
+        ],
+        "suspensionPoints": [
+          "AskUserQuestion",
+          "checkpoint",
+          "human-verify",
+          "pause"
+        ]
+      },
+      {
+        "family": "parallel-wave",
+        "lifecycle": [
+          "collect",
+          "merge",
+          "poll",
+          "spawn"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      },
+      {
+        "family": "runtime-type-branch",
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
+        ]
+      },
+      {
+        "family": "text-mode-substitution",
+        "provenance": "audit-inference",
+        "substitutions": [
+          "AskUserQuestion fallback",
+          "text_mode",
+          "text-mode"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/ingest-docs"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "hitl",
+        "mockInputSeam": "AskUserQuestion",
+        "provenance": "audit-inference",
+        "resumableOutcomes": [
+          "failure",
+          "resume",
+          "success"
+        ],
+        "suspensionPoints": [
+          "AskUserQuestion",
+          "checkpoint",
+          "human-verify",
+          "pause"
+        ]
+      },
+      {
+        "family": "parallel-wave",
+        "lifecycle": [
+          "collect",
+          "merge",
+          "poll",
+          "spawn"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "runtime-type-branch",
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/research-phase"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "hitl",
+        "mockInputSeam": "AskUserQuestion",
+        "provenance": "audit-inference",
+        "resumableOutcomes": [
+          "failure",
+          "resume",
+          "success"
+        ],
+        "suspensionPoints": [
+          "AskUserQuestion",
+          "checkpoint",
+          "human-verify",
+          "pause"
+        ]
+      },
+      {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      }
+    ],
+    "workflowId": "/workflows/next"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      },
+      {
+        "family": "runtime-type-branch",
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/discuss-phase-power"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      }
+    ],
+    "workflowId": "/workflows/edit-phase"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "context-budget-branch",
+        "inputs": [
+          "context budget",
+          "context window",
+          "token"
+        ],
+        "provenance": "audit-inference",
+        "thresholds": [
+          "context-window-limit"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/analyze-dependencies"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "parallel-wave",
+        "lifecycle": [
+          "collect",
+          "merge",
+          "poll",
+          "spawn"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      },
+      {
+        "family": "runtime-type-branch",
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/scan"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
         "family": "mode-dispatch",
         "modes": [
           "auto",
@@ -5140,18 +6153,85 @@
           "Gemini",
           "OpenCode"
         ]
+      }
+    ],
+    "workflowId": "/workflows/sync-skills"
+  },
+  {
+    "semantics": [
+      {
+        "childStateKey": "childRunState",
+        "family": "nested-fsm",
+        "parentStateKey": "parentRunState",
+        "provenance": "audit-inference"
       },
       {
-        "family": "text-mode-substitution",
+        "configKeys": [
+          ".planning/config.json",
+          "workflow.*"
+        ],
+        "family": "config-gate",
+        "guardName": "workflow-config-gate",
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
         "provenance": "audit-inference",
-        "substitutions": [
-          "AskUserQuestion fallback",
-          "text_mode",
-          "text-mode"
+        "threshold": 1
+      }
+    ],
+    "workflowId": "/workflows/node-repair"
+  },
+  {
+    "semantics": [
+      {
+        "configKeys": [
+          ".planning/config.json",
+          "workflow.*"
+        ],
+        "family": "config-gate",
+        "guardName": "workflow-config-gate",
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      },
+      {
+        "family": "runtime-type-branch",
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
         ]
       }
     ],
-    "workflowId": "/workflows/do"
+    "workflowId": "/workflows/extract_learnings"
   },
   {
     "semantics": [
@@ -5228,132 +6308,6 @@
         "provenance": "audit-inference"
       },
       {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "hitl",
-        "mockInputSeam": "AskUserQuestion",
-        "provenance": "audit-inference",
-        "resumableOutcomes": [
-          "failure",
-          "resume",
-          "success"
-        ],
-        "suspensionPoints": [
-          "AskUserQuestion",
-          "checkpoint",
-          "human-verify",
-          "pause"
-        ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/resume-project"
-  },
-  {
-    "semantics": [
-      {
-        "fallbackPaths": [
-          "filesystem fallback"
-        ],
-        "family": "filesystem-fallback",
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/milestone-summary"
-  },
-  {
-    "semantics": [
-      {
-        "fallbackPaths": [
-          "filesystem fallback"
-        ],
-        "family": "filesystem-fallback",
-        "provenance": "audit-inference"
-      },
-      {
         "family": "context-budget-branch",
         "inputs": [
           "context budget",
@@ -5399,101 +6353,6 @@
         ]
       },
       {
-        "family": "hitl",
-        "mockInputSeam": "AskUserQuestion",
-        "provenance": "audit-inference",
-        "resumableOutcomes": [
-          "failure",
-          "resume",
-          "success"
-        ],
-        "suspensionPoints": [
-          "AskUserQuestion",
-          "checkpoint",
-          "human-verify",
-          "pause"
-        ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "parallel-wave",
-        "lifecycle": [
-          "collect",
-          "merge",
-          "poll",
-          "spawn"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      },
-      {
-        "family": "text-mode-substitution",
-        "provenance": "audit-inference",
-        "substitutions": [
-          "AskUserQuestion fallback",
-          "text_mode",
-          "text-mode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/ingest-docs"
-  },
-  {
-    "semantics": [
-      {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "context-budget-branch",
-        "inputs": [
-          "context budget",
-          "context window",
-          "token"
-        ],
-        "provenance": "audit-inference",
-        "thresholds": [
-          "context-window-limit"
-        ]
-      },
-      {
         "family": "quantitative-gate",
         "metric": "workflow-threshold",
         "operator": "gte",
@@ -5502,127 +6361,6 @@
       }
     ],
     "workflowId": "/workflows/session-report"
-  },
-  {
-    "semantics": [
-      {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "hitl",
-        "mockInputSeam": "AskUserQuestion",
-        "provenance": "audit-inference",
-        "resumableOutcomes": [
-          "failure",
-          "resume",
-          "success"
-        ],
-        "suspensionPoints": [
-          "AskUserQuestion",
-          "checkpoint",
-          "human-verify",
-          "pause"
-        ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "parallel-wave",
-        "lifecycle": [
-          "collect",
-          "merge",
-          "poll",
-          "spawn"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/research-phase"
-  },
-  {
-    "semantics": [
-      {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "hitl",
-        "mockInputSeam": "AskUserQuestion",
-        "provenance": "audit-inference",
-        "resumableOutcomes": [
-          "failure",
-          "resume",
-          "success"
-        ],
-        "suspensionPoints": [
-          "AskUserQuestion",
-          "checkpoint",
-          "human-verify",
-          "pause"
-        ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      }
-    ],
-    "workflowId": "/workflows/next"
   },
   {
     "semantics": [
@@ -5707,85 +6445,6 @@
       }
     ],
     "workflowId": "/workflows/remove-phase"
-  },
-  {
-    "semantics": [
-      {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/discuss-phase-power"
-  },
-  {
-    "semantics": [
-      {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      }
-    ],
-    "workflowId": "/workflows/edit-phase"
   },
   {
     "semantics": [
@@ -5894,121 +6553,6 @@
       }
     ],
     "workflowId": "/workflows/insert-phase"
-  },
-  {
-    "semantics": [
-      {
-        "family": "context-budget-branch",
-        "inputs": [
-          "context budget",
-          "context window",
-          "token"
-        ],
-        "provenance": "audit-inference",
-        "thresholds": [
-          "context-window-limit"
-        ]
-      },
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      }
-    ],
-    "workflowId": "/workflows/analyze-dependencies"
-  },
-  {
-    "semantics": [
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "parallel-wave",
-        "lifecycle": [
-          "collect",
-          "merge",
-          "poll",
-          "spawn"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/scan"
-  },
-  {
-    "semantics": [
-      {
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/sync-skills"
   },
   {
     "semantics": [
