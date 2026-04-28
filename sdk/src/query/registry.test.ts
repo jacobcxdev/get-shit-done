@@ -3,7 +3,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { QueryRegistry, extractField, resolveQueryArgv } from './registry.js';
@@ -228,6 +228,45 @@ describe('createRegistry', () => {
       attemptedToState: '',
       runId: 'run-1',
     });
+  });
+
+  it('emits a lock_stale event with holder and ageSeconds when fsm.transition detects a stale lock', async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), 'gsd-registry-fsm-lock-stale-'));
+    tempDirs.push(projectDir);
+    await mkdir(join(projectDir, '.planning'), { recursive: true });
+    await writeFile(join(projectDir, '.planning', 'config.json'), JSON.stringify({
+      workflow: { auto_advance: false },
+      codex_model: 'gpt-5.5',
+    }), 'utf-8');
+
+    await createRegistry().dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
+    const lockPath = join(projectDir, '.planning', 'fsm-state.json.lock');
+    await writeFile(lockPath, 'stale-holder', 'utf-8');
+    const staleTime = new Date(Date.now() - 15_000);
+    await utimes(lockPath, staleTime, staleTime);
+
+    const events: unknown[] = [];
+    const eventStream = {
+      emitEvent: vi.fn((event: unknown) => events.push(event)),
+      on: vi.fn(),
+      emit: vi.fn(),
+    };
+    const registry = createRegistry(eventStream as any, 'test-session');
+
+    await expect(registry.dispatch('fsm.transition', ['', 'p4-compliance', 'success'], projectDir))
+      .rejects.toMatchObject({ code: 'lock-stale' });
+
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: GSDEventType.LockStale,
+      sessionId: 'test-session',
+      holder: 'stale-holder',
+      ageSeconds: expect.any(Number),
+    });
+    expect((events[0] as { ageSeconds: number }).ageSeconds).toBeGreaterThanOrEqual(10);
+    expect(Object.keys(events[0] as Record<string, unknown>)).toEqual(
+      expect.arrayContaining(['holder', 'ageSeconds']),
+    );
   });
 });
 

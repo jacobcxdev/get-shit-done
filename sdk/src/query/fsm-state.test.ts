@@ -169,6 +169,22 @@ describe('FSM query handlers', () => {
     expect(history.map(entry => entry.outcome)).toEqual(['success', 'success']);
     expect(Date.parse(history[0].timestamp as string))
       .toBeLessThanOrEqual(Date.parse(history[1].timestamp as string));
+    expect(history[0]).toMatchObject({
+      timestamp: expect.any(String),
+      fromState: 'verify',
+      toState: 'p4-compliance',
+      runId: 'run-1',
+      outcome: 'success',
+      configSnapshotHash: expect.any(String),
+    });
+    expect(history[1]).toMatchObject({
+      timestamp: expect.any(String),
+      fromState: 'p4-compliance',
+      toState: 'advance',
+      runId: 'run-1',
+      outcome: 'success',
+      configSnapshotHash: expect.any(String),
+    });
   });
 
   it('dispatches fsm.confidence as full before provider metadata exists', async () => {
