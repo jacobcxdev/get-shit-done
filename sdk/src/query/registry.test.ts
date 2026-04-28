@@ -2,10 +2,14 @@
  * Unit tests for QueryRegistry, extractField, and createRegistry factory.
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { QueryRegistry, extractField, resolveQueryArgv } from './registry.js';
 import { createRegistry, QUERY_MUTATION_COMMANDS } from './index.js';
 import type { QueryResult } from './utils.js';
+import { GSDEventType } from '../types.js';
 
 // ─── extractField ──────────────────────────────────────────────────────────
 
@@ -112,6 +116,13 @@ describe('QUERY_MUTATION_COMMANDS', () => {
 // ─── createRegistry ────────────────────────────────────────────────────────
 
 describe('createRegistry', () => {
+  let tempDirs: string[] = [];
+
+  afterEach(async () => {
+    await Promise.all(tempDirs.map(dir => rm(dir, { recursive: true, force: true })));
+    tempDirs = [];
+  });
+
   it('returns a QueryRegistry instance', () => {
     const registry = createRegistry();
 
@@ -140,6 +151,52 @@ describe('createRegistry', () => {
     const result = await registry.dispatch('generate-slug', ['My Phase'], '/tmp');
 
     expect(result).toEqual({ data: { slug: 'my-phase' } });
+  });
+
+  it('registers Phase 3 query aliases', () => {
+    const registry = createRegistry();
+
+    for (const command of [
+      'thread.id',
+      'thread workstream',
+      'thread.session',
+      'fsm.run-id',
+      'fsm transition',
+      'fsm.history',
+      'fsm confidence',
+      'phase.edit',
+      'phase edit',
+    ]) {
+      expect(registry.has(command)).toBe(true);
+    }
+  });
+
+  it('emits an FSMTransition event for fsm.transition mutations', async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), 'gsd-registry-fsm-'));
+    tempDirs.push(projectDir);
+    await mkdir(join(projectDir, '.planning'), { recursive: true });
+    await writeFile(join(projectDir, '.planning', 'config.json'), JSON.stringify({
+      workflow: { auto_advance: false },
+      codex_model: 'gpt-5.5',
+    }), 'utf-8');
+
+    await createRegistry().dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
+
+    const events: unknown[] = [];
+    const eventStream = {
+      emitEvent: vi.fn((event: unknown) => events.push(event)),
+      on: vi.fn(),
+      emit: vi.fn(),
+    };
+    const registry = createRegistry(eventStream as any, 'test-session');
+
+    await registry.dispatch('fsm.transition', ['', 'p4-compliance', 'success'], projectDir);
+
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: GSDEventType.FSMTransition,
+      sessionId: 'test-session',
+    });
   });
 });
 
