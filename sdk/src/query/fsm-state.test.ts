@@ -128,6 +128,32 @@ describe('FSM query handlers', () => {
     }
   });
 
+  it('uses fsm.transition public argument order [workstream, toState, outcome]', async () => {
+    const registry = createRegistry();
+    await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify', 'demo'], projectDir);
+
+    const result = await registry.dispatch('fsm.transition', ['demo', 'p4-compliance', 'success'], projectDir);
+
+    expect(result.data).toMatchObject({
+      fromState: 'verify',
+      toState: 'p4-compliance',
+      outcome: 'success',
+      runId: 'run-1',
+      workstream: 'demo',
+    });
+
+    const raw = await readFile(join(projectDir, '.planning', 'workstreams', 'demo', 'fsm-state.json'), 'utf-8');
+    const state = JSON.parse(raw) as { currentState: string; transitionHistory: Array<Record<string, unknown>> };
+    expect(state.currentState).toBe('p4-compliance');
+    expect(state.transitionHistory).toHaveLength(1);
+    expect(state.transitionHistory[0]).toMatchObject({
+      fromState: 'verify',
+      toState: 'p4-compliance',
+      outcome: 'success',
+      runId: 'run-1',
+    });
+  });
+
   it('dispatches fsm.history and fsm history aliases in chronological order', async () => {
     const registry = createRegistry();
     await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
