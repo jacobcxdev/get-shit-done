@@ -18,7 +18,7 @@ const { execFileSync } = require('child_process');
 const { cleanup, createTempDir } = require('./helpers.cjs');
 
 const INSTALL_SRC = path.join(__dirname, '..', 'bin', 'install.js');
-const { writeManifest, validateHookFields } = require(INSTALL_SRC);
+const { install, writeManifest, validateHookFields } = require(INSTALL_SRC);
 const BUILD_SCRIPT = path.join(__dirname, '..', 'scripts', 'build-hooks.js');
 const HOOKS_DIST = path.join(__dirname, '..', 'hooks', 'dist');
 const HOOK_INSTALL_MANIFEST_PATH = path.join(__dirname, '..', 'sdk', 'src', 'generated', 'compile', 'hook-install.json');
@@ -88,6 +88,22 @@ function simulateHookCopy(hooksSrc, hooksDest) {
   }
 }
 
+function runInstall(tempDir, runtime = 'claude') {
+  const previousCwd = process.cwd();
+  const previousLog = console.log;
+  const previousWarn = console.warn;
+  try {
+    process.chdir(tempDir);
+    console.log = () => {};
+    console.warn = () => {};
+    return install(false, runtime);
+  } finally {
+    console.log = previousLog;
+    console.warn = previousWarn;
+    process.chdir(previousCwd);
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Hook file copy and permissions (#1755)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,6 +159,77 @@ describe('#1755: .sh hooks are copied and executable after install', () => {
         (stat.mode & 0o111) !== 0,
         `${js} should be executable after install copy`
       );
+    }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1b. Strict install regressions from live install()
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('strict hook install regressions', () => {
+  let tempDir;
+  let hooksDest;
+  let manifestPath;
+
+  beforeEach(() => {
+    tempDir = createTempDir('gsd-strict-hook-install-');
+    runInstall(tempDir);
+    hooksDest = path.join(tempDir, '.claude', 'hooks');
+    manifestPath = path.join(tempDir, '.claude', 'gsd-file-manifest.json');
+  });
+
+  afterEach(() => {
+    cleanup(tempDir);
+  });
+
+  test('HOOK-03: Codex hook is installed at exact filename gsd-check-update.js', () => {
+    const codexTempDir = createTempDir('gsd-codex-hook-install-');
+    try {
+      runInstall(codexTempDir, 'codex');
+      assert.ok(
+        fs.existsSync(path.join(codexTempDir, '.codex', 'hooks', 'gsd-check-update.js')),
+        '[HOOK-03] Codex hook must be named gsd-check-update.js'
+      );
+    } finally {
+      cleanup(codexTempDir);
+    }
+  });
+
+  test('HOOK-04: .sh hook uninstall manifest covers all .sh hooks', () => {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const manifestedShHooks = Object.keys(manifest.files).filter(f => f.endsWith('.sh'));
+    for (const shHook of EXPECTED_SH_HOOKS) {
+      assert.ok(
+        manifestedShHooks.some(m => path.basename(m) === shHook),
+        `[HOOK-04] .sh hook '${shHook}' missing from uninstall manifest`
+      );
+    }
+  });
+
+  test('HOOK-05: stale cache refreshes from source on content hash mismatch', () => {
+    const hookPath = path.join(hooksDest, 'gsd-check-update.js');
+    fs.writeFileSync(hookPath, '// corrupted');
+    runInstall(tempDir);
+    const refreshed = fs.readFileSync(hookPath, 'utf8');
+    assert.notStrictEqual(refreshed, '// corrupted', '[HOOK-05] Stale hook must be refreshed from source');
+  });
+
+  test('HOOK-01: .sh hooks have executable permissions after install (non-Windows)', () => {
+    if (process.platform === 'win32') return;
+    for (const shHook of EXPECTED_SH_HOOKS) {
+      const mode = fs.statSync(path.join(hooksDest, shHook)).mode;
+      assert.ok((mode & 0o111) !== 0, `[HOOK-01] ${shHook} must be executable`);
+    }
+  });
+
+  test('PRTY-07: no external host references in installed hook source files', () => {
+    const forbidden = ['raw.githubusercontent.com', 'cdn.', 'npmjs.com', 'unpkg.com'];
+    for (const hookFile of fs.readdirSync(HOOKS_DIST)) {
+      const content = fs.readFileSync(path.join(HOOKS_DIST, hookFile), 'utf8');
+      for (const host of forbidden) {
+        assert.ok(!content.includes(host), `[PRTY-07] ${hookFile} must not reference external host '${host}'`);
+      }
     }
   });
 });
