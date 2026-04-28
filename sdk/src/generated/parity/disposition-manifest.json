@@ -109,11 +109,11 @@
   },
   {
     "behaviour": "cc-clear advance behaviour",
-    "disposition": "open-gap",
+    "disposition": "absorbed",
     "evidenceCheck": "node -e \"const c=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/command-classification.json','utf8')); if(!c.some(e=>e.commandId==='/gsd-progress'||e.commandId==='/gsd-next')) throw new Error('advance runtime integration commands missing')\"",
     "id": "UPDT-B13",
     "requirementId": "UPDT-02",
-    "retirementStatus": "blocked",
+    "retirementStatus": "unblocked",
     "targetSurface": "runtime integration extension"
   },
   {
@@ -154,11 +154,11 @@
   },
   {
     "behaviour": "schema-translation logic for Codex and Gemini config",
-    "disposition": "open-gap",
+    "disposition": "absorbed",
     "evidenceCheck": "node -e \"const s=require('fs').readFileSync('sdk/src/query/config-schema.ts','utf8'); if(!s.includes('codex_config')||!s.includes('gemini_config')) throw new Error('config translation schema proxy missing')\"",
     "id": "UPDT-B18",
     "requirementId": "UPDT-02",
-    "retirementStatus": "blocked",
+    "retirementStatus": "unblocked",
     "targetSurface": "get-shit-done/bin/lib/init.cjs | sdk/src/query/init.ts"
   },
   {

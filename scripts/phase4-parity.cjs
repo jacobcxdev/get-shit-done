@@ -165,7 +165,7 @@ const steps = [
       // Node-based scanner over EXPLICIT named surfaces — not broad recursive globs.
       // Allowlist is STRUCTURAL only: it matches specific JSON field patterns and
       // requirement ID references. It does NOT use broad string patterns like
-      // 'retirement.*gsd-post-update' or 'TOMBSTONE' which would exempt executable
+      // retired-command retirement phrases or 'TOMBSTONE' which would exempt executable
       // invocations that happen to contain those words.
       const { readdirSync, readFileSync, statSync } = require('fs');
       process.stdout.write('\n[UPDT-05] Running step: retirement-scan\n');
@@ -187,9 +187,9 @@ const steps = [
       const TOMBSTONE_PATH = join(ROOT, 'get-shit-done', 'bin', RETIRED_BIN + '.cjs');
 
       // STRUCTURAL allowlist — only these field-value patterns are permitted on a
-      // line containing 'gsd-post-update'. Each pattern matches a specific structured
+      // line containing the retired command. Each pattern matches a specific structured
       // field in JSON/YAML (disposition manifest fields, requirement IDs).
-      // NO broad patterns like /retirement.*gsd-post-update/ or /TOMBSTONE/ here —
+      // NO broad retired-command retirement patterns or /TOMBSTONE/ here —
       // those would exempt executable invocations that contain those words.
       function isAllowedLine(lineContent, filePath) {
         // Tombstone file itself: its deprecation message and TOMBSTONE comment are allowed

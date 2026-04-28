@@ -101,7 +101,7 @@
     "requirementId": "UPDT-02",
     "targetSurface": "runtime integration extension",
     "absorptionCommand": "node -e \"const c=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/command-classification.json','utf8')); if(!c.some(e=>e.commandId==='/gsd-progress'||e.commandId==='/gsd-next')) throw new Error('advance runtime integration commands missing')\"",
-    "open": true
+    "open": false
   },
   {
     "id": "UPDT-B14",
@@ -141,7 +141,7 @@
     "requirementId": "UPDT-02",
     "targetSurface": "get-shit-done/bin/lib/init.cjs | sdk/src/query/init.ts",
     "absorptionCommand": "node -e \"const s=require('fs').readFileSync('sdk/src/query/config-schema.ts','utf8'); if(!s.includes('codex_config')||!s.includes('gemini_config')) throw new Error('config translation schema proxy missing')\"",
-    "open": true
+    "open": false
   },
   {
     "id": "UPDT-B19",
