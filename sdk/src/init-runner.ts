@@ -365,6 +365,7 @@ export class InitRunner {
           durationMs,
           costUsd: 0,
           artifacts,
+          ...(runnerResult.providerMetadata ? { providerMetadata: runnerResult.providerMetadata } : {}),
         };
 
         this.emitEvent<GSDInitStepCompleteEvent>({

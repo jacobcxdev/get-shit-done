@@ -412,6 +412,13 @@ function execGsdToolsCjsQuery(
   });
 }
 
+function printProviderMetadataSummary(steps: Array<{ providerMetadata?: unknown }>): void {
+  const count = steps.filter(step => step.providerMetadata !== undefined).length;
+  if (count > 0) {
+    console.log(`Provider metadata: ${count} step(s) carried confidence metadata`);
+  }
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 export async function main(argv: string[] = process.argv.slice(2)): Promise<void> {
@@ -639,6 +646,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
       if (result.artifacts.length > 0) {
         console.log(`Artifacts: ${artifactList}`);
       }
+      printProviderMetadataSummary(result.steps);
 
       if (!result.success) {
         // Log failed steps
@@ -722,6 +730,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
         const initCost = initResult.totalCostUsd.toFixed(2);
         const initDuration = (initResult.totalDurationMs / 1000).toFixed(1);
         console.log(`[init ${initStatus}] ${passedSteps}/${stepCount} steps, $${initCost}, ${initDuration}s`);
+        printProviderMetadataSummary(initResult.steps);
 
         if (!initResult.success) {
           for (const step of initResult.steps) {
@@ -742,6 +751,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
       const cost = result.totalCostUsd.toFixed(2);
       const duration = (result.totalDurationMs / 1000).toFixed(1);
       console.log(`\n[${status}] ${phases} phase(s), $${cost}, ${duration}s`);
+      printProviderMetadataSummary(result.phases.flatMap(phase => phase.steps));
 
       if (!result.success) {
         process.exitCode = 1;

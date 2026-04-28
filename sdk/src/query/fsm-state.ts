@@ -4,13 +4,14 @@ import {
   FsmStateError,
   MUTABLE_PHASE_FIELDS,
   advanceFsmState,
+  type FsmTransitionInput,
   type FsmRunState,
-  type FsmTransitionHistoryEntry,
   createInitialFsmRunState,
   fsmStatePath,
   readFsmLockStatus,
   writeFsmState,
 } from '../advisory/fsm-state.js';
+import { deriveConfidenceFromHistory } from '../advisory/provider-availability.js';
 import { loadConfig } from '../config.js';
 import { GSDError, ErrorClassification } from '../errors.js';
 import type { QueryHandler } from './utils.js';
@@ -77,21 +78,52 @@ function parsePhaseEditArgs(
   return { target: workstream, field, value };
 }
 
-function deriveConfidence(history: FsmTransitionHistoryEntry[]): string {
-  const missingProviders = new Set<string>();
-  for (const entry of history) {
-    if (entry.missingProvider) {
-      missingProviders.add(entry.missingProvider);
-    }
-    for (const provider of entry.missingProviders ?? []) {
-      missingProviders.add(provider);
-    }
+function parseProviderMetadata(value: string | undefined): FsmTransitionInput['providerMetadata'] | undefined {
+  if (value === undefined || value.trim() === '') {
+    return undefined;
   }
 
-  if (missingProviders.size === 0) {
-    return 'full';
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value) as unknown;
+  } catch (error) {
+    throw new GSDError(
+      `providerMetadata must be valid JSON: ${error instanceof Error ? error.message : String(error)}`,
+      ErrorClassification.Validation,
+    );
   }
-  return `reduced:${Array.from(missingProviders).sort().join(',')}`;
+
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    throw new GSDError('providerMetadata must be a JSON object', ErrorClassification.Validation);
+  }
+
+  const record = parsed as Record<string, unknown>;
+  const providerConfidence = record.providerConfidence;
+  const missingProviders = record.missingProviders;
+  if (
+    providerConfidence !== 'full' &&
+    providerConfidence !== 'reduced' &&
+    providerConfidence !== 'blocked'
+  ) {
+    throw new GSDError(
+      'providerMetadata.providerConfidence must be full, reduced, or blocked',
+      ErrorClassification.Validation,
+    );
+  }
+  if (
+    !Array.isArray(missingProviders) ||
+    !missingProviders.every((provider): provider is string => typeof provider === 'string')
+  ) {
+    throw new GSDError(
+      'providerMetadata.missingProviders must be an array of provider names',
+      ErrorClassification.Validation,
+    );
+  }
+
+  return {
+    providerConfidence,
+    missingProviders,
+  };
 }
 
 async function readState(path: string): Promise<FsmRunState> {
@@ -138,7 +170,7 @@ export const fsmRunId: QueryHandler = async (args, projectDir, workstream) => {
 };
 
 export const fsmTransition: QueryHandler = async (args, projectDir, workstream) => {
-  const [workstreamArg, toState, outcome] = args;
+  const [workstreamArg, toState, outcome, providerMetadataJson] = args;
   if (args.length < 3 || toState === undefined || outcome === undefined) {
     throw new GSDError(
       'workstream, toState and outcome required for fsm.transition',
@@ -152,6 +184,7 @@ export const fsmTransition: QueryHandler = async (args, projectDir, workstream) 
     workstream: target,
     toState,
     outcome,
+    providerMetadata: parseProviderMetadata(providerMetadataJson),
   });
   return { data: result };
 };
@@ -165,7 +198,7 @@ export const fsmHistory: QueryHandler = async (args, projectDir, workstream) => 
 export const fsmConfidence: QueryHandler = async (args, projectDir, workstream) => {
   const target = targetWorkstream(workstream, args[0]);
   const parsed = await readState(fsmStatePath(projectDir, target));
-  return { data: { confidence: deriveConfidence(parsed.transitionHistory), workstream: target ?? null } };
+  return { data: { confidence: deriveConfidenceFromHistory(parsed.transitionHistory), workstream: target ?? null } };
 };
 
 export const fsmStateInit: QueryHandler = async (args, projectDir, workstream) => {

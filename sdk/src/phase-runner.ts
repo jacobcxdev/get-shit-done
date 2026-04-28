@@ -394,6 +394,7 @@ export class PhaseRunner {
         success: true,
         durationMs,
         packet: runnerResult.packet,
+        ...(runnerResult.providerMetadata ? { providerMetadata: runnerResult.providerMetadata } : {}),
       };
     }
 
@@ -502,6 +503,7 @@ export class PhaseRunner {
         success: true,
         durationMs,
         packet,
+        ...(runnerResult.providerMetadata ? { providerMetadata: runnerResult.providerMetadata } : {}),
       };
     }
 

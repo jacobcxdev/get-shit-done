@@ -645,6 +645,7 @@ export interface InitStepResult {
   costUsd: number;
   error?: string;
   artifacts?: string[];
+  providerMetadata?: import('./advisory/provider-availability.js').ProviderTransitionMetadata;
 }
 
 /**
@@ -771,6 +772,7 @@ export interface GSDFSMTransitionEvent extends GSDEventBase {
   configSnapshotHash: string;
   reducedConfidence?: boolean;
   missingProviders?: string[];
+  providerConfidence?: 'full' | 'reduced' | 'blocked';
 }
 
 /**
@@ -979,6 +981,7 @@ export interface PhaseStepResult {
   error?: string;
   planResults?: PlanResult[];
   packet?: import('./advisory/packet.js').AdvisoryPacket;
+  providerMetadata?: import('./advisory/provider-availability.js').ProviderTransitionMetadata;
   posture?: string;
   data?: Record<string, unknown>;
 }

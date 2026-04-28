@@ -295,6 +295,7 @@ function buildMutationEvent(
       configSnapshotHash: (data?.configSnapshotHash as string) ?? '',
       ...(typeof data?.reducedConfidence === 'boolean' ? { reducedConfidence: data.reducedConfidence } : {}),
       ...(missingProviders ? { missingProviders } : {}),
+      ...(typeof data?.providerConfidence === 'string' ? { providerConfidence: data.providerConfidence } : {}),
     } as GSDFSMTransitionEvent;
   }
 

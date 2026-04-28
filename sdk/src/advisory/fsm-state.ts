@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { sortKeysDeep } from '../compile/baselines.js';
 import { toPosixPath } from '../query/helpers.js';
 import { relPlanningPath, validateWorkstreamName } from '../workstream-utils.js';
+import { normalizeProviderList, type ProviderConfidenceKind } from './provider-availability.js';
 import { configSnapshotHash } from './routing.js';
 
 export const CURRENT_FSM_STATE_SCHEMA_VERSION = 1 as const;
@@ -39,6 +40,7 @@ export type FsmTransitionHistoryEntry = {
   reducedConfidence?: boolean;
   missingProvider?: string;
   missingProviders?: string[];
+  providerConfidence?: 'full' | 'reduced' | 'blocked';
 };
 
 export type FsmRunState = {
@@ -71,9 +73,10 @@ export type FsmTransitionInput = {
   outcome: string;
   configSnapshotHash?: string;
   providerMetadata?: {
+    providerConfidence?: ProviderConfidenceKind;
+    missingProviders?: string[];
     reducedConfidence?: boolean;
     missingProvider?: string;
-    missingProviders?: string[];
   };
 };
 
@@ -88,6 +91,7 @@ export type FsmTransitionResult = {
   configSnapshotHash: string;
   reducedConfidence?: boolean;
   missingProviders?: string[];
+  providerConfidence?: 'full' | 'reduced' | 'blocked';
 };
 
 export const MUTABLE_PHASE_FIELDS = new Set<string>(['currentState', 'resume.status', 'autoMode.active', 'autoMode.source']);
@@ -376,8 +380,12 @@ export async function advanceFsmState(input: FsmTransitionInput): Promise<FsmTra
     const timestamp = new Date().toISOString();
     const fromState = state.currentState;
     const configHash = input.configSnapshotHash ?? state.configSnapshotHash;
-    const missingProviders = input.providerMetadata?.missingProviders
-      ?? (input.providerMetadata?.missingProvider ? [input.providerMetadata.missingProvider] : undefined);
+    const providerConfidence = input.providerMetadata?.providerConfidence
+      ?? (input.providerMetadata?.reducedConfidence === true ? 'reduced' : undefined);
+    const missingProviders = normalizeProviderList([
+      ...(input.providerMetadata?.missingProviders ?? []),
+      ...(input.providerMetadata?.missingProvider ? [input.providerMetadata.missingProvider] : []),
+    ]);
     const entry: FsmTransitionHistoryEntry = {
       timestamp,
       fromState,
@@ -387,14 +395,13 @@ export async function advanceFsmState(input: FsmTransitionInput): Promise<FsmTra
       configSnapshotHash: configHash,
     };
 
-    if (input.providerMetadata?.reducedConfidence !== undefined) {
-      entry.reducedConfidence = input.providerMetadata.reducedConfidence;
-    }
-    if (input.providerMetadata?.missingProvider) {
-      entry.missingProvider = input.providerMetadata.missingProvider;
-    }
-    if (missingProviders && missingProviders.length > 0) {
+    if ((providerConfidence === 'reduced' || providerConfidence === 'blocked') && missingProviders.length > 0) {
+      entry.providerConfidence = providerConfidence;
       entry.missingProviders = missingProviders;
+      entry.missingProvider = missingProviders[0];
+      if (providerConfidence === 'reduced') {
+        entry.reducedConfidence = true;
+      }
     }
 
     state.transitionHistory = [...state.transitionHistory, entry];
@@ -415,6 +422,7 @@ export async function advanceFsmState(input: FsmTransitionInput): Promise<FsmTra
       configSnapshotHash: configHash,
       ...(entry.reducedConfidence !== undefined ? { reducedConfidence: entry.reducedConfidence } : {}),
       ...(entry.missingProviders ? { missingProviders: entry.missingProviders } : {}),
+      ...(entry.providerConfidence ? { providerConfidence: entry.providerConfidence } : {}),
     };
   } finally {
     if (lockPath !== null) {

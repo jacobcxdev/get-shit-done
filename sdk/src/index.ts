@@ -43,6 +43,12 @@ export {
   WorkflowRunnerError,
   createGeneratedWorkflowRunner,
 } from './advisory/workflow-runner.js';
+export {
+  checkProviderAvailability,
+  deriveConfidenceFromHistory,
+  normalizeProviderList,
+  renderConfidence,
+} from './advisory/provider-availability.js';
 export type {
   WorkflowPostureRecord,
   WorkflowRunnerDispatchInput,
@@ -51,6 +57,13 @@ export type {
   WorkflowSupportDisposition,
   WorkflowSupportMatrixEntry,
 } from './advisory/workflow-runner.js';
+export type {
+  ProviderAvailabilityResult,
+  ProviderConfidence,
+  ProviderName,
+  ProviderStatusSource,
+  ProviderTransitionMetadata,
+} from './advisory/provider-availability.js';
 
 // ─── GSD class ───────────────────────────────────────────────────────────────
 
@@ -151,6 +164,7 @@ export class GSD {
    *
    * Creates the necessary collaborators (GSDTools, PromptFactory, ContextEngine),
    * loads project config, instantiates a PhaseRunner, and delegates to `runner.run()`.
+   * Advisory step results preserve providerMetadata so runtimes can persist it with fsm.transition.
    *
    * @param phaseNumber - The phase number to execute (e.g. "01", "02")
    * @param options - Per-phase overrides for budget, turns, model, and callbacks

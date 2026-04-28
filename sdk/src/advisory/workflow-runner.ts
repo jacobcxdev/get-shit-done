@@ -3,6 +3,12 @@ import {
   CURRENT_ADVISORY_PACKET_SCHEMA_VERSION,
   type AdvisoryPacket,
 } from './packet.js';
+import {
+  normalizeProviderList,
+  type ProviderAvailabilityResult,
+  type ProviderName,
+  type ProviderTransitionMetadata,
+} from './provider-availability.js';
 import { configSnapshotHash } from './routing.js';
 import type { WorkflowSemanticManifest } from './workflow-semantics.js';
 import type { ClassificationEntry, WorkflowEntry } from '../compile/types.js';
@@ -24,7 +30,7 @@ export type WorkflowPostureRecord = {
 };
 
 export type WorkflowRunnerResult =
-  | { kind: 'packet'; packet: AdvisoryPacket }
+  | { kind: 'packet'; packet: AdvisoryPacket; providerMetadata?: ProviderTransitionMetadata }
   | {
     kind: 'posture';
     record: WorkflowPostureRecord;
@@ -55,6 +61,8 @@ export type WorkflowRunnerDispatchInput = {
   branchId?: string;
   onSuccess?: string;
   onFailure?: string;
+  providerAvailability?: ProviderAvailabilityResult;
+  mandatoryProviders?: ProviderName[];
 };
 
 export type WorkflowSupportMatrixEntry = {
@@ -123,6 +131,30 @@ function dispositionFor(
   if (classification?.category === 'dynamic-branch') return 'dynamic-branch';
   if (!classification?.workflowId || !workflow) return 'dispatch-error';
   return 'packet-template';
+}
+
+function unavailableMandatoryProviders(
+  availability: ProviderAvailabilityResult | undefined,
+  mandatoryProviders: ProviderName[] | undefined,
+): ProviderName[] {
+  if (!availability || !mandatoryProviders || mandatoryProviders.length === 0) {
+    return [];
+  }
+  const unavailable = new Set(normalizeProviderList(availability.unavailable));
+  return normalizeProviderList(mandatoryProviders).filter(provider => unavailable.has(provider));
+}
+
+function reducedProviderMetadata(
+  availability: ProviderAvailabilityResult | undefined,
+): ProviderTransitionMetadata | undefined {
+  const missingProviders = normalizeProviderList(availability?.unavailable ?? []);
+  if (missingProviders.length === 0) {
+    return undefined;
+  }
+  return {
+    providerConfidence: 'reduced',
+    missingProviders,
+  };
 }
 
 export class WorkflowRunner {
@@ -228,9 +260,22 @@ export class WorkflowRunner {
       };
     }
 
+    const blockedProviders = unavailableMandatoryProviders(input.providerAvailability, input.mandatoryProviders);
+    if (blockedProviders.length > 0) {
+      return {
+        kind: 'error',
+        code: 'dispatch-error',
+        message: `Mandatory providers unavailable: ${blockedProviders.join(',')}`,
+        workflowId,
+        commandId: input.commandId,
+      };
+    }
+
+    const providerMetadata = reducedProviderMetadata(input.providerAvailability);
     return {
       kind: 'packet',
       packet: this.packetFor(input, workflowId, stepId),
+      ...(providerMetadata ? { providerMetadata } : {}),
     };
   }
 
