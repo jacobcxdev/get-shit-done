@@ -116,6 +116,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
+- [Phase 3 verification dissent]: Codex/Gemini flagged runtime-report undeclared-agent acceptance, expectedEvidence enforcement, init-required fail-open, dynamic branch allowlisting, and mandatory provider omission as gaps; Claude verifier dismissed them as Phase 4 parity hardening backlog. Carry into Phase 4 planning before parity gates.
 - Begin Phase 4 — Parity Suite + gsd-post-update Retirement
 
 ### Blockers/Concerns
