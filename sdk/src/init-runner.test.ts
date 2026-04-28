@@ -248,10 +248,16 @@ describe('InitRunner', () => {
       const result = await runner.run('demo');
 
       expect(result.success).toBe(true);
+      expect(result.totalCostUsd).toBe(0);
       expect(result.steps.map(step => step.step)).toEqual(INIT_ADVISORY_STEPS);
+      expect(result.steps.every(step => step.costUsd === 0)).toBe(true);
       expect(workflowRunner.dispatch).toHaveBeenCalledTimes(INIT_ADVISORY_STEPS.length);
       expect(workflowRunner.dispatch.mock.calls.map(([input]) => input.stepId)).toEqual(INIT_ADVISORY_STEPS);
       expect(workflowRunner.dispatch.mock.calls.map(([input]) => input.stateId)).toEqual(INIT_ADVISORY_STEPS);
+      expect(workflowRunner.dispatch.mock.calls.every(([input]) => input.workflowId === '/workflows/new-project')).toBe(true);
+      const packets = workflowRunner.dispatch.mock.results.map(result => result.value.packet);
+      expect(packets.every(packet => packet.workflowId === '/workflows/new-project')).toBe(true);
+      expect(packets.every(packet => Array.isArray(packet) === false)).toBe(true);
       expect(tools.initNewProject).not.toHaveBeenCalled();
     });
 
