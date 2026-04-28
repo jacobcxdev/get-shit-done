@@ -49,12 +49,12 @@ describe('inferWorkflowSemanticManifest', () => {
     );
   });
 
-  it('includes branchIds for inferred mode-dispatch semantics', () => {
+  it('includes deterministic branchIds for inferred mode-dispatch semantics', () => {
     const manifest = inferWorkflowSemanticManifest('/workflows/demo', 'Choose mode from --auto.');
 
     expect(manifest.semantics).toContainEqual(expect.objectContaining({
       family: 'mode-dispatch',
-      branchIds: ['mode:auto'],
+      branchIds: ['mode:auto', 'mode:reviews', 'mode:gaps', 'mode:prd', 'mode:skip-research', 'mode:skip-verify'],
     }));
   });
 });
