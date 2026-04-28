@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   WorkflowRunner,
   WorkflowRunnerError,
+  type WorkflowRunnerDispatchInput,
   type WorkflowRunnerManifests,
 } from './workflow-runner.js';
 
@@ -77,6 +78,36 @@ function makeManifests(overrides: Partial<WorkflowRunnerManifests> = {}): Workfl
       outlierPosture: null,
       agentTypes: ['gsd-ui-researcher'],
     },
+    {
+      commandId: '/gsd-autonomous',
+      workflowId: '/workflows/autonomous',
+      category: 'composite',
+      determinismPosture: 'unknown',
+      isHardOutlier: false,
+      migrationDisposition: 'composite-review',
+      outlierPosture: null,
+      agentTypes: [],
+    },
+    {
+      commandId: '/gsd-progress',
+      workflowId: '/workflows/progress',
+      category: 'query-utility',
+      determinismPosture: 'deterministic',
+      isHardOutlier: false,
+      migrationDisposition: 'query-native',
+      outlierPosture: null,
+      agentTypes: [],
+    },
+    {
+      commandId: '/gsd-add-backlog',
+      workflowId: null,
+      category: 'core-lifecycle',
+      determinismPosture: 'deterministic',
+      isHardOutlier: false,
+      migrationDisposition: 'dispatch-error',
+      outlierPosture: null,
+      agentTypes: [],
+    },
   ];
 
   const workflowCoverage = [
@@ -122,6 +153,47 @@ function makeManifests(overrides: Partial<WorkflowRunnerManifests> = {}): Workfl
       },
       stepCount: { value: 15, inferred: true },
     },
+    {
+      id: '/workflows/autonomous',
+      isTopLevel: true,
+      path: 'get-shit-done/workflows/autonomous.md',
+      hash: '774392154f4241c68072e85db8c2a3eac3f9083a6e2f31bf7a5986baf4b67dc2',
+      runnerType: { value: 'unknown', inferred: true },
+      determinism: { value: 'unknown', inferred: true },
+      semanticFeatures: { values: ['task-spawn', 'state-write'], inferred: true },
+      semanticManifest: {
+        workflowId: '/workflows/autonomous',
+        semantics: [
+          {
+            family: 'parallel-wave',
+            lifecycle: ['spawn', 'poll', 'collect'],
+            provenance: 'audit-inference',
+          },
+        ],
+      },
+      stepCount: { value: 24, inferred: true },
+    },
+    {
+      id: '/workflows/progress',
+      isTopLevel: true,
+      path: 'get-shit-done/workflows/progress.md',
+      hash: '842f0ad4db1fe3b0b4ab7c9dcfc879b6bd0f376bbab64f003760a92ab72e7f88',
+      runnerType: { value: 'standalone', inferred: true },
+      determinism: { value: 'deterministic', inferred: true },
+      semanticFeatures: { values: ['config-read'], inferred: true },
+      semanticManifest: {
+        workflowId: '/workflows/progress',
+        semantics: [
+          {
+            family: 'config-gate',
+            configKeys: ['.planning/config.json'],
+            guardName: 'progress-query',
+            provenance: 'audit-inference',
+          },
+        ],
+      },
+      stepCount: { value: 3, inferred: true },
+    },
   ];
 
   const workflowSemantics = workflowCoverage.map(entry => entry.semanticManifest);
@@ -134,13 +206,14 @@ function makeManifests(overrides: Partial<WorkflowRunnerManifests> = {}): Workfl
   } as WorkflowRunnerManifests;
 }
 
-function makeDispatchInput(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+function makeDispatchInput(overrides: Partial<WorkflowRunnerDispatchInput> = {}): WorkflowRunnerDispatchInput {
   return {
     commandId: '/gsd-add-phase',
     workflowId: '/workflows/add-phase',
     runId: 'run-1',
     stateId: 'ready',
-    config: {
+    stepId: 'step-1',
+    configSnapshot: {
       workflow: {
         auto_advance: false,
         nyquist_validation: true,
@@ -189,6 +262,51 @@ describe('WorkflowRunner', () => {
     expect(result).toMatchObject({ kind: 'error', code: 'missing-workflow' });
   });
 
+  it('returns posture records without packets for composite-review and query-native workflows', () => {
+    const runner = new WorkflowRunner(makeManifests());
+
+    for (const input of [
+      makeDispatchInput({ commandId: '/gsd-autonomous', workflowId: '/workflows/autonomous' }),
+      makeDispatchInput({ commandId: '/gsd-progress', workflowId: '/workflows/progress' }),
+    ]) {
+      const result = runner.dispatch(input);
+
+      expect(result.kind).toBe('posture');
+      expect('packet' in result).toBe(false);
+    }
+  });
+
+  it('builds a support matrix entry for every workflow semantic manifest item', () => {
+    const manifests = makeManifests();
+    const runner = new WorkflowRunner(manifests);
+    const supportMatrix = runner.buildSupportMatrix();
+
+    expect(supportMatrix.map(entry => entry.workflowId).sort()).toEqual(
+      manifests.workflowSemantics.map(entry => entry.workflowId).sort(),
+    );
+    expect(supportMatrix).toEqual(expect.arrayContaining([
+      expect.objectContaining({ disposition: 'packet-template' }),
+      expect.objectContaining({ disposition: 'dynamic-branch' }),
+      expect.objectContaining({ disposition: 'composite-review' }),
+      expect.objectContaining({ disposition: 'query-native' }),
+    ]));
+  });
+
+  it('requires branchId for dynamic-branch dispatch', () => {
+    const runner = new WorkflowRunner(makeManifests());
+
+    const result = runner.dispatch(makeDispatchInput({
+      commandId: '/gsd-discuss-phase',
+      workflowId: '/workflows/discuss-phase',
+    }));
+
+    expect(result).toMatchObject({
+      kind: 'error',
+      code: 'dispatch-error',
+      message: 'branchId required for dynamic workflow /workflows/discuss-phase',
+    });
+  });
+
   it('emits one deterministic packet with a config hash and atomic instruction', () => {
     const runner = new WorkflowRunner(makeManifests());
 
@@ -199,6 +317,7 @@ describe('WorkflowRunner', () => {
     expect(Array.isArray(result.packet)).toBe(false);
     expect(result.packet.configSnapshotHash).toMatch(/^[a-f0-9]{64}$/);
     expect(result.packet.instruction).not.toContain('\n- ');
+    expect(result.packet.reportCommand).toBe('gsd-sdk query fsm.transition <workstream> <onSuccess> success');
   });
 
   it('selects a dynamic mode branch without reading model output', () => {
