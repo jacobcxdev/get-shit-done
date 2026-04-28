@@ -6,6 +6,7 @@ import {
   type WorkflowRunnerManifests,
 } from './workflow-runner.js';
 import { sortKeysDeep } from '../compile/baselines.js';
+import { GSDEventType } from '../types.js';
 
 function makeManifests(overrides: Partial<WorkflowRunnerManifests> = {}): WorkflowRunnerManifests {
   const commandClassification = [
@@ -358,6 +359,40 @@ describe('WorkflowRunner', () => {
       kind: 'error',
       code: 'dispatch-error',
       message: 'Mandatory providers unavailable: gemini',
+      workflowId: '/workflows/add-phase',
+      commandId: '/gsd-add-phase',
+    });
+    expect('packet' in result).toBe(false);
+  });
+
+  it('blocks packet dispatch when pre-emit runtime contract validation fails', () => {
+    const runner = new WorkflowRunner(makeManifests());
+
+    const result = runner.dispatch(makeDispatchInput({
+      agentContracts: [
+        {
+          id: 'gsd-roadmapper',
+          path: 'agents/gsd-roadmapper.md',
+          hash: 'b'.repeat(64),
+          name: 'gsd-roadmapper',
+          description: 'Creates roadmap plans.',
+          roleClass: 'planner',
+          allowedTools: ['Read', 'Write'],
+          diskWriteMandate: true,
+          worktreeRequired: true,
+          outputArtifacts: ['ROADMAP.md'],
+          completionMarker: 'ROADMAP COMPLETE',
+        },
+      ],
+      worktreeContext: {
+        activeWorktreePath: null,
+      },
+    }));
+
+    expect(result).toEqual({
+      kind: 'error',
+      code: 'dispatch-error',
+      message: GSDEventType.WorktreeRequired,
       workflowId: '/workflows/add-phase',
       commandId: '/gsd-add-phase',
     });
