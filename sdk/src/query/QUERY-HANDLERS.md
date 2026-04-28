@@ -15,8 +15,8 @@ This document records contracts for the typed query layer consumed by `gsd-sdk q
 1. **`normalizeQueryCommand()`** (`normalize-query-command.ts`) — maps the first argv tokens to the same **command + subcommand** patterns as `gsd-tools` `runCommand()` where needed (e.g. `state json` → `state.json`, `init execute-phase 9` → `init.execute-phase` with args `['9']`, `scaffold …` → `phase.scaffold`). Re-exported from **`@gsd-build/sdk`** and **`createRegistry`’s module** (`sdk/src/query/index.ts`) so programmatic callers can mirror CLI tokenization without importing a deep path.
 2. **`resolveQueryArgv()`** (`registry.ts`) — **longest-prefix match** on the normalized argv: tries joined keys `a.b.c` then `a b c` for each prefix length, longest first. Example: `state update status X` → handler `state.update` with args `[status, X]`.
 3. **Dotted single token**: one token like `init.new-project` matches the registry; if the first pass finds no handler, a single dotted token is split and matching runs again.
-4. **CJS fallback (CLI)**: if nothing matches a registered handler and `GSD_QUERY_FALLBACK` is not `off`/`never`/`false`/`0`, the CLI shells out to `gsd-tools.cjs` with argv derived from the normalized tokens (dotted commands are split into CJS-style segments). stderr receives a short bridge warning. Set `GSD_QUERY_FALLBACK=off` for strict mode (parity tests). CLI-only commands such as `graphify` rely on this path until native handlers exist.
-5. **Output**: JSON written to stdout for successful handler results.
+4. **Unknown commands**: if nothing matches a registered handler, the CLI returns a typed error. New Phase 3 terminal output must not shell out from `sdk/src/cli.ts`; subprocess parity lives in dedicated golden test helpers.
+5. **Output**: successful handler results are formatted through `formatQueryOutput()` for UI-contracted query surfaces; exact terminal copy is sourced from `03-UI-SPEC.md`.
 
 **Registered:** `phase.add-batch` / `phase add-batch` — batch append (see `phaseAddBatch` in `phase-lifecycle.ts`).
 
@@ -203,23 +203,23 @@ These handlers implement `.planning/research/decision-routing-audit.md` — **no
 
 ### Tier 2
 
-| Dispatch | Purpose |
-| -------- | ------- |
-| `check.auto-mode` / `check auto-mode [workstream]` | `active` (OR of `workflow.auto_advance` and FSM-scoped `autoMode` chain state), `source` (`none` / `auto_advance` / `auto_chain` / `both`), plus `auto_chain_active` and `auto_advance`. Replaces paired config reads in checkpoint and auto-advance steps. Use `--pick active` or `--pick auto_chain_active` when a workflow only needs one field. |
-| `fsm.state` / `fsm state [workstream]` | Reads the workstream-scoped FSM state JSON from `.planning/fsm-state.json` or `.planning/workstreams/<workstream>/fsm-state.json`. |
-| `fsm.state.init` / `fsm state init <runId> <workflowId> <currentState> [workstream]` | Creates the initial versioned FSM run-state JSON using the current effective config snapshot. |
-| `fsm.run-id` / `fsm run-id [workstream]` | Reads the active FSM `runId` from durable state without mutating history. |
-| `fsm.transition` / `fsm transition <workstream> <toState> <outcome>` | Advances FSM state through the lock-protected transition helper and emits `fsm_transition` mutation events. |
-| `fsm.history` / `fsm history [workstream]` | Returns durable transition history in chronological order. |
-| `fsm.confidence` / `fsm confidence [workstream]` | Derives `full` or `reduced:<provider-list>` from transition history; it never performs live provider checks. |
-| `fsm.auto-mode.set` / `fsm auto-mode set <true\|false> <auto_chain\|auto_advance\|both\|none> [workstream]` | Updates only FSM `autoMode` for the target workstream, creating scoped FSM state when absent. |
-| `phase.edit` / `phase edit [workstream] <field> <value>` | Mutates only `MUTABLE_PHASE_FIELDS` in FSM state and emits `phase_edit`; two-argument calls use the registry workstream, three-argument calls use explicit workstream first. |
-| `thread.id` / `thread id [workstream]` | Returns `threadId` from durable FSM `thread.id`, falling back to `runId`, with no subprocess calls. |
-| `thread.workstream` / `thread workstream [workstream]` | Returns the FSM state's stored workstream and run ID for the selected state file. |
-| `thread.session` / `thread session [workstream]` | Returns durable FSM `thread.sessionId`, falling back to `runId`, with no shell parsing. |
-| `lock.status` / `lock status [workstream]` | Reports FSM lock `holder`, `acquiredAt`, `ageSeconds`, and `stale` without exposing command line, environment, cwd, or home paths. |
-| `detect.phase-type` / `detect phase-type <phase>` | Structured UI/schema/API/infra detection for a phase. Returns `has_frontend`, `frontend_indicators`, `has_schema`, `schema_orm`, `schema_files`, `has_api`, `has_infra`, `push_command` (null, reserved). Replaces fragile grep-based UI detection in `autonomous.md`, `plan-phase.md`, etc. (audit §3.6). |
-| `check.completion` / `check completion <phase\|milestone> <id>` | Phase or milestone completion rollup. Phase mode: `plans_total`, `plans_with_summaries`, `missing_summaries`, `verification_status`, `uat_status`, `debt` (`uat_gaps`, `verification_failures`, `human_needed`), `complete`. Milestone mode: `phase_count`, `phases_complete`, `phases_incomplete`, `complete`. Replaces PLAN/SUMMARY counting in `transition.md`, `complete-milestone.md` (audit §3.7). |
+| Dispatch | Purpose | Terminal output shape |
+| -------- | ------- | --------------------- |
+| `check.auto-mode` / `check auto-mode [workstream]` | `active` (OR of `workflow.auto_advance` and FSM-scoped `autoMode` chain state), `source` (`none` / `auto_advance` / `auto_chain` / `both`), plus `auto_chain_active` and `auto_advance`. Replaces paired config reads in checkpoint and auto-advance steps. Use `--pick active` or `--pick auto_chain_active` when a workflow only needs one field. | JSON object |
+| `fsm.state` / `fsm state [workstream]` | Reads the current FSM state from `.planning/fsm-state.json` or `.planning/workstreams/<workstream>/fsm-state.json`. | `03-UI-SPEC.md` scalar stdout (`verify`) |
+| `fsm.state.init` / `fsm state init <runId> <workflowId> <currentState> [workstream]` | Creates the initial versioned FSM run-state JSON using the current effective config snapshot. | JSON object |
+| `fsm.run-id` / `fsm run-id [workstream]` | Reads the active FSM `runId` from durable state without mutating history. | `03-UI-SPEC.md` scalar stdout (`run-abc123`) |
+| `fsm.transition` / `fsm transition <workstream> <toState> <outcome>` | Advances FSM state through the lock-protected transition helper and emits `fsm_transition` mutation events. | `03-UI-SPEC.md` `[OK]` stderr + JSON object stdout; `[WARN]` stderr + JSON object stdout when reduced; `[ERROR]` stderr + typed JSON stdout on failure |
+| `fsm.history` / `fsm history [workstream]` | Returns durable transition history in chronological order. | `03-UI-SPEC.md` JSON array stdout with `reducedConfidence` and `missingProviders` defaults |
+| `fsm.confidence` / `fsm confidence [workstream]` | Derives `full`, `reduced:<provider-list>`, or `blocked:<provider-list>` from transition history; it never performs live provider checks. | `03-UI-SPEC.md` scalar stdout |
+| `fsm.auto-mode.set` / `fsm auto-mode set <true\|false> <auto_chain\|auto_advance\|both\|none> [workstream]` | Updates only FSM `autoMode` for the target workstream, creating scoped FSM state when absent. | JSON object |
+| `phase.edit` / `phase edit [workstream] <field> <value>` | Mutates only `MUTABLE_PHASE_FIELDS` in FSM state and emits `phase_edit`; two-argument calls use the registry workstream, three-argument calls use explicit workstream first. | `03-UI-SPEC.md` `[OK]` stderr + JSON object stdout; `[ERROR]` stderr + typed JSON stdout for disallowed fields |
+| `thread.id` / `thread id [workstream]` | Returns `threadId` from durable FSM `thread.id`, falling back to `runId`, with no subprocess calls. | `03-UI-SPEC.md` scalar stdout |
+| `thread.workstream` / `thread workstream [workstream]` | Returns the FSM state's stored workstream for the selected state file. | `03-UI-SPEC.md` scalar stdout |
+| `thread.session` / `thread session [workstream]` | Returns durable session metadata, falling back to `runId` and FSM `createdAt`, with no shell parsing. | `03-UI-SPEC.md` JSON object stdout (`sessionId`, `threadId`, `workstream`, `startedAt`) |
+| `lock.status` / `lock status [workstream]` | Reports FSM lock `holder`, `acquiredAt`, `ageSeconds`, and `stale` without exposing command line, environment, cwd, or home paths. | JSON object |
+| `detect.phase-type` / `detect phase-type <phase>` | Structured UI/schema/API/infra detection for a phase. Returns `has_frontend`, `frontend_indicators`, `has_schema`, `schema_orm`, `schema_files`, `has_api`, `has_infra`, `push_command` (null, reserved). Replaces fragile grep-based UI detection in `autonomous.md`, `plan-phase.md`, etc. (audit §3.6). | JSON object |
+| `check.completion` / `check completion <phase\|milestone> <id>` | Phase or milestone completion rollup. Phase mode: `plans_total`, `plans_with_summaries`, `missing_summaries`, `verification_status`, `uat_status`, `debt` (`uat_gaps`, `verification_failures`, `human_needed`), `complete`. Milestone mode: `phase_count`, `phases_complete`, `phases_incomplete`, `complete`. Replaces PLAN/SUMMARY counting in `transition.md`, `complete-milestone.md` (audit §3.7). | JSON object |
 
 ### Tier 3
 
