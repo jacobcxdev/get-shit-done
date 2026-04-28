@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-11-state-runtime-contract-hardening PLAN.md — 2 plans remaining
-last_updated: "2026-04-28T15:39:00Z"
+stopped_at: Completed 03-12-cli-output-contract PLAN.md — 1 plan remaining
+last_updated: "2026-04-28T16:01:28Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 6
-  completed_phases: 3
-  total_plans: 21
-  completed_plans: 21
-  percent: 100
+  completed_phases: 2
+  total_plans: 24
+  completed_plans: 23
+  percent: 96
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-27)
 ## Current Position
 
 Phase: 3 of 6 (advisory runner + query integration)
-Plan: 03-11 of 13 complete; 2 remaining plans ready to execute
+Plan: 03-12 of 13 complete; 1 remaining plan ready to execute
 Status: Executing
 Last activity: 2026-04-28
 
@@ -36,10 +36,9 @@ Progress: [██████████] Phase 3 gap closure in progress
 
 **Velocity:**
 
-- Total plans completed: 22
-- Total plans completed: 22
+- Total plans completed: 23
 - Average duration: 10 min
-- Total execution time: 2.11 hours
+- Total execution time: 2.41 hours
 
 **By Phase:**
 
@@ -47,12 +46,12 @@ Progress: [██████████] Phase 3 gap closure in progress
 |-------|-------|-------|----------|
 | 1. Compiler / Audit Foundation | 7 | 78 min | 11 min |
 | 2 | 4 | - | - |
-| 3. Advisory Runner + Query Integration | 11/13 | 94 min | 9 min |
+| 3. Advisory Runner + Query Integration | 12/13 | 112 min | 9 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 7 min, 11 min, 6 min, 8 min, 8 min
-- Trend: State/runtime hardening complete
+- Last 5 plans: 11 min, 6 min, 8 min, 8 min, 18 min
+- Trend: CLI output contract complete
 
 *Updated after each plan completion*
 | Phase 02 PPLAN-01-packet-schema | 8min | 3 tasks | 10 files |
@@ -68,6 +67,7 @@ Progress: [██████████] Phase 3 gap closure in progress
 | Phase 03-advisory-runner-query-integration P03-09-runtime-contract-events | 6 min | 3 tasks | 7 files |
 | Phase 03-advisory-runner-query-integration 03-10-p4-chain-gap-closure | 8 min | 3 tasks | 7 files |
 | Phase 03-advisory-runner-query-integration 03-11-state-runtime-contract-hardening | 8 min | 3 tasks | 8 files |
+| Phase 03-advisory-runner-query-integration 03-12-cli-output-contract | 18 min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -105,10 +105,13 @@ Recent decisions affecting current work:
 - [Phase 03 Plan 03-11]: FSM query reads reject unsupported schema versions before returning data or writing phase edits.
 - [Phase 03 Plan 03-11]: Completion marker absence events now separate marker IDs from missing artifact paths while preserving blocking semantics.
 - [Phase 03 Plan 03-11]: Stale-lock inspection failures are rethrown directly so callers see the root lock-stale/read failure.
+- [Phase 03 Plan 03-12]: Phase 3 query terminal output is centralized in pure `formatQueryOutput()` instead of generic JSON serialization.
+- [Phase 03 Plan 03-12]: The native query CLI path stays subprocess-free for UI-contracted output handling.
+- [Phase 03 Plan 03-12]: Compile count output is emitted by the CLI layer while compiler report generation remains side-effect-free.
 
 ### Pending Todos
 
-- Execute Phase 3 — Advisory Runner + Query Integration (2 gap-closure plans remaining)
+- Execute Phase 3 — Advisory Runner + Query Integration (1 gap-closure plan remaining)
 - Begin Phase 4 — Parity Suite + gsd-post-update Retirement after Phase 3 execution completes
 
 ### Blockers/Concerns
@@ -133,9 +136,9 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 ## Session Continuity
 
-Last session: 2026-04-28T15:39:00Z
-Stopped at: Completed 03-11-state-runtime-contract-hardening PLAN.md — 2 plans remaining
-Resume file: `.planning/phases/03-advisory-runner-query-integration/03-12-PLAN.md`
+Last session: 2026-04-28T16:01:28Z
+Stopped at: Completed 03-12-cli-output-contract PLAN.md — 1 plan remaining
+Resume file: `.planning/phases/03-advisory-runner-query-integration/03-13-PLAN.md`
 
 ## Session Note — 2026-04-28
 

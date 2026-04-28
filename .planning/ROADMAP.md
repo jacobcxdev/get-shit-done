@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Compiler / Audit Foundation** - `gsd-sdk compile` exists and produces passing manifests for commands, workflows, agents, hooks, billing-boundary checks, and command classifications
 - [x] **Phase 2: Packet Schema + State Contracts** - Versioned packet schema, execution constraints, config/routing validation, workstream-scoped FSM state, and workflow semantic manifests are typed and compiler-enforced (completed 2026-04-27)
-- [ ] **Phase 3: Advisory Runner + Query Integration** - WorkflowRunner generalises PhaseRunner/InitRunner using deterministic packet emission, query registry FSM handlers, provider fallback, Nyquist P4, and typed errors; 03-11 through 03-13 are gap-closure addenda
+- [ ] **Phase 3: Advisory Runner + Query Integration** - WorkflowRunner generalises PhaseRunner/InitRunner using deterministic packet emission, query registry FSM handlers, provider fallback, Nyquist P4, and typed errors; 03-13 remains as the final gap-closure addendum
 - [ ] **Phase 4: Parity Suite + gsd-post-update Retirement** - Workflow parity, hook install fixes, and `gsd-post-update` no-op retirement gates are green without network access
 - [ ] **Phase 5: Extension API + Migration Hardening (v1.x)** - Extension insertion/replacement/gates and in-flight migration/rollback are production-hardened after v1 parity is stable
 - [ ] **Phase 6: Compatibility Cleanup + Hard Outlier Posturing (v2+)** - Markdown is slimmed only after machine eligibility passes; hard outliers are formally documented
@@ -72,7 +72,7 @@ Plans:
   3. Nyquist P4 compliance is a distinct `p4-compliance` state after `verify` and before `advance`; it is never included inside the verify multi-model packet sequence
   4. FSM query handlers (`fsm.state`, `fsm.run-id`, `fsm.transition`, `fsm.history`, `fsm.confidence`, `thread.*`, `phase.edit`) are native SDK handlers with dotted and spaced aliases
   5. Provider unavailability completes with typed reduced-confidence transitions, missing-provider history, and no indefinite stall; missing completion markers and worktree requirements emit typed events
-**Plans**: 11 of 13 plans complete; 03-12 and 03-13 remain in the gap-closure addenda
+**Plans**: 12 of 13 plans complete; 03-13 remains in the gap-closure addenda
 **Research flag**: Recommend `/gsd-research-phase` before planning — map all 84 workflows against WorkflowRunner pattern support, HITL seams, and dynamic-branch classifications.
 
 ### Phase 4: Parity Suite + gsd-post-update Retirement
@@ -122,7 +122,7 @@ Phase 6 (v2+) cannot begin before Phase 4 parity gates are green
 |-------|----------------|--------|-----------|
 | 1. Compiler / Audit Foundation | 7/7 | Complete | 2026-04-27 |
 | 2. Packet Schema + State Contracts | 4/4 | Complete | 2026-04-27 |
-| 3. Advisory Runner + Query Integration | 11/13 | Gap closure in progress | - |
+| 3. Advisory Runner + Query Integration | 12/13 | Gap closure in progress | - |
 | 4. Parity Suite + gsd-post-update Retirement | 0/TBD | Not started | - |
 | 5. Extension API + Migration Hardening (v1.x) | 0/TBD | Not started | - |
 | 6. Compatibility Cleanup + Hard Outlier Posturing (v2+) | 0/TBD | Not started | - |
