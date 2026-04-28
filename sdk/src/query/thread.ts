@@ -1,5 +1,11 @@
 import { readFile } from 'node:fs/promises';
-import { FsmStateError, fsmStatePath, type FsmRunState } from '../advisory/fsm-state.js';
+import {
+  CURRENT_FSM_STATE_SCHEMA_VERSION,
+  FsmStateError,
+  fsmStatePath,
+  parseFsmRunState,
+  type FsmRunState,
+} from '../advisory/fsm-state.js';
 import type { QueryHandler } from './utils.js';
 
 function targetWorkstream(workstream: string | undefined, arg: string | undefined): string | undefined {
@@ -22,11 +28,7 @@ async function readThreadState(projectDir: string, workstream: string | undefine
     throw new FsmStateError('read-failed', `Failed to read FSM state file: ${String(error)}`);
   }
 
-  try {
-    return JSON.parse(raw) as FsmRunState;
-  } catch (error) {
-    throw new FsmStateError('read-failed', `Failed to parse FSM state file: ${String(error)}`);
-  }
+  return parseFsmRunState(raw, CURRENT_FSM_STATE_SCHEMA_VERSION);
 }
 
 export const threadId: QueryHandler = async (args, projectDir, workstream) => {

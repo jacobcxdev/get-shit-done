@@ -846,6 +846,8 @@ export interface GSDP4ComplianceFailedEvent extends GSDEventBase {
  */
 export interface GSDWorktreeRequiredEvent extends GSDEventBase {
   type: GSDEventType.WorktreeRequired;
+  code: 'WORKTREE_REQUIRED';
+  message: string;
   workflowId: string;
   stepId: string;
   agentId: string;
@@ -858,10 +860,13 @@ export interface GSDWorktreeRequiredEvent extends GSDEventBase {
  */
 export interface GSDCompletionMarkerMissingEvent extends GSDEventBase {
   type: GSDEventType.CompletionMarkerMissing;
+  code: 'COMPLETION_MARKER_MISSING';
+  message: string;
   workflowId: string;
   stepId: string;
   agentId: string;
   expectedMarkers: string[];
+  recoveryHint: string;
   blocksEmission: true;
 }
 
@@ -870,10 +875,15 @@ export interface GSDCompletionMarkerMissingEvent extends GSDEventBase {
  */
 export interface GSDCompletionMarkerAbsentEvent extends GSDEventBase {
   type: GSDEventType.CompletionMarkerAbsent;
+  code: 'COMPLETION_MARKER_ABSENT';
+  message: string;
   workflowId: string;
   stepId: string;
   agentId: string;
+  markerId?: string;
   expectedMarkers: string[];
+  artifactPaths?: string[];
+  recoveryHint: string;
   blocksTransition: true;
 }
 

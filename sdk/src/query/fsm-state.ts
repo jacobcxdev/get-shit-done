@@ -8,6 +8,7 @@ import {
   type FsmRunState,
   createInitialFsmRunState,
   fsmStatePath,
+  parseFsmRunState,
   readFsmLockStatus,
   writeFsmState,
 } from '../advisory/fsm-state.js';
@@ -137,11 +138,7 @@ async function readState(path: string): Promise<FsmRunState> {
     throw new FsmStateError('read-failed', `Failed to read FSM state file: ${String(error)}`);
   }
 
-  try {
-    return JSON.parse(raw) as FsmRunState;
-  } catch (error) {
-    throw new FsmStateError('read-failed', `Failed to parse FSM state file: ${String(error)}`);
-  }
+  return parseFsmRunState(raw, CURRENT_FSM_STATE_SCHEMA_VERSION);
 }
 
 async function readStateIfPresent(path: string): Promise<FsmRunState | null> {
@@ -247,9 +244,12 @@ export const fsmAutoModeSet: QueryHandler = async (args, projectDir, workstream)
     now: new Date().toISOString(),
   });
 
-  state.autoMode = { active, source };
-  state.updatedAt = new Date().toISOString();
-  await writeFsmState(projectDir, target, state);
+  const updatedState: FsmRunState = {
+    ...state,
+    autoMode: { ...state.autoMode, active, source },
+    updatedAt: new Date().toISOString(),
+  };
+  await writeFsmState(projectDir, target, updatedState);
 
   return { data: { active, source, workstream: target ?? null } };
 };
@@ -271,22 +271,41 @@ export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
   const path = fsmStatePath(projectDir, target);
   const state = await readState(path);
   let parsedValue: string | boolean = value;
+  let updatedState: FsmRunState;
+  const updatedAt = new Date().toISOString();
   if (field === 'currentState') {
-    state.currentState = value;
+    updatedState = {
+      ...state,
+      currentState: value,
+      updatedAt,
+    };
   } else if (field === 'resume.status') {
     const resumeStatus = parseResumeStatus(value);
     parsedValue = resumeStatus;
-    state.resume.status = resumeStatus;
+    updatedState = {
+      ...state,
+      resume: { ...state.resume, status: resumeStatus },
+      updatedAt,
+    };
   } else if (field === 'autoMode.active') {
     parsedValue = parsePhaseEditActive(value);
-    state.autoMode.active = parsedValue;
+    updatedState = {
+      ...state,
+      autoMode: { ...state.autoMode, active: parsedValue },
+      updatedAt,
+    };
   } else if (field === 'autoMode.source') {
     const source = parsePhaseEditSource(value);
     parsedValue = source;
-    state.autoMode.source = source;
+    updatedState = {
+      ...state,
+      autoMode: { ...state.autoMode, source },
+      updatedAt,
+    };
+  } else {
+    throw new GSDError(`field '${field}' is not an editable phase field`, ErrorClassification.Validation);
   }
-  state.updatedAt = new Date().toISOString();
-  await writeFsmState(projectDir, target, state);
+  await writeFsmState(projectDir, target, updatedState);
 
   return { data: { field, value: parsedValue, workstream: target ?? null } };
 };

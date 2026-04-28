@@ -196,6 +196,26 @@ export function createInitialFsmRunState(input: {
   };
 }
 
+export function parseFsmRunState(
+  raw: string,
+  expectedSchemaVersion: typeof CURRENT_FSM_STATE_SCHEMA_VERSION = CURRENT_FSM_STATE_SCHEMA_VERSION,
+): FsmRunState {
+  let parsed: FsmRunState;
+  try {
+    parsed = JSON.parse(raw) as FsmRunState;
+  } catch (error) {
+    throw new FsmStateError('read-failed', `Failed to parse FSM state file: ${String(error)}`);
+  }
+
+  if (parsed.stateSchemaVersion !== expectedSchemaVersion) {
+    throw new FsmStateError(
+      'schema-version-mismatch',
+      `Unsupported FSM state schema version: ${parsed.stateSchemaVersion}`,
+    );
+  }
+  return parsed;
+}
+
 function sortFsmStateForWrite(state: FsmRunState): FsmRunState {
   return {
     ...(sortKeysDeep(state) as FsmRunState),
@@ -223,9 +243,7 @@ export async function acquireFsmLock(fsmPath: string): Promise<string> {
       try {
         await throwIfStaleLock(lockPath);
       } catch (staleError) {
-        if (staleError instanceof FsmStateError) {
-          throw staleError;
-        }
+        throw staleError;
       }
 
       if (attempt === maxRetries - 1) {
@@ -332,21 +350,7 @@ async function readExistingFsmState(path: string): Promise<FsmRunState> {
     throw new FsmStateError('read-failed', `Failed to read FSM state file: ${String(error)}`);
   }
 
-  try {
-    const parsed = JSON.parse(raw) as FsmRunState;
-    if (parsed.stateSchemaVersion !== CURRENT_FSM_STATE_SCHEMA_VERSION) {
-      throw new FsmStateError(
-        'schema-version-mismatch',
-        `Unsupported FSM state schema version: ${parsed.stateSchemaVersion}`,
-      );
-    }
-    return parsed;
-  } catch (error) {
-    if (error instanceof FsmStateError) {
-      throw error;
-    }
-    throw new FsmStateError('read-failed', `Failed to parse FSM state file: ${String(error)}`);
-  }
+  return parseFsmRunState(raw);
 }
 
 function transitionRejected(
@@ -404,20 +408,23 @@ export async function advanceFsmState(input: FsmTransitionInput): Promise<FsmTra
       }
     }
 
-    state.transitionHistory = [...state.transitionHistory, entry];
-    state.currentState = input.toState;
-    state.configSnapshotHash = configHash;
-    state.updatedAt = timestamp;
+    const updatedState: FsmRunState = {
+      ...state,
+      transitionHistory: [...state.transitionHistory, entry],
+      currentState: input.toState,
+      configSnapshotHash: configHash,
+      updatedAt: timestamp,
+    };
 
-    await writeFsmState(input.projectDir, input.workstream, state, { heldLockPath: lockPath });
+    await writeFsmState(input.projectDir, input.workstream, updatedState, { heldLockPath: lockPath });
 
     return {
       timestamp,
       fromState,
       toState: input.toState,
-      runId: state.runId,
+      runId: updatedState.runId,
       outcome: input.outcome,
-      workflowId: state.workflowId,
+      workflowId: updatedState.workflowId,
       workstream: input.workstream ?? null,
       configSnapshotHash: configHash,
       ...(entry.reducedConfidence !== undefined ? { reducedConfidence: entry.reducedConfidence } : {}),

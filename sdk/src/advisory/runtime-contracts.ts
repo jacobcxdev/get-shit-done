@@ -22,7 +22,11 @@ export type RuntimeExecutionReport = {
   artifacts: string[];
 };
 
-const WORKTREE_RECOVERY_HINT = 'Create or attach an agent worktree before executing this packet';
+const WORKTREE_RECOVERY_HINT = 'Activate a git worktree before dispatching this packet, then retry';
+const COMPLETION_MARKER_MISSING_RECOVERY_HINT =
+  'Add expected evidence declaration to the packet definition then re-compile';
+const COMPLETION_MARKER_ABSENT_RECOVERY_HINT =
+  'Re-run the agent step or verify the required marker was written, then retry the FSM transition';
 
 function hasActiveWorktree(context: RuntimeWorktreeContext): boolean {
   return typeof context.activeWorktreePath === 'string' && context.activeWorktreePath.trim().length > 0;
@@ -49,6 +53,8 @@ function worktreeRequiredEvent(packet: AdvisoryPacket, agent: AgentEntry): GSDWo
   return {
     type: GSDEventType.WorktreeRequired,
     ...eventBase(packet.runId),
+    code: 'WORKTREE_REQUIRED',
+    message: `Packet targets agent '${agent.id}' which requires an active git worktree`,
     workflowId: packet.workflowId,
     stepId: packet.stepId,
     agentId: agent.id,
@@ -61,10 +67,14 @@ function completionMarkerMissingEvent(packet: AdvisoryPacket, agent: AgentEntry,
   return {
     type: GSDEventType.CompletionMarkerMissing,
     ...eventBase(packet.runId),
+    code: 'COMPLETION_MARKER_MISSING',
+    message:
+      `Packet for workflowId='${packet.workflowId}' stepId='${packet.stepId}' is missing required completion marker declaration`,
     workflowId: packet.workflowId,
     stepId: packet.stepId,
     agentId: agent.id,
     expectedMarkers: [marker],
+    recoveryHint: COMPLETION_MARKER_MISSING_RECOVERY_HINT,
     blocksEmission: true,
   };
 }
@@ -72,15 +82,25 @@ function completionMarkerMissingEvent(packet: AdvisoryPacket, agent: AgentEntry,
 function completionMarkerAbsentEvent(
   report: RuntimeExecutionReport,
   agentId: string,
-  expectedMarkers: string[],
+  absence: { markerId?: string; artifactPaths?: string[] },
 ): GSDCompletionMarkerAbsentEvent {
+  const artifactPaths = absence.artifactPaths ?? [];
+  const markerId = absence.markerId;
   return {
     type: GSDEventType.CompletionMarkerAbsent,
     ...eventBase(report.runId),
+    code: 'COMPLETION_MARKER_ABSENT',
+    message: markerId
+      ? `Required marker '${markerId}' was not found after runtime success for workflowId='${report.workflowId}' stepId='${report.stepId}'`
+      : `Required artifact${artifactPaths.length === 1 ? '' : 's'} '${artifactPaths.join("', '")}' ` +
+        `${artifactPaths.length === 1 ? 'was' : 'were'} not found after runtime success for workflowId='${report.workflowId}' stepId='${report.stepId}'`,
     workflowId: report.workflowId,
     stepId: report.stepId,
     agentId,
-    expectedMarkers,
+    ...(markerId ? { markerId } : {}),
+    expectedMarkers: markerId ? [markerId] : [],
+    ...(artifactPaths.length > 0 ? { artifactPaths } : {}),
+    recoveryHint: COMPLETION_MARKER_ABSENT_RECOVERY_HINT,
     blocksTransition: true,
   };
 }
@@ -121,12 +141,12 @@ export function validateRuntimeReportContract(
 
   for (const agent of applicableAgents) {
     if (agent.completionMarker && !reportedMarkers.has(agent.completionMarker)) {
-      events.push(completionMarkerAbsentEvent(report, agent.id, [agent.completionMarker]));
+      events.push(completionMarkerAbsentEvent(report, agent.id, { markerId: agent.completionMarker }));
     }
 
     const missingArtifacts = agent.outputArtifacts.filter(artifact => !reportedArtifacts.has(artifact));
     if (missingArtifacts.length > 0) {
-      events.push(completionMarkerAbsentEvent(report, agent.id, missingArtifacts));
+      events.push(completionMarkerAbsentEvent(report, agent.id, { artifactPaths: missingArtifacts }));
     }
   }
 
