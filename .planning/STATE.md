@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: phase_complete
-stopped_at: Phase 4 context gathered — resume at .planning/phases/04-parity-suite-gsd-post-update-retirement/04-CONTEXT.md
-last_updated: "2026-04-28T19:30:00Z"
-last_activity: 2026-04-28
+status: in_progress
+stopped_at: "Phase 5 Plan 01 complete — extension slot registry (ExtensionRegistry, SealedExtensionGraph)"
+last_updated: "2026-04-29T00:47:38Z"
+last_activity: 2026-04-29
 progress:
   total_phases: 6
-  completed_phases: 3
-  total_plans: 24
-  completed_plans: 24
-  percent: 100
+  completed_phases: 4
+  total_plans: 39
+  completed_plans: 35
+  percent: 90
 ---
 
 # Project State
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-28)
 
 **Core value:** The SDK emits one atomic instruction packet at a time; the runtime executes it and reports back — `gsd-post-update` must become unnecessary.
-**Current focus:** Phase 4 — Parity Suite + gsd-post-update Retirement (context gathered, ready to plan)
+**Current focus:** Phase 5 — Extension API + Migration Hardening (planned; ready to execute)
 
 ## Current Position
 
-Phase: 4 of 6 (parity suite + gsd-post-update retirement)
-Plan: Not started
-Status: Context gathered, ready to plan
-Last activity: 2026-04-28
+Phase: 5 of 6 (extension API + migration hardening)
+Plan: 1/5 complete
+Status: In progress
+Last activity: 2026-04-29
 
-Progress: [██████████] Phase 4 context gathered, ready to plan
+Progress: [█████████░] Phase 5 executing — 1/5 plans done
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 24
+- Total plans completed: 34
 - Average duration: 10 min
 - Total execution time: 2.71 hours
 
@@ -50,8 +50,8 @@ Progress: [██████████] Phase 4 context gathered, ready to pl
 
 **Recent Trend:**
 
-- Last 5 plans: 6 min, 8 min, 8 min, 18 min, 18 min
-- Trend: Phase 3 complete
+- Last 5 plans: 8 min, 18 min, 18 min, 8 min, 9 min
+- Trend: Phase 5 executing
 
 *Updated after each plan completion*
 | Phase 02 PPLAN-01-packet-schema | 8min | 3 tasks | 10 files |
@@ -69,6 +69,8 @@ Progress: [██████████] Phase 4 context gathered, ready to pl
 | Phase 03-advisory-runner-query-integration 03-11-state-runtime-contract-hardening | 8 min | 3 tasks | 8 files |
 | Phase 03-advisory-runner-query-integration 03-12-cli-output-contract | 18 min | 3 tasks | 11 files |
 | Phase 03-advisory-runner-query-integration 03-13-runtime-report-handoff | 18 min | 3 tasks | 10 files |
+| Phase 04-parity-suite-gsd-post-update-retirement 04-05-generated-parity-fixtures | 8 min | 2 tasks | 5 files |
+| Phase 05-extension-api-migration-hardening 05-01-extension-slot-registry | 9 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -113,18 +115,19 @@ Recent decisions affecting current work:
 - [Phase 03 Plan 03-13]: Runtime reports are validated against the emitted packet identity and allowed outcomes before any FSM transition or provider metadata persistence.
 - [Phase 03 Plan 03-13]: Default advisory advance emits completion intent and waits for runtime evidence; direct `phaseComplete` remains confined to the opt-in legacy model-backed path.
 - [Phase 03 Plan 03-13]: Validated runtime reports can tolerate absent FSM initialization only in test/no-FSM contexts; real FSM states still persist provider metadata through `advanceFsmState()`.
+- [Phase 05 Plan 05-01]: finalize() is an explicit public call on ExtensionRegistry returning SealedExtensionGraph; cycle-detected and unknown-dependency errors are thrown (hard) from finalize() rather than returned as diagnostics.
+- [Phase 05 Plan 05-01]: co-anchor warnings use CompileDiagnostic shape with code EXT-01 stored on SealedExtensionGraph.warnings; no mkWarning import to preserve pure advisory layer boundary.
+- [Phase 05 Plan 05-01]: duplicate-id check is per extensionId+kind pair — same extension can register multiple slot kinds without conflict.
 
 ### Pending Todos
 
-- [Phase 3 verification dissent]: Codex/Gemini flagged runtime-report undeclared-agent acceptance, expectedEvidence enforcement, init-required fail-open, dynamic branch allowlisting, and mandatory provider omission as gaps; Claude verifier dismissed them as Phase 4 parity hardening backlog. Carry into Phase 4 planning before parity gates.
-- Plan Phase 4 — Parity Suite + gsd-post-update Retirement from `.planning/phases/04-parity-suite-gsd-post-update-retirement/04-CONTEXT.md`
+- Execute Phase 5 — Extension API + Migration Hardening — Plans 02–05 remaining.
 
 ### Blockers/Concerns
 
-- [Phase 4 planning]: Resolve Phase 3 verifier dissent before parity gates — Codex/Gemini flagged undeclared-agent runtime reports, missing `expectedEvidence` enforcement, `init-required` fail-open behaviour, dynamic branch allowlisting, and mandatory provider omission.
-- [Reduced confidence]: Gemini Pro was exhausted during Phase 2 verification; Claude and Codex passed after the PCKT-02 malformed packet diagnostics gap was fixed.
+- [Phase 4 verification]: Three-model verification reconciled to passed after `node scripts/phase4-parity.cjs` passed in the main worktree; Codex/Gemini residual concerns were verification-environment limits, not missing implementation.
+- [Phase 5 planning]: Phase 5 plans cover extension ordering/cycle risks and migration rollback semantics; execute them before Phase 6 planning.
 - [Pre-Phase 3]: Research flag — map all 84 workflows against WorkflowRunner step taxonomy before coding begins (highest-risk migration step).
-- [Pre-Phase 5]: Research flag — enumerate all active `.planning/` state-file formats before implementing migration hardening.
 
 ## Deferred Items
 
@@ -132,16 +135,16 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| v1.x | Extension API hardening (EXT-01–07) | Pending Phase 4 parity | Roundtable refresh |
-| v1.x | In-flight migration / rollback hardening (MIGR-01–05) | Pending Phase 4 parity; v1 state files must include `stateSchemaVersion` from first write | Roundtable refresh |
+| v1.x | Extension API hardening (EXT-01–07) | Planned in Phase 5; pending execution | Phase 5 planning |
+| v1.x | In-flight migration / rollback hardening (MIGR-01–05) | Planned in Phase 5; pending execution | Phase 5 planning |
 | v2+ | Markdown Slimming (SLIM-01–03) | Pending Phase 4 parity gates and slim-eligibility check | Init |
 | v2+ | Hard Outlier Posturing (OUTL-01–02) | Pending Phase 4 parity gates | Init |
 
 ## Session Continuity
 
-Last session: 2026-04-28T17:32:03Z
-Stopped at: Phase 3 complete, ready to plan Phase 4
-Resume file: None
+Last session: 2026-04-29T00:47:38Z
+Stopped at: Completed Phase 5 Plan 01 — extension slot registry
+Resume file: .planning/phases/05-extension-api-migration-hardening/05-02-PLAN.md
 
 ## Session Note — 2026-04-28
 
