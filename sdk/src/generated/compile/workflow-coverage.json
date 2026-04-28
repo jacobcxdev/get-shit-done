@@ -2749,6 +2749,29 @@
     "semanticManifest": {
       "semantics": [
         {
+          "branchIds": [
+            "explore:conversation",
+            "explore:create-all",
+            "explore:pick",
+            "explore:research",
+            "explore:skip"
+          ],
+          "family": "mode-dispatch",
+          "modes": [
+            "conversation",
+            "create-all",
+            "pick",
+            "research",
+            "skip"
+          ],
+          "priority": [
+            "conversation",
+            "default",
+            "selection"
+          ],
+          "provenance": "audit-inference"
+        },
+        {
           "configKeys": [
             ".planning/config.json",
             "workflow.*"

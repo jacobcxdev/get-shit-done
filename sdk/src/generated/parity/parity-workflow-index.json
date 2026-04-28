@@ -1,6 +1,19 @@
 [
   {
     "branchIds": [
+      "explore:conversation",
+      "explore:create-all",
+      "explore:pick",
+      "explore:research",
+      "explore:skip"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-explore",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/explore"
+  },
+  {
+    "branchIds": [
       "mode:auto",
       "mode:gaps",
       "mode:prd",
@@ -572,12 +585,6 @@
       "pause"
     ],
     "workflowId": "/workflows/verify-work"
-  },
-  {
-    "category": "dynamic-branch",
-    "commandId": "/gsd-explore",
-    "parityTier": "hard-outlier",
-    "workflowId": "/workflows/explore"
   },
   {
     "category": "dynamic-branch",

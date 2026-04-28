@@ -26,6 +26,20 @@ type WorkflowProviderConfig = {
   agent_routing?: Record<string, unknown>;
 };
 
+const WORKFLOW_MODE_DISPATCH_OVERRIDES: Record<string, { modes: string[]; priority: string[]; branchIds: string[] }> = {
+  '/workflows/explore': {
+    modes: ['conversation', 'research', 'create-all', 'pick', 'skip'],
+    priority: ['conversation', 'selection', 'default'],
+    branchIds: [
+      'explore:conversation',
+      'explore:create-all',
+      'explore:pick',
+      'explore:research',
+      'explore:skip',
+    ],
+  },
+};
+
 const SEMANTIC_CHECKS: SemanticCheck[] = [
   {
     pattern: /--(?:auto|reviews|gaps|prd|skip-research|skip-verify)|mode|flag/i,
@@ -258,6 +272,15 @@ export function inferWorkflowSemanticManifest(workflowId: string, content: strin
     if (check.pattern.test(content)) {
       semantics.push(check.create());
     }
+  }
+
+  const modeDispatchOverride = WORKFLOW_MODE_DISPATCH_OVERRIDES[workflowId];
+  if (modeDispatchOverride && !semantics.some(semantic => semantic.family === 'mode-dispatch')) {
+    semantics.push({
+      family: 'mode-dispatch',
+      ...modeDispatchOverride,
+      provenance: 'audit-inference',
+    });
   }
 
   return {

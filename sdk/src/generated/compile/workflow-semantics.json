@@ -7,6 +7,70 @@
     "semantics": [
       {
         "branchIds": [
+          "explore:conversation",
+          "explore:create-all",
+          "explore:pick",
+          "explore:research",
+          "explore:skip"
+        ],
+        "family": "mode-dispatch",
+        "modes": [
+          "conversation",
+          "create-all",
+          "pick",
+          "research",
+          "skip"
+        ],
+        "priority": [
+          "conversation",
+          "default",
+          "selection"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "configKeys": [
+          ".planning/config.json",
+          "workflow.*"
+        ],
+        "family": "config-gate",
+        "guardName": "workflow-config-gate",
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "parallel-wave",
+        "lifecycle": [
+          "collect",
+          "merge",
+          "poll",
+          "spawn"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "quantitative-gate",
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      },
+      {
+        "family": "runtime-type-branch",
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/explore"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
           "mode:auto",
           "mode:gaps",
           "mode:prd",
@@ -6265,47 +6329,6 @@
       }
     ],
     "workflowId": "/workflows/extract_learnings"
-  },
-  {
-    "semantics": [
-      {
-        "configKeys": [
-          ".planning/config.json",
-          "workflow.*"
-        ],
-        "family": "config-gate",
-        "guardName": "workflow-config-gate",
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "parallel-wave",
-        "lifecycle": [
-          "collect",
-          "merge",
-          "poll",
-          "spawn"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/explore"
   },
   {
     "semantics": [

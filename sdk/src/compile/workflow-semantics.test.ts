@@ -61,6 +61,21 @@ describe('inferWorkflowSemanticManifest', () => {
       branchIds: ['mode:auto', 'mode:reviews', 'mode:gaps', 'mode:prd', 'mode:skip-research', 'mode:skip-verify'],
     }));
   });
+
+  it('adds explicit branchIds for the explore dynamic-branch workflow', () => {
+    const manifest = inferWorkflowSemanticManifest('/workflows/explore', 'AskUserQuestion and optional research offer.');
+
+    expect(manifest.semantics).toContainEqual(expect.objectContaining({
+      family: 'mode-dispatch',
+      branchIds: [
+        'explore:conversation',
+        'explore:create-all',
+        'explore:pick',
+        'explore:research',
+        'explore:skip',
+      ],
+    }));
+  });
 });
 
 describe('validateWorkflowSemanticManifests', () => {
