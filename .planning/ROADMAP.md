@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Compiler / Audit Foundation** - `gsd-sdk compile` exists and produces passing manifests for commands, workflows, agents, hooks, billing-boundary checks, and command classifications
 - [x] **Phase 2: Packet Schema + State Contracts** - Versioned packet schema, execution constraints, config/routing validation, workstream-scoped FSM state, and workflow semantic manifests are typed and compiler-enforced (completed 2026-04-27)
 - [x] **Phase 3: Advisory Runner + Query Integration** - WorkflowRunner generalises PhaseRunner/InitRunner using deterministic packet emission, query registry FSM handlers, provider fallback, Nyquist P4, typed errors, and runtime report handoff (completed 2026-04-28)
-- [ ] **Phase 4: Parity Suite + gsd-post-update Retirement** - Workflow parity, hook install fixes, and `gsd-post-update` no-op retirement gates are green without network access
+- [x] **Phase 4: Parity Suite + gsd-post-update Retirement** - Workflow parity, hook install fixes, and `gsd-post-update` no-op retirement gates are green without network access (completed 2026-04-28)
 - [ ] **Phase 5: Extension API + Migration Hardening (v1.x)** - Extension insertion/replacement/gates and in-flight migration/rollback are production-hardened after v1 parity is stable
 - [ ] **Phase 6: Compatibility Cleanup + Hard Outlier Posturing (v2+)** - Markdown is slimmed only after machine eligibility passes; hard outliers are formally documented
 
@@ -85,7 +85,19 @@ Plans:
   3. Provider-fallback, filesystem-fallback, lock-staleness, `STATE.md` mirror lock-protection, and golden-staleness tests pass in CI with zero network access
   4. Hook installation copies all hooks to correct paths with executable permissions, handles Codex path/name requirements, detects stale cache, and covers `.sh` hooks in uninstall manifests without network fetches
   5. Running `gsd-post-update` against a migrated project produces no observable side effects, and no parity test invokes it
-**Plans**: TBD
+**Plans**: 10 of 10 plans complete (completed 2026-04-28)
+
+Plans:
+- [x] 04-01-PLAN.md — Undeclared-agent report rejection and expectedEvidence fail-closed
+- [x] 04-02-PLAN.md — PhaseRunner init-required fail-closed and noFsmForTesting bypass
+- [x] 04-03-PLAN.md — Dynamic branch allowlist validation and mandatory-provider metadata authority
+- [x] 04-04-PLAN.md — Hook install/build audit and absorption
+- [x] 04-05-PLAN.md — Generated parity fixtures and disposition manifest
+- [x] 04-06-PLAN.md — Parity suite core
+- [x] 04-07-PLAN.md — Hermetic Phase 4 gate script and CI integration
+- [x] 04-08-PLAN.md — Provider fallback and concurrent STATE.md write parity tests
+- [x] 04-09-PLAN.md — Retirement gate
+- [x] 04-10-PLAN.md — gsd-post-update retirement declaration
 
 ### Phase 5: Extension API + Migration Hardening (v1.x)
 **Goal**: Harden the extension API and in-flight migration/rollback contract after v1 parity has proven the core advisory substrate
@@ -97,8 +109,14 @@ Plans:
   3. Run-state schema mismatches produce `migration-required` or `resume-blocked` states with typed recovery instructions
   4. Transition history is preserved across migrations, and rollback restores to the last checkpoint while retaining later entries as audit trail
   5. State files created in v1 are compatible with the migration hardening because they already include `stateSchemaVersion`
-**Plans**: TBD
-**Research flag**: Recommend `/gsd-research-phase` before planning — enumerate all currently active `.planning/` state-file formats before implementing migration hardening.
+**Plans**: 5 plans across 3 waves
+
+Plans:
+- [ ] 05-01-PLAN.md — Extension slot registry: ExtensionRegistry, SealedExtensionGraph, slot types, cycle detection (EXT-01, EXT-02, EXT-06, EXT-07)
+- [ ] 05-02-PLAN.md — Gate/hook/provider-check integration, AdvisoryControlEvent schema, billing boundary extension (EXT-03, EXT-04, EXT-05)
+- [ ] 05-03-PLAN.md — FsmTransitionHistoryEntry hardening, parseFsmRunStateOrControlEvent wrapper (MIGR-01, MIGR-02, MIGR-03, MIGR-05)
+- [ ] 05-04-PLAN.md — Append-only rollback and schema migration functions: rollbackFsmState, migrateFsmState (MIGR-03, MIGR-04)
+- [ ] 05-05-PLAN.md — Integration hardening, advisory index re-exports, diagnostic alignment, phase docs (EXT-01–07, MIGR-01–05)
 
 ### Phase 6: Compatibility Cleanup + Hard Outlier Posturing (v2+)
 **Goal**: Slim Markdown workflow files to thin launchers only after eligibility checks and parity gates pass; keep hard outlier posture explicit
@@ -123,6 +141,6 @@ Phase 6 (v2+) cannot begin before Phase 4 parity gates are green
 | 1. Compiler / Audit Foundation | 7/7 | Complete | 2026-04-27 |
 | 2. Packet Schema + State Contracts | 4/4 | Complete | 2026-04-27 |
 | 3. Advisory Runner + Query Integration | 13/13 | Complete | 2026-04-28 |
-| 4. Parity Suite + gsd-post-update Retirement | 0/TBD | Not started | - |
-| 5. Extension API + Migration Hardening (v1.x) | 0/TBD | Not started | - |
+| 4. Parity Suite + gsd-post-update Retirement | 10/10 | Complete | 2026-04-28 |
+| 5. Extension API + Migration Hardening (v1.x) | 0/5 | In progress | - |
 | 6. Compatibility Cleanup + Hard Outlier Posturing (v2+) | 0/TBD | Not started | - |
