@@ -72,6 +72,8 @@ export interface PhaseRunnerDeps {
   runtimeReportHandler?: RuntimeReportHandler;
   agentContracts?: AgentEntry[];
   logger?: GSDLogger;
+  /** @internal Test-only: tolerate missing FSM init. Never set in production, parity gates, or retirement gates. */
+  noFsmForTesting?: true;
 }
 
 // ─── PhaseRunner ─────────────────────────────────────────────────────────────
@@ -91,6 +93,7 @@ export class PhaseRunner {
   private activeAgentContracts: AgentEntry[];
   private activeWorkstream?: string;
   private readonly logger?: GSDLogger;
+  private readonly noFsmForTesting?: true;
 
   constructor(deps: PhaseRunnerDeps) {
     this.projectDir = deps.projectDir;
@@ -106,6 +109,7 @@ export class PhaseRunner {
     this.activeAgentContracts = this.defaultAgentContracts;
     this.activeWorkstream = deps.workstream;
     this.logger = deps.logger;
+    this.noFsmForTesting = deps.noFsmForTesting;
   }
 
   /**
@@ -528,34 +532,54 @@ export class PhaseRunner {
         'code' in error &&
         (error as { code?: unknown }).code === 'init-required'
       ) {
-        this.logger?.debug('Runtime report validated but FSM state is not initialized; transition history write skipped', {
-          phase: phaseNumber,
-          step,
-          workstream: this.activeWorkstream,
-        });
+        if (this.noFsmForTesting === true) {
+          // Test-only: tolerate absent FSM; fall through to success return below
+        } else {
+          const durationMs = Date.now() - stepStart;
+          this.eventStream.emitEvent({
+            type: GSDEventType.PhaseStepComplete,
+            timestamp: new Date().toISOString(),
+            sessionId: '',
+            phaseNumber,
+            step,
+            success: false,
+            durationMs,
+            error: 'init-required',
+          });
+          return {
+            step,
+            success: false,
+            durationMs,
+            error: 'init-required',
+            packet,
+            runtimeReport,
+            runtimeEvents,
+            ...(providerMetadata ? { providerMetadata } : {}),
+          };
+        }
       } else {
-      const durationMs = Date.now() - stepStart;
-      const message = error instanceof Error ? error.message : String(error);
-      this.eventStream.emitEvent({
-        type: GSDEventType.PhaseStepComplete,
-        timestamp: new Date().toISOString(),
-        sessionId: '',
-        phaseNumber,
-        step,
-        success: false,
-        durationMs,
-        error: message,
-      });
-      return {
-        step,
-        success: false,
-        durationMs,
-        error: message,
-        packet,
-        runtimeReport,
-        runtimeEvents,
-        ...(providerMetadata ? { providerMetadata } : {}),
-      };
+        const durationMs = Date.now() - stepStart;
+        const message = error instanceof Error ? error.message : String(error);
+        this.eventStream.emitEvent({
+          type: GSDEventType.PhaseStepComplete,
+          timestamp: new Date().toISOString(),
+          sessionId: '',
+          phaseNumber,
+          step,
+          success: false,
+          durationMs,
+          error: message,
+        });
+        return {
+          step,
+          success: false,
+          durationMs,
+          error: message,
+          packet,
+          runtimeReport,
+          runtimeEvents,
+          ...(providerMetadata ? { providerMetadata } : {}),
+        };
       }
     }
 
@@ -793,7 +817,7 @@ export class PhaseRunner {
         && 'code' in error
         && (error as { code?: unknown }).code === 'init-required'
       ) {
-        this.logger?.debug('Skipping P4 transition history write: FSM state is not initialized', {
+        this.logger?.debug('Skipping P4 transition history write: FSM init missing', {
           phase: phaseNumber,
           workstream,
         });
