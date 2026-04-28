@@ -158,8 +158,11 @@ describe('createRegistry', () => {
 
     for (const command of [
       'thread.id',
+      'thread id',
+      'thread.workstream',
       'thread workstream',
       'thread.session',
+      'thread session',
       'fsm.run-id',
       'fsm transition',
       'fsm.history',
@@ -196,6 +199,39 @@ describe('createRegistry', () => {
     expect(events[0]).toMatchObject({
       type: GSDEventType.FSMTransition,
       sessionId: 'test-session',
+    });
+  });
+
+  it('emits a PhaseEdit event for phase.edit mutations', async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), 'gsd-registry-phase-edit-'));
+    tempDirs.push(projectDir);
+    await mkdir(join(projectDir, '.planning'), { recursive: true });
+    await writeFile(join(projectDir, '.planning', 'config.json'), JSON.stringify({
+      workflow: { auto_advance: false },
+      codex_model: 'gpt-5.5',
+    }), 'utf-8');
+
+    await createRegistry().dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
+
+    const events: unknown[] = [];
+    const eventStream = {
+      emitEvent: vi.fn((event: unknown) => events.push(event)),
+      on: vi.fn(),
+      emit: vi.fn(),
+    };
+    const registry = createRegistry(eventStream as any, 'test-session');
+
+    await registry.dispatch('phase.edit', ['currentState', 'p4-compliance'], projectDir);
+
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: GSDEventType.PhaseEdit,
+      sessionId: 'test-session',
+      command: 'phase.edit',
+      field: 'currentState',
+      value: 'p4-compliance',
+      workstream: null,
+      success: true,
     });
   });
 

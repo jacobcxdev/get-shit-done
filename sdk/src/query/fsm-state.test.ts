@@ -222,4 +222,53 @@ describe('FSM query handlers', () => {
     const raw = await readFile(join(projectDir, '.planning', 'fsm-state.json'), 'utf-8');
     expect(JSON.parse(raw).currentState).toBe('advance');
   });
+
+  it('parses every allowlisted phase.edit field before writing state', async () => {
+    const registry = createRegistry();
+    await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
+
+    await expect(registry.dispatch('phase.edit', ['resume.status', 'active'], projectDir))
+      .resolves.toMatchObject({ data: { field: 'resume.status', value: 'active', workstream: null } });
+    await expect(registry.dispatch('phase.edit', ['autoMode.active', 'true'], projectDir))
+      .resolves.toMatchObject({ data: { field: 'autoMode.active', value: true, workstream: null } });
+    await expect(registry.dispatch('phase.edit', ['autoMode.source', 'both'], projectDir))
+      .resolves.toMatchObject({ data: { field: 'autoMode.source', value: 'both', workstream: null } });
+
+    await expect(registry.dispatch('phase.edit', ['resume.status', 'invalid'], projectDir))
+      .rejects.toThrow(/resume\.status/);
+    await expect(registry.dispatch('phase.edit', ['autoMode.active', 'yes'], projectDir))
+      .rejects.toThrow(/autoMode\.active/);
+    await expect(registry.dispatch('phase.edit', ['autoMode.source', 'manual'], projectDir))
+      .rejects.toThrow(/autoMode\.source/);
+
+    const raw = await readFile(join(projectDir, '.planning', 'fsm-state.json'), 'utf-8');
+    const state = JSON.parse(raw) as {
+      resume: { status: string };
+      autoMode: { active: boolean; source: string };
+    };
+    expect(state.resume).toEqual({ status: 'active' });
+    expect(state.autoMode).toEqual({ active: true, source: 'both' });
+  });
+
+  it('dispatches thread metadata aliases from durable FSM state', async () => {
+    const registry = createRegistry();
+    await registry.dispatch('fsm.state.init', ['thread-run', 'workflow-1', 'verify', 'demo'], projectDir);
+
+    const dottedId = await registry.dispatch('thread.id', ['demo'], projectDir);
+    const spacedId = await registry.dispatch('thread id', ['demo'], projectDir);
+    expect(spacedId).toEqual(dottedId);
+    expect(dottedId).toEqual({ data: { threadId: 'thread-run', workstream: 'demo' } });
+
+    const dottedWorkstream = await registry.dispatch('thread.workstream', ['demo'], projectDir);
+    const spacedWorkstream = await registry.dispatch('thread workstream', ['demo'], projectDir);
+    expect(spacedWorkstream).toEqual(dottedWorkstream);
+    expect(dottedWorkstream).toEqual({ data: { workstream: 'demo', runId: 'thread-run' } });
+
+    const dottedSession = await registry.dispatch('thread.session', ['demo'], projectDir);
+    const spacedSession = await registry.dispatch('thread session', ['demo'], projectDir);
+    expect(spacedSession).toEqual(dottedSession);
+    expect(dottedSession).toEqual({
+      data: { sessionId: 'thread-run', runId: 'thread-run', workstream: 'demo' },
+    });
+  });
 });
