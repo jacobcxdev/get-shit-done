@@ -195,6 +195,43 @@ describe('FSM query handlers', () => {
       .resolves.toEqual({ data: { confidence: 'full', workstream: null } });
   });
 
+  it('records reduced provider metadata atomically with fsm.transition history', async () => {
+    const registry = createRegistry();
+    await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
+
+    const result = await registry.dispatch('fsm.transition', [
+      '',
+      'p4-compliance',
+      'success',
+      JSON.stringify({ providerConfidence: 'reduced', missingProviders: ['gemini'] }),
+    ], projectDir);
+
+    expect(result.data).toMatchObject({
+      fromState: 'verify',
+      toState: 'p4-compliance',
+      outcome: 'success',
+      reducedConfidence: true,
+      missingProviders: ['gemini'],
+      providerConfidence: 'reduced',
+    });
+
+    const raw = await readFile(join(projectDir, '.planning', 'fsm-state.json'), 'utf-8');
+    const state = JSON.parse(raw) as { transitionHistory: Array<Record<string, unknown>> };
+    expect(state.transitionHistory).toHaveLength(1);
+    expect(state.transitionHistory[0]).toMatchObject({
+      fromState: 'verify',
+      toState: 'p4-compliance',
+      outcome: 'success',
+      reducedConfidence: true,
+      missingProvider: 'gemini',
+      missingProviders: ['gemini'],
+      providerConfidence: 'reduced',
+    });
+
+    await expect(registry.dispatch('fsm.confidence', [], projectDir))
+      .resolves.toEqual({ data: { confidence: 'reduced:gemini', workstream: null } });
+  });
+
   it('rejects malformed fsm.transition without mutating transitionHistory.length', async () => {
     const registry = createRegistry();
     await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);

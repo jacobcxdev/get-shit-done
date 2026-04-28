@@ -325,6 +325,45 @@ describe('WorkflowRunner', () => {
     expect(result.packet.reportCommand).toBe('gsd-sdk query fsm.transition <workstream> <onSuccess> success');
   });
 
+  it('keeps packet dispatch moving with reduced confidence when optional providers are unavailable', () => {
+    const runner = new WorkflowRunner(makeManifests());
+
+    const result = runner.dispatch(makeDispatchInput({
+      providerAvailability: {
+        available: ['claude'],
+        unavailable: ['gemini'],
+      },
+    }));
+
+    expect(result.kind).toBe('packet');
+    if (result.kind !== 'packet') throw new Error(`Expected packet result, got ${result.kind}`);
+    expect(result.providerMetadata).toEqual({
+      providerConfidence: 'reduced',
+      missingProviders: ['gemini'],
+    });
+  });
+
+  it('blocks packet dispatch when a mandatory provider is unavailable', () => {
+    const runner = new WorkflowRunner(makeManifests());
+
+    const result = runner.dispatch(makeDispatchInput({
+      mandatoryProviders: ['gemini'],
+      providerAvailability: {
+        available: ['claude'],
+        unavailable: ['gemini', 'codex'],
+      },
+    }));
+
+    expect(result).toEqual({
+      kind: 'error',
+      code: 'dispatch-error',
+      message: 'Mandatory providers unavailable: gemini',
+      workflowId: '/workflows/add-phase',
+      commandId: '/gsd-add-phase',
+    });
+    expect('packet' in result).toBe(false);
+  });
+
   it('selects a dynamic mode branch without reading model output', () => {
     const runner = new WorkflowRunner(makeManifests());
     const input = makeDispatchInput({
