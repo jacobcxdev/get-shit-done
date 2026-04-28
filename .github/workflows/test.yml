@@ -88,6 +88,11 @@ jobs:
       - name: Build SDK dist (required by installer)
         run: npm run build:sdk
 
+      - name: Phase 4 parity gate
+        run: node scripts/phase4-parity.cjs
+        env:
+          NODE_ENV: test
+
       - name: Run tests with coverage
         shell: bash
         run: npm run test:coverage
