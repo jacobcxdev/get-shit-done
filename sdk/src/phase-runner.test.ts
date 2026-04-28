@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, rm, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { PhaseRunner, PhaseRunnerError } from './phase-runner.js';
@@ -134,6 +134,32 @@ function makeConfig(overrides: Partial<GSDConfig> = {}): GSDConfig {
 
 function makeDeps(overrides: Partial<PhaseRunnerDeps> = {}): PhaseRunnerDeps {
   const events: GSDEvent[] = [];
+  const workflowRunner = {
+    dispatch: vi.fn().mockReturnValue({
+      kind: 'packet',
+      packet: {
+        schemaVersion: '1.0',
+        runId: 'phase-1',
+        workflowId: '/workflows/phase-runner',
+        stateId: 'test-state',
+        stepId: 'test-step',
+        goal: 'Test packet',
+        instruction: 'Execute one test step.',
+        requiredContext: [],
+        allowedTools: [],
+        agents: [],
+        expectedEvidence: ['testEvidenceId'],
+        allowedOutcomes: ['success', 'failure', 'skipped'],
+        reportCommand: 'gsd-sdk query fsm.transition <workstream> <onSuccess> success',
+        onSuccess: 'next',
+        onFailure: 'blocked',
+        checkpoint: false,
+        configSnapshotHash: '0'.repeat(64),
+        extensionIds: [],
+        executionConstraints: {},
+      },
+    }),
+  };
 
   return {
     projectDir: '/tmp/project',
@@ -166,6 +192,7 @@ function makeDeps(overrides: Partial<PhaseRunnerDeps> = {}): PhaseRunnerDeps {
       emit: vi.fn(),
     } as any,
     config: makeConfig(),
+    workflowRunner: workflowRunner as any,
     ...overrides,
   };
 }
@@ -220,6 +247,75 @@ describe('PhaseRunner', () => {
       expect(result.steps.every(s => s.success)).toBe(true);
     });
 
+    it('records P4 disabled as a skipped outcome', async () => {
+      const config = makeConfig({ workflow: { nyquist_validation: false } as any });
+      const deps = makeDeps({ config });
+
+      const runner = new PhaseRunner(deps);
+      const result = await runner.run('1');
+
+      const p4Step = result.steps.find(s => s.step === PhaseStepType.P4Compliance);
+      expect(p4Step).toMatchObject({
+        step: PhaseStepType.P4Compliance,
+        success: true,
+        data: { outcome: 'skipped' },
+      });
+    });
+
+    it('returns P4GapClosure and emits P4ComplianceFailed when P4 dispatch fails', async () => {
+      const workflowRunner = {
+        dispatch: vi.fn((input: { stepId: string }) => {
+          if (input.stepId === 'p4-compliance') {
+            return {
+              kind: 'error',
+              code: 'dispatch-error',
+              message: 'P4 compliance packet unavailable',
+              workflowId: '/workflows/phase-runner',
+            };
+          }
+          return {
+            kind: 'packet',
+            packet: {
+              schemaVersion: '1.0',
+              runId: 'phase-1',
+              workflowId: '/workflows/phase-runner',
+              stateId: input.stepId,
+              stepId: input.stepId,
+              goal: `Execute ${input.stepId}`,
+              instruction: `Execute ${input.stepId}.`,
+              requiredContext: [],
+              allowedTools: [],
+              agents: [],
+              expectedEvidence: [`${input.stepId}EvidenceId`],
+              allowedOutcomes: ['success', 'failure', 'skipped'],
+              reportCommand: 'gsd-sdk query fsm.transition <workstream> <onSuccess> success',
+              onSuccess: 'next',
+              onFailure: 'blocked',
+              checkpoint: false,
+              configSnapshotHash: '0'.repeat(64),
+              extensionIds: [],
+              executionConstraints: {},
+            },
+          };
+        }),
+      };
+      const deps = makeDeps({ workflowRunner: workflowRunner as any });
+
+      const runner = new PhaseRunner(deps);
+      const result = await runner.run('1');
+
+      expect(result.steps.map(s => s.step)).toContain(PhaseStepType.P4GapClosure);
+      expect(result.steps.map(s => s.step)).not.toContain(PhaseStepType.Advance);
+      expect(getEmittedEvents(deps)).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          type: GSDEventType.P4ComplianceFailed,
+          phaseNumber: '1',
+          stepId: 'p4-compliance',
+          code: 'p4-compliance-failed',
+        }),
+      ]));
+    });
+
     it('returns correct phase name from PhaseOpInfo', async () => {
       const phaseOp = makePhaseOp({ phase_name: 'Data Layer' });
       const deps = makeDeps();
@@ -229,6 +325,14 @@ describe('PhaseRunner', () => {
       const result = await runner.run('2');
 
       expect(result.phaseName).toBe('Data Layer');
+    });
+  });
+
+  describe('billing boundary', () => {
+    it('does not statically import session-runner from phase-runner', async () => {
+      const source = await readFile(new URL('./phase-runner.ts', import.meta.url), 'utf-8');
+
+      expect(source).not.toContain("from './session-runner.js'");
     });
   });
 
