@@ -5,6 +5,10 @@ import { tmpdir } from 'node:os';
 import { PhaseRunner, PhaseRunnerError } from './phase-runner.js';
 import type { PhaseRunnerDeps, VerificationOutcome } from './phase-runner.js';
 import { createInitialFsmRunState, fsmStatePath, writeFsmState } from './advisory/fsm-state.js';
+import * as fsmState from './advisory/fsm-state.js';
+import type { AdvisoryPacket } from './advisory/packet.js';
+import type { RuntimeExecutionReport } from './advisory/runtime-contracts.js';
+import { WorkflowRunner } from './advisory/workflow-runner.js';
 import type {
   PhaseOpInfo,
   PlanResult,
@@ -196,6 +200,119 @@ function makeDeps(overrides: Partial<PhaseRunnerDeps> = {}): PhaseRunnerDeps {
     workflowRunner: workflowRunner as any,
     ...overrides,
   };
+}
+
+const RUNTIME_AGENT_CONTRACTS = [
+  {
+    id: 'gsd-executor',
+    path: 'agents/gsd-executor.md',
+    hash: 'a'.repeat(64),
+    name: 'gsd-executor',
+    description: 'Executes GSD plans.',
+    roleClass: 'executor' as const,
+    allowedTools: ['Read', 'Write'],
+    diskWriteMandate: true,
+    worktreeRequired: false,
+    completionMarker: '## PLAN COMPLETE',
+    outputArtifacts: ['SUMMARY.md'],
+  },
+];
+
+function makeRuntimePacket(input: {
+  runId: string;
+  workflowId?: string;
+  stateId: string;
+  stepId: string;
+  onSuccess?: string;
+  onFailure?: string;
+}): AdvisoryPacket {
+  return {
+    schemaVersion: '1.0',
+    runId: input.runId,
+    workflowId: input.workflowId ?? '/workflows/execute-phase',
+    stateId: input.stateId,
+    stepId: input.stepId,
+    goal: `Execute ${input.stepId}`,
+    instruction: `Execute ${input.stepId}.`,
+    requiredContext: [],
+    allowedTools: ['Read', 'Write'],
+    agents: ['gsd-executor'],
+    expectedEvidence: ['completion-marker:## PLAN COMPLETE', 'SUMMARY.md'],
+    allowedOutcomes: ['success', 'failure', 'skipped'],
+    reportCommand:
+      'Return a RuntimeExecutionReport via runtimeReportHandler containing runId, workflowId, stepId, and one packet.allowedOutcomes value.',
+    onSuccess: input.onSuccess ?? 'execute',
+    onFailure: input.onFailure ?? 'blocked',
+    checkpoint: false,
+    configSnapshotHash: '0'.repeat(64),
+    extensionIds: [],
+    executionConstraints: {},
+  };
+}
+
+function makeRuntimeReport(
+  packet: AdvisoryPacket,
+  overrides: Partial<RuntimeExecutionReport> = {},
+): RuntimeExecutionReport {
+  return {
+    runId: packet.runId,
+    workflowId: packet.workflowId,
+    stepId: packet.stepId,
+    agentId: 'gsd-executor',
+    outcome: 'success',
+    markers: ['## PLAN COMPLETE'],
+    artifacts: ['SUMMARY.md'],
+    ...overrides,
+  };
+}
+
+function makeRuntimeWorkflowRunner(overrides: {
+  providerMetadata?: { providerConfidence?: 'full' | 'reduced' | 'blocked'; missingProviders?: string[] };
+} = {}) {
+  return {
+    dispatch: vi.fn((input: {
+      runId: string;
+      workflowId?: string;
+      stateId: string;
+      stepId: string;
+      onSuccess?: string;
+      onFailure?: string;
+    }) => ({
+      kind: 'packet',
+      packet: makeRuntimePacket(input),
+      ...(overrides.providerMetadata ? { providerMetadata: overrides.providerMetadata } : {}),
+    })),
+  };
+}
+
+function makeGeneratedWorkflowRunnerForReportCommand(): WorkflowRunner {
+  return new WorkflowRunner({
+    commandClassification: [{
+      commandId: '/gsd-execute-phase',
+      workflowId: '/workflows/execute-phase',
+      category: 'core-lifecycle',
+      determinismPosture: 'deterministic',
+      isHardOutlier: false,
+      migrationDisposition: 'workflow-runner-supported',
+      outlierPosture: null,
+      agentTypes: ['gsd-executor'],
+    }],
+    workflowCoverage: [{
+      id: '/workflows/execute-phase',
+      isTopLevel: true,
+      path: 'get-shit-done/workflows/execute-phase.md',
+      hash: 'a'.repeat(64),
+      runnerType: { value: 'phase-chain', inferred: false },
+      determinism: { value: 'deterministic', inferred: false },
+      semanticFeatures: { values: ['state-write'], inferred: false },
+      semanticManifest: { workflowId: '/workflows/execute-phase', semantics: [] },
+      stepCount: { value: 8, inferred: false },
+    }],
+    workflowSemantics: [{
+      workflowId: '/workflows/execute-phase',
+      semantics: [],
+    }],
+  } as any);
 }
 
 /** Collect events from a deps object. */
@@ -452,6 +569,245 @@ describe('PhaseRunner', () => {
       expect(source).not.toContain('runPhaseStepSession(');
       expect(source).not.toContain('runPlanSession(');
       expect(source).not.toContain('@anthropic-ai/claude-agent-sdk');
+    });
+  });
+
+  describe('runtime report handoff', () => {
+    async function initializeRuntimeFsm(projectDir: string, config: GSDConfig, currentState = 'plan') {
+      const state = createInitialFsmRunState({
+        runId: 'phase-1',
+        workflowId: '/workflows/execute-phase',
+        workstream: null,
+        currentState,
+        config,
+        now: '2026-04-28T00:00:00.000Z',
+      });
+      await writeFsmState(projectDir, undefined, state);
+    }
+
+    function runtimeOnlyConfig(): GSDConfig {
+      return makeConfig({
+        workflow: {
+          skip_discuss: true,
+          research: false,
+          plan_check: false,
+          verifier: false,
+          nyquist_validation: false,
+          auto_advance: false,
+        } as any,
+      });
+    }
+
+    it('returns awaitingRuntimeReport after one packet when no runtime report handler is supplied', async () => {
+      const workflowRunner = makeRuntimeWorkflowRunner();
+      const deps = makeDeps({
+        config: runtimeOnlyConfig(),
+        workflowRunner: workflowRunner as any,
+      });
+      const runner = new PhaseRunner(deps);
+
+      const result = await runner.run('1', { agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+      expect(result.steps).toHaveLength(1);
+      expect(result.steps[0]).toMatchObject({
+        step: PhaseStepType.Plan,
+        success: false,
+        awaitingRuntimeReport: true,
+      });
+      expect(result.steps[0].packet).toBeDefined();
+      expect(workflowRunner.dispatch).toHaveBeenCalledTimes(1);
+      expect(deps.tools.phaseComplete).not.toHaveBeenCalled();
+    });
+
+    it('persists providerMetadata only after a successful RuntimeExecutionReport validates', async () => {
+      const projectDir = await mkdtemp(join(tmpdir(), 'gsd-phase-runner-runtime-success-'));
+      const config = runtimeOnlyConfig();
+      await initializeRuntimeFsm(projectDir, config);
+      const workflowRunner = makeRuntimeWorkflowRunner({
+        providerMetadata: { providerConfidence: 'reduced', missingProviders: ['gemini'] },
+      });
+
+      try {
+        const deps = makeDeps({
+          projectDir,
+          config,
+          workflowRunner: workflowRunner as any,
+          agentContracts: RUNTIME_AGENT_CONTRACTS,
+        } as any);
+        const runtimeReportHandler = vi.fn(async ({ packet }: { packet: AdvisoryPacket }) => makeRuntimeReport(packet));
+        const runner = new PhaseRunner(deps);
+
+        const result = await runner.run('1', { runtimeReportHandler, agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+        expect(result.steps[0]).toMatchObject({
+          step: PhaseStepType.Plan,
+          success: true,
+          runtimeReport: expect.objectContaining({ outcome: 'success' }),
+        });
+        const persisted = JSON.parse(await readFile(fsmStatePath(projectDir), 'utf-8'));
+        expect(persisted.transitionHistory[0]).toMatchObject({
+          fromState: 'plan',
+          toState: 'execute',
+          outcome: 'success',
+          reducedConfidence: true,
+          missingProviders: ['gemini'],
+        });
+      } finally {
+        await rm(projectDir, { recursive: true, force: true });
+      }
+    });
+
+    it('blocks transition with completion-marker-absent when runtime success omits the required marker', async () => {
+      const projectDir = await mkdtemp(join(tmpdir(), 'gsd-phase-runner-runtime-marker-'));
+      const config = runtimeOnlyConfig();
+      await initializeRuntimeFsm(projectDir, config);
+      const workflowRunner = makeRuntimeWorkflowRunner();
+
+      try {
+        const deps = makeDeps({
+          projectDir,
+          config,
+          workflowRunner: workflowRunner as any,
+          agentContracts: RUNTIME_AGENT_CONTRACTS,
+        } as any);
+        const runtimeReportHandler = vi.fn(async ({ packet }: { packet: AdvisoryPacket }) =>
+          makeRuntimeReport(packet, { markers: [] }));
+        const runner = new PhaseRunner(deps);
+
+        const result = await runner.run('1', { runtimeReportHandler, agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+        expect(result.steps).toHaveLength(1);
+        expect(result.steps[0]).toMatchObject({
+          step: PhaseStepType.Plan,
+          success: false,
+          error: expect.stringContaining('completion-marker-absent'),
+        });
+        const persisted = JSON.parse(await readFile(fsmStatePath(projectDir), 'utf-8'));
+        expect(persisted.transitionHistory).toHaveLength(0);
+        expect(workflowRunner.dispatch).toHaveBeenCalledTimes(1);
+      } finally {
+        await rm(projectDir, { recursive: true, force: true });
+      }
+    });
+
+    it.each([
+      ['mismatched runId', { runId: 'spoofed-run' }],
+      ['mismatched workflowId', { workflowId: '/workflows/spoofed' }],
+      ['mismatched stepId', { stepId: 'spoofed-step' }],
+      ['outcome not in packet.allowedOutcomes', { outcome: 'owned' }],
+    ])('rejects spoofed RuntimeExecutionReport with %s before advanceFsmState is called', async (_label, overrides) => {
+      const projectDir = await mkdtemp(join(tmpdir(), 'gsd-phase-runner-runtime-spoof-'));
+      const config = runtimeOnlyConfig();
+      await initializeRuntimeFsm(projectDir, config);
+      const workflowRunner = makeRuntimeWorkflowRunner();
+      const advanceFsmState = vi.spyOn(fsmState, 'advanceFsmState');
+
+      try {
+        const deps = makeDeps({
+          projectDir,
+          config,
+          workflowRunner: workflowRunner as any,
+          agentContracts: RUNTIME_AGENT_CONTRACTS,
+        } as any);
+        const runtimeReportHandler = vi.fn(async ({ packet }: { packet: AdvisoryPacket }) =>
+          makeRuntimeReport(packet, overrides));
+        const runner = new PhaseRunner(deps);
+
+        const result = await runner.run('1', { runtimeReportHandler, agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+        expect(result.steps).toHaveLength(1);
+        expect(result.steps[0]).toMatchObject({
+          success: false,
+          error: expect.stringContaining('runtime-report-spoofed'),
+        });
+        const persisted = JSON.parse(await readFile(fsmStatePath(projectDir), 'utf-8'));
+        expect(persisted.transitionHistory).toHaveLength(0);
+        expect(advanceFsmState).not.toHaveBeenCalled();
+      } finally {
+        advanceFsmState.mockRestore();
+        await rm(projectDir, { recursive: true, force: true });
+      }
+    });
+
+    it('documents packet.reportCommand as RuntimeExecutionReport handoff and rejects spoofed reports from that path', async () => {
+      const workflowRunner = makeGeneratedWorkflowRunnerForReportCommand();
+      const packetResult = workflowRunner.dispatch({
+        runId: 'phase-1',
+        workflowId: '/workflows/execute-phase',
+        stateId: 'plan',
+        stepId: 'plan',
+        configSnapshot: {},
+        onSuccess: 'execute',
+        onFailure: 'blocked',
+      });
+      expect(packetResult.kind).toBe('packet');
+      if (packetResult.kind !== 'packet') throw new Error('Expected packet');
+
+      expect(packetResult.packet.reportCommand).toContain('RuntimeExecutionReport');
+      expect(packetResult.packet.reportCommand).toContain('runtimeReportHandler');
+      expect(packetResult.packet.reportCommand).toContain('runId');
+      expect(packetResult.packet.reportCommand).toContain('workflowId');
+      expect(packetResult.packet.reportCommand).toContain('stepId');
+      expect(packetResult.packet.reportCommand).toContain('packet.allowedOutcomes');
+      expect(packetResult.packet.reportCommand).not.toContain('fsm.transition');
+
+      const workflowDispatch = makeRuntimeWorkflowRunner();
+      const deps = makeDeps({
+        config: runtimeOnlyConfig(),
+        workflowRunner: workflowDispatch as any,
+        agentContracts: RUNTIME_AGENT_CONTRACTS,
+      } as any);
+      const runtimeReportHandler = vi
+        .fn()
+        .mockImplementationOnce(async ({ packet }: { packet: AdvisoryPacket }) =>
+          makeRuntimeReport(packet, { runId: 'mismatched-runId' }))
+        .mockImplementationOnce(async ({ packet }: { packet: AdvisoryPacket }) =>
+          makeRuntimeReport(packet, { outcome: 'not-in-packet.allowedOutcomes' }));
+      const runner = new PhaseRunner(deps);
+
+      const first = await runner.run('1', { runtimeReportHandler, agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+      const second = await runner.run('1', { runtimeReportHandler, agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+      expect(first.steps[0].success).toBe(false);
+      expect(second.steps[0].success).toBe(false);
+      expect(workflowDispatch.dispatch).toHaveBeenCalledTimes(2);
+      expect(runtimeReportHandler).toHaveBeenCalledTimes(2);
+    });
+
+    it('dispatches advance as completion intent and waits for runtime phaseComplete evidence', async () => {
+      const config = makeConfig({
+        workflow: {
+          skip_discuss: true,
+          research: false,
+          plan_check: false,
+          verifier: false,
+          nyquist_validation: false,
+          auto_advance: true,
+        } as any,
+      });
+      const workflowRunner = makeRuntimeWorkflowRunner();
+      const deps = makeDeps({
+        config,
+        workflowRunner: workflowRunner as any,
+        agentContracts: RUNTIME_AGENT_CONTRACTS,
+      } as any);
+      const runtimeReportHandler = vi.fn(async ({ packet }: { packet: AdvisoryPacket }) =>
+        makeRuntimeReport(packet, {
+          markers: [...packet.expectedEvidence, 'runtime phaseComplete executed'],
+          artifacts: ['SUMMARY.md'],
+        }));
+      const runner = new PhaseRunner(deps);
+
+      const result = await runner.run('1', { runtimeReportHandler, agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+      const advancePacket = result.steps.find(step => step.step === PhaseStepType.Advance)?.packet;
+      expect(advancePacket).toMatchObject({
+        stateId: 'advance',
+        stepId: 'advance',
+      });
+      expect(`${advancePacket?.goal} ${advancePacket?.instruction}`).toContain('completion intent');
+      expect(JSON.stringify(advancePacket)).toContain('phaseComplete');
+      expect(deps.tools.phaseComplete).not.toHaveBeenCalled();
     });
   });
 

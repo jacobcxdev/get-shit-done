@@ -136,4 +136,21 @@ describe('runtime contract validation', () => {
     }));
     expect(events[0]).not.toHaveProperty('markerId');
   });
+
+  it('preserves non-success RuntimeExecutionReport outcomes without marker or artifact absence checks', () => {
+    const report = {
+      runId: 'run-1',
+      workflowId: '/workflows/execute-plan',
+      stepId: 'execute:plan',
+      agentId: 'gsd-executor',
+      outcome: 'failure',
+      markers: [],
+      artifacts: [],
+    };
+
+    const events = validateRuntimeReportContract(report, packet(), AGENT_CONTRACTS);
+
+    expect(report.outcome).toBe('failure');
+    expect(events).toEqual([]);
+  });
 });

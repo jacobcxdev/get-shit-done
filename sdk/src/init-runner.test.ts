@@ -5,6 +5,8 @@ import { tmpdir } from 'node:os';
 
 import { InitRunner } from './init-runner.js';
 import type { InitRunnerDeps } from './init-runner.js';
+import type { AdvisoryPacket } from './advisory/packet.js';
+import type { RuntimeExecutionReport } from './advisory/runtime-contracts.js';
 import type {
   PlanResult,
   SessionUsage,
@@ -173,6 +175,22 @@ function makeWorkflowRunner() {
   };
 }
 
+function makeInitRuntimeReport(
+  packet: AdvisoryPacket,
+  overrides: Partial<RuntimeExecutionReport> = {},
+): RuntimeExecutionReport {
+  return {
+    runId: packet.runId,
+    workflowId: packet.workflowId,
+    stepId: packet.stepId,
+    agentId: 'gsd-executor',
+    outcome: 'success',
+    markers: [],
+    artifacts: [...packet.expectedEvidence],
+    ...overrides,
+  };
+}
+
 function makeDeps(overrides: Partial<InitRunnerDeps> & { tmpDir: string }): InitRunnerDeps & { events: GSDEvent[] } {
   const tools = makeTools();
   const eventStream = makeEventStream();
@@ -242,23 +260,62 @@ describe('InitRunner', () => {
   }
 
   describe('advisory default mode', () => {
-    it('emits deterministic advisory init steps in setup-to-roadmap order', async () => {
+    it('emits the first setup packet and returns awaitingRuntimeReport when no handler is supplied', async () => {
       const { runner, workflowRunner, tools } = await createAdvisoryRunner();
 
       const result = await runner.run('demo');
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
       expect(result.totalCostUsd).toBe(0);
-      expect(result.steps.map(step => step.step)).toEqual(INIT_ADVISORY_STEPS);
+      expect(result.steps.map(step => step.step)).toEqual(['setup']);
+      expect(result.steps[0]).toMatchObject({
+        step: 'setup',
+        success: false,
+        awaitingRuntimeReport: true,
+      });
       expect(result.steps.every(step => step.costUsd === 0)).toBe(true);
-      expect(workflowRunner.dispatch).toHaveBeenCalledTimes(INIT_ADVISORY_STEPS.length);
-      expect(workflowRunner.dispatch.mock.calls.map(([input]) => input.stepId)).toEqual(INIT_ADVISORY_STEPS);
-      expect(workflowRunner.dispatch.mock.calls.map(([input]) => input.stateId)).toEqual(INIT_ADVISORY_STEPS);
+      expect(workflowRunner.dispatch).toHaveBeenCalledTimes(1);
+      expect(workflowRunner.dispatch.mock.calls.map(([input]) => input.stepId)).toEqual(['setup']);
+      expect(workflowRunner.dispatch.mock.calls.map(([input]) => input.stateId)).toEqual(['setup']);
       expect(workflowRunner.dispatch.mock.calls.every(([input]) => input.workflowId === '/workflows/new-project')).toBe(true);
       const packets = workflowRunner.dispatch.mock.results.map(result => result.value.packet);
       expect(packets.every(packet => packet.workflowId === '/workflows/new-project')).toBe(true);
       expect(packets.every(packet => Array.isArray(packet) === false)).toBe(true);
       expect(tools.initNewProject).not.toHaveBeenCalled();
+    });
+
+    it('advances one init step at a time when runtimeReportHandler supplies success then waits for the next report', async () => {
+      const tools = makeTools();
+      const eventStream = makeEventStream();
+      const workflowRunner = makeWorkflowRunner();
+      const runtimeReportHandler = vi
+        .fn()
+        .mockImplementationOnce(async ({ packet }: { packet: AdvisoryPacket }) => makeInitRuntimeReport(packet))
+        .mockResolvedValue(null);
+      const runner = new InitRunner({
+        projectDir: tmpDir,
+        tools,
+        eventStream,
+        workflowRunner: workflowRunner as any,
+        runtimeReportHandler,
+      } as any);
+      await mkdir(join(tmpDir, '.planning'), { recursive: true });
+
+      const result = await runner.run('demo');
+
+      expect(result.steps.map(step => step.step)).toEqual(['setup', 'config']);
+      expect(result.steps[0]).toMatchObject({
+        step: 'setup',
+        success: true,
+        runtimeReport: expect.objectContaining({ outcome: 'success' }),
+      });
+      expect(result.steps[1]).toMatchObject({
+        step: 'config',
+        success: false,
+        awaitingRuntimeReport: true,
+      });
+      expect(workflowRunner.dispatch).toHaveBeenCalledTimes(2);
+      expect(runtimeReportHandler).toHaveBeenCalledTimes(2);
     });
 
     it('does not statically import session-runner or call runPhaseStepSession by default', async () => {
