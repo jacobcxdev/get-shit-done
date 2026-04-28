@@ -224,17 +224,17 @@ Deferred until v1 parity suite passes at 100% gate coverage. These clean up the 
 | CLSS-01–04 | Phase 1 (Compiler / Audit Foundation) | Complete |
 | BILL-01–04 | Phase 1 (Compiler / Audit Foundation) | Complete |
 | AGNT-01–02 | Phase 1 (Compiler / Audit Foundation) | Complete |
-| PCKT-01–08 | Phase 2 (Packet Schema + State Contracts) | Pending |
-| CONF-01–07 | Phase 2 (Packet Schema + State Contracts) | Pending |
-| STAT-01–10 | Phase 2 (Packet Schema + State Contracts) | Pending |
-| WFSM-01–08 | Phase 2 (Packet Schema + State Contracts) | Pending |
-| RNNR-01–10 | Phase 3 (Advisory Runner + Query Integration) | Pending |
-| QREG-01–07 | Phase 3 (Advisory Runner + Query Integration) | Pending |
-| P4NY-01–04 | Phase 3 (Advisory Runner + Query Integration) | Pending |
-| ERRT-01–04 | Phase 3 (Advisory Runner + Query Integration) | Pending |
-| LOGG-01–03 | Phase 3 (Advisory Runner + Query Integration) | Pending |
-| PROV-01–04 | Phase 3 (Advisory Runner + Query Integration) | Pending |
-| AGNT-03–04 | Phase 3 (Advisory Runner + Query Integration) | Pending |
+| PCKT-01–08 | Phase 2 (Packet Schema + State Contracts) | Complete |
+| CONF-01–07 | Phase 2 (Packet Schema + State Contracts) | Complete |
+| STAT-01–10 | Phase 2 (Packet Schema + State Contracts) | Complete |
+| WFSM-01–08 | Phase 2 (Packet Schema + State Contracts) | Complete |
+| RNNR-01–10 | Phase 3 (Advisory Runner + Query Integration) | Complete |
+| QREG-01–07 | Phase 3 (Advisory Runner + Query Integration) | Complete |
+| P4NY-01–04 | Phase 3 (Advisory Runner + Query Integration) | Complete |
+| ERRT-01–04 | Phase 3 (Advisory Runner + Query Integration) | Complete |
+| LOGG-01–03 | Phase 3 (Advisory Runner + Query Integration) | Complete |
+| PROV-01–04 | Phase 3 (Advisory Runner + Query Integration) | Complete |
+| AGNT-03–04 | Phase 3 (Advisory Runner + Query Integration) | Complete |
 | HOOK-01–06 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Pending |
 | UPDT-01–05 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Pending |
 | PRTY-01–08 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Pending |
@@ -251,4 +251,4 @@ Deferred until v1 parity suite passes at 100% gate coverage. These clean up the 
 
 ---
 *Requirements defined: 2026-04-27*
-*Last updated: 2026-04-27 after reduced-confidence Claude+Codex requirements roundtable*
+*Last updated: 2026-04-28 after Phase 3 runtime report handoff completion*

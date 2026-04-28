@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 03-12-cli-output-contract PLAN.md — 1 plan remaining
-last_updated: "2026-04-28T16:01:28Z"
+status: phase_complete
+stopped_at: Completed 03-13-runtime-report-handoff PLAN.md — Phase 3 complete, ready for Phase 4
+last_updated: "2026-04-28T16:27:03Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 24
-  completed_plans: 23
-  percent: 96
+  completed_plans: 24
+  percent: 100
 ---
 
 # Project State
@@ -21,24 +21,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-27)
 
 **Core value:** The SDK emits one atomic instruction packet at a time; the runtime executes it and reports back — `gsd-post-update` must become unnecessary.
-**Current focus:** Phase 3 — Advisory Runner + Query Integration (execution in progress)
+**Current focus:** Phase 4 — Parity Suite + gsd-post-update Retirement (ready to plan)
 
 ## Current Position
 
 Phase: 3 of 6 (advisory runner + query integration)
-Plan: 03-12 of 13 complete; 1 remaining plan ready to execute
-Status: Executing
+Plan: 03-13 of 13 complete; Phase 3 complete
+Status: Phase complete, ready for Phase 4
 Last activity: 2026-04-28
 
-Progress: [██████████] Phase 3 gap closure in progress
+Progress: [██████████] Phase 3 complete
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 23
+- Total plans completed: 24
 - Average duration: 10 min
-- Total execution time: 2.41 hours
+- Total execution time: 2.71 hours
 
 **By Phase:**
 
@@ -46,12 +46,12 @@ Progress: [██████████] Phase 3 gap closure in progress
 |-------|-------|-------|----------|
 | 1. Compiler / Audit Foundation | 7 | 78 min | 11 min |
 | 2 | 4 | - | - |
-| 3. Advisory Runner + Query Integration | 12/13 | 112 min | 9 min |
+| 3. Advisory Runner + Query Integration | 13/13 | 130 min | 10 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 11 min, 6 min, 8 min, 8 min, 18 min
-- Trend: CLI output contract complete
+- Last 5 plans: 6 min, 8 min, 8 min, 18 min, 18 min
+- Trend: Phase 3 complete
 
 *Updated after each plan completion*
 | Phase 02 PPLAN-01-packet-schema | 8min | 3 tasks | 10 files |
@@ -68,6 +68,7 @@ Progress: [██████████] Phase 3 gap closure in progress
 | Phase 03-advisory-runner-query-integration 03-10-p4-chain-gap-closure | 8 min | 3 tasks | 7 files |
 | Phase 03-advisory-runner-query-integration 03-11-state-runtime-contract-hardening | 8 min | 3 tasks | 8 files |
 | Phase 03-advisory-runner-query-integration 03-12-cli-output-contract | 18 min | 3 tasks | 11 files |
+| Phase 03-advisory-runner-query-integration 03-13-runtime-report-handoff | 18 min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -108,11 +109,14 @@ Recent decisions affecting current work:
 - [Phase 03 Plan 03-12]: Phase 3 query terminal output is centralized in pure `formatQueryOutput()` instead of generic JSON serialization.
 - [Phase 03 Plan 03-12]: The native query CLI path stays subprocess-free for UI-contracted output handling.
 - [Phase 03 Plan 03-12]: Compile count output is emitted by the CLI layer while compiler report generation remains side-effect-free.
+- [Phase 03 Plan 03-13]: Runtime report handlers are caller-supplied deterministic callbacks; the SDK does not provide a default implementation that shells out, opens model sessions, reads stdin, or executes tools.
+- [Phase 03 Plan 03-13]: Runtime reports are validated against the emitted packet identity and allowed outcomes before any FSM transition or provider metadata persistence.
+- [Phase 03 Plan 03-13]: Default advisory advance emits completion intent and waits for runtime evidence; direct `phaseComplete` remains confined to the opt-in legacy model-backed path.
+- [Phase 03 Plan 03-13]: Validated runtime reports can tolerate absent FSM initialization only in test/no-FSM contexts; real FSM states still persist provider metadata through `advanceFsmState()`.
 
 ### Pending Todos
 
-- Execute Phase 3 — Advisory Runner + Query Integration (1 gap-closure plan remaining)
-- Begin Phase 4 — Parity Suite + gsd-post-update Retirement after Phase 3 execution completes
+- Begin Phase 4 — Parity Suite + gsd-post-update Retirement
 
 ### Blockers/Concerns
 
@@ -136,9 +140,9 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 ## Session Continuity
 
-Last session: 2026-04-28T16:01:28Z
-Stopped at: Completed 03-12-cli-output-contract PLAN.md — 1 plan remaining
-Resume file: `.planning/phases/03-advisory-runner-query-integration/03-13-PLAN.md`
+Last session: 2026-04-28T16:27:03Z
+Stopped at: Completed 03-13-runtime-report-handoff PLAN.md — Phase 3 complete, ready for Phase 4
+Resume file: None
 
 ## Session Note — 2026-04-28
 
