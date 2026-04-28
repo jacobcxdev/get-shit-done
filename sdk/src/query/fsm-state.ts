@@ -265,7 +265,7 @@ export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
     throw new GSDError('field and value required for phase.edit', ErrorClassification.Validation);
   }
   if (!MUTABLE_PHASE_FIELDS.has(field)) {
-    throw new GSDError(`field '${field}' is not an editable phase field`, ErrorClassification.Validation);
+    throw new GSDError(`field '${field}' is not in the phase edit allowlist`, ErrorClassification.Validation);
   }
 
   const path = fsmStatePath(projectDir, target);
@@ -273,7 +273,9 @@ export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
   let parsedValue: string | boolean = value;
   let updatedState: FsmRunState;
   const updatedAt = new Date().toISOString();
+  let previousValue: string | boolean;
   if (field === 'currentState') {
+    previousValue = state.currentState;
     updatedState = {
       ...state,
       currentState: value,
@@ -281,6 +283,7 @@ export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
     };
   } else if (field === 'resume.status') {
     const resumeStatus = parseResumeStatus(value);
+    previousValue = state.resume.status;
     parsedValue = resumeStatus;
     updatedState = {
       ...state,
@@ -288,6 +291,7 @@ export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
       updatedAt,
     };
   } else if (field === 'autoMode.active') {
+    previousValue = state.autoMode.active;
     parsedValue = parsePhaseEditActive(value);
     updatedState = {
       ...state,
@@ -296,6 +300,7 @@ export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
     };
   } else if (field === 'autoMode.source') {
     const source = parsePhaseEditSource(value);
+    previousValue = state.autoMode.source;
     parsedValue = source;
     updatedState = {
       ...state,
@@ -303,9 +308,18 @@ export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
       updatedAt,
     };
   } else {
-    throw new GSDError(`field '${field}' is not an editable phase field`, ErrorClassification.Validation);
+    throw new GSDError(`field '${field}' is not in the phase edit allowlist`, ErrorClassification.Validation);
   }
   await writeFsmState(projectDir, target, updatedState);
 
-  return { data: { field, value: parsedValue, workstream: target ?? null } };
+  return {
+    data: {
+      field,
+      value: parsedValue,
+      previousValue,
+      newValue: parsedValue,
+      timestamp: updatedAt,
+      workstream: target ?? null,
+    },
+  };
 };

@@ -114,8 +114,13 @@ export async function runCompileCommand(argv: string[], projectDir?: string): Pr
   }
 
   const { commands, workflows, agents, hooks } = report.counts;
-  console.log(
-    `Compile: ${commands} commands, ${workflows} workflows, ${agents} agents, ${hooks} hooks, ` +
-    `${report.diagnostics.length} diagnostic(s), ${errorCount} error(s)`,
-  );
+  const outliers = report.manifests.classification.filter((entry) => entry.isHardOutlier).length;
+  console.log([
+    'Compile complete.',
+    `  commands:  ${commands}`,
+    `  workflows: ${workflows}`,
+    `  agents:    ${agents}`,
+    `  hooks:     ${hooks}`,
+    `  outliers:  ${outliers}`,
+  ].join('\n'));
 }

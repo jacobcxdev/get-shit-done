@@ -81,10 +81,6 @@ function generatedArtifactDeclarations(generatedDir: string): GeneratedArtifactD
   }));
 }
 
-function outlierCount(report: CompileReport): number {
-  return report.manifests.classification.filter((entry) => entry.isHardOutlier).length;
-}
-
 export async function runCompiler(projectDir: string, opts: CompileOptions): Promise<CompileReport> {
   const diagnostics: CompileDiagnostic[] = [];
 
@@ -143,13 +139,6 @@ export async function runCompiler(projectDir: string, opts: CompileOptions): Pro
   if (opts.check) {
     await checkBaselines(projectDir, paths.generated, manifests, report.diagnostics);
     report.diagnostics = sortDiagnostics(report.diagnostics);
-  }
-
-  if (!opts.json) {
-    console.log(
-      `Commands: ${report.counts.commands} | Workflows: ${report.counts.workflows} | ` +
-      `Agents: ${report.counts.agents} | Hooks: ${report.counts.hooks} | Outliers: ${outlierCount(report)}`,
-    );
   }
 
   if (report.diagnostics.some((diagnostic) => diagnostic.severity === 'error')) {

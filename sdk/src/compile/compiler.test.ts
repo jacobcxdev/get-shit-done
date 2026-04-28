@@ -108,7 +108,7 @@ describe('runCompiler', () => {
     expect(report.counts).toEqual({ commands: 1, workflows: 1, agents: 1, hooks: 1 });
   });
 
-  it('logs compile counts for successful non-json runs', async () => {
+  it('leaves terminal count formatting to the compile CLI', async () => {
     const projectDir = await makeProject();
     projects.push(projectDir);
     await writeWorkflow(projectDir, 'demo');
@@ -122,9 +122,7 @@ describe('runCompiler', () => {
 
     await runCompiler(projectDir, { json: false, check: false, write: false });
 
-    expect(log).toHaveBeenCalledWith(expect.stringContaining(
-      'Commands: 1 | Workflows: 1 | Agents: 1 | Hooks: 1 | Outliers: 0',
-    ));
+    expect(log).not.toHaveBeenCalled();
   });
 
   it('validates non-empty packetDefinitions through compiler integration', async () => {

@@ -353,8 +353,12 @@ describe('FSM query handlers', () => {
     const dottedSession = await registry.dispatch('thread.session', ['demo'], projectDir);
     const spacedSession = await registry.dispatch('thread session', ['demo'], projectDir);
     expect(spacedSession).toEqual(dottedSession);
-    expect(dottedSession).toEqual({
-      data: { sessionId: 'thread-run', runId: 'thread-run', workstream: 'demo' },
+    expect(dottedSession.data).toMatchObject({
+      sessionId: 'thread-run',
+      threadId: 'thread-run',
+      runId: 'thread-run',
+      workstream: 'demo',
+      startedAt: expect.any(String),
     });
   });
 });

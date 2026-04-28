@@ -46,11 +46,14 @@ export const threadWorkstream: QueryHandler = async (args, projectDir, workstrea
 export const threadSession: QueryHandler = async (args, projectDir, workstream) => {
   const target = targetWorkstream(workstream, args[0]);
   const state = await readThreadState(projectDir, target);
+  const threadId = state.thread?.id ?? state.runId;
   return {
     data: {
       sessionId: state.thread?.sessionId ?? state.runId,
+      threadId,
       runId: state.runId,
       workstream: target ?? null,
+      startedAt: state.createdAt,
     },
   };
 };
