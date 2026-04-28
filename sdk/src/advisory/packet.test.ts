@@ -112,4 +112,15 @@ describe('validateAdvisoryPacket', () => {
       stepId: 'step-b',
     }));
   });
+
+  it('includes field, workflowId, and stepId when agents are missing', () => {
+    const packet = validPacket({ stepId: 'missing-agents' });
+    delete packet.agents;
+
+    expect(validateAdvisoryPacket(packet)).toContainEqual(expect.objectContaining({
+      field: 'agents',
+      workflowId: 'workflow-a',
+      stepId: 'missing-agents',
+    }));
+  });
 });
