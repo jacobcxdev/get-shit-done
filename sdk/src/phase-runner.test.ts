@@ -152,8 +152,8 @@ function makeDeps(overrides: Partial<PhaseRunnerDeps> = {}): PhaseRunnerDeps {
         instruction: 'Execute one test step.',
         requiredContext: [],
         allowedTools: [],
-        agents: [],
-        expectedEvidence: ['testEvidenceId'],
+        agents: ['gsd-executor'],
+        expectedEvidence: ['completion-marker:## PLAN COMPLETE', 'SUMMARY.md'],
         allowedOutcomes: ['success', 'failure', 'skipped'],
         reportCommand: 'gsd-sdk query fsm.transition <workstream> <onSuccess> success',
         onSuccess: 'next',
@@ -200,6 +200,7 @@ function makeDeps(overrides: Partial<PhaseRunnerDeps> = {}): PhaseRunnerDeps {
     workflowRunner: workflowRunner as any,
     runtimeReportHandler: vi.fn(async ({ packet }: { packet: AdvisoryPacket }) => makeRuntimeReport(packet)),
     agentContracts: RUNTIME_AGENT_CONTRACTS,
+    noFsmForTesting: true,
     ...overrides,
   };
 }
@@ -262,8 +263,8 @@ function makeRuntimeReport(
     stepId: packet.stepId,
     agentId: 'gsd-executor',
     outcome: 'success',
-    markers: ['## PLAN COMPLETE'],
-    artifacts: ['SUMMARY.md'],
+    markers: ['## PLAN COMPLETE', ...packet.expectedEvidence],
+    artifacts: ['SUMMARY.md', ...packet.expectedEvidence],
     ...overrides,
   };
 }
@@ -388,8 +389,8 @@ describe('PhaseRunner', () => {
             instruction: `Execute ${input.stepId}.`,
             requiredContext: [],
             allowedTools: [],
-            agents: [],
-            expectedEvidence: [`${input.stepId}EvidenceId`],
+            agents: ['gsd-executor'],
+            expectedEvidence: ['completion-marker:## PLAN COMPLETE', 'SUMMARY.md'],
             allowedOutcomes: ['success', 'failure', 'skipped'],
             reportCommand: 'gsd-sdk query fsm.transition <workstream> <onSuccess> success',
             onSuccess: input.onSuccess ?? 'next',
@@ -520,8 +521,8 @@ describe('PhaseRunner', () => {
               instruction: `Execute ${input.stepId}.`,
               requiredContext: [],
               allowedTools: [],
-              agents: [],
-              expectedEvidence: [`${input.stepId}EvidenceId`],
+              agents: ['gsd-executor'],
+              expectedEvidence: ['completion-marker:## PLAN COMPLETE', 'SUMMARY.md'],
               allowedOutcomes: ['success', 'failure', 'skipped'],
               reportCommand: 'gsd-sdk query fsm.transition <workstream> <onSuccess> success',
               onSuccess: 'next',
@@ -811,6 +812,107 @@ describe('PhaseRunner', () => {
       expect(`${advancePacket?.goal} ${advancePacket?.instruction}`).toContain('completion intent');
       expect(JSON.stringify(advancePacket)).toContain('phaseComplete');
       expect(deps.tools.phaseComplete).not.toHaveBeenCalled();
+    });
+
+    describe('PhaseRunner — Wave 0 init-required fail-closed', () => {
+      it('returns success:false with error:init-required when advanceFsmState throws init-required in normal execution', async () => {
+        const config = runtimeOnlyConfig();
+        const workflowRunner = makeRuntimeWorkflowRunner();
+        const advanceFsmState = vi
+          .spyOn(fsmState, 'advanceFsmState')
+          .mockRejectedValue({ code: 'init-required' });
+
+        try {
+          const deps = makeDeps({
+            config,
+            workflowRunner: workflowRunner as any,
+            agentContracts: RUNTIME_AGENT_CONTRACTS,
+            noFsmForTesting: undefined,
+          } as any);
+          const runtimeReportHandler = vi.fn(async ({ packet }: { packet: AdvisoryPacket }) =>
+            makeRuntimeReport(packet));
+          const runner = new PhaseRunner(deps);
+
+          const result = await runner.run('1', { runtimeReportHandler, agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+          expect(result.success).toBe(false);
+          expect(result.steps[0]).toMatchObject({
+            success: false,
+            error: 'init-required',
+          });
+          expect(advanceFsmState).toHaveBeenCalled();
+          expect(getEmittedEvents(deps)).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+              type: GSDEventType.PhaseStepComplete,
+              success: false,
+              error: 'init-required',
+            }),
+          ]));
+        } finally {
+          advanceFsmState.mockRestore();
+        }
+      });
+
+      it('tolerates init-required when noFsmForTesting:true is set — returns success:true', async () => {
+        const config = runtimeOnlyConfig();
+        const workflowRunner = makeRuntimeWorkflowRunner();
+        const advanceFsmState = vi
+          .spyOn(fsmState, 'advanceFsmState')
+          .mockRejectedValue({ code: 'init-required' });
+
+        try {
+          const deps = makeDeps({
+            config,
+            workflowRunner: workflowRunner as any,
+            agentContracts: RUNTIME_AGENT_CONTRACTS,
+            noFsmForTesting: true,
+          } as any);
+          const runtimeReportHandler = vi.fn(async ({ packet }: { packet: AdvisoryPacket }) =>
+            makeRuntimeReport(packet));
+          const runner = new PhaseRunner(deps);
+
+          const result = await runner.run('1', { runtimeReportHandler, agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+          expect(result.success).toBe(true);
+          expect(result.steps[0]).toMatchObject({
+            success: true,
+          });
+          expect(advanceFsmState).toHaveBeenCalled();
+        } finally {
+          advanceFsmState.mockRestore();
+        }
+      });
+
+      it('blocking runtime contract events still block FSM advance even when noFsmForTesting:true', async () => {
+        const config = runtimeOnlyConfig();
+        const workflowRunner = makeRuntimeWorkflowRunner();
+        const advanceFsmState = vi
+          .spyOn(fsmState, 'advanceFsmState')
+          .mockRejectedValue({ code: 'init-required' });
+
+        try {
+          const deps = makeDeps({
+            config,
+            workflowRunner: workflowRunner as any,
+            agentContracts: RUNTIME_AGENT_CONTRACTS,
+            noFsmForTesting: true,
+          } as any);
+          const runtimeReportHandler = vi.fn(async ({ packet }: { packet: AdvisoryPacket }) =>
+            makeRuntimeReport(packet, { agentId: 'undeclared-agent' }));
+          const runner = new PhaseRunner(deps);
+
+          const result = await runner.run('1', { runtimeReportHandler, agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+          expect(result.success).toBe(false);
+          expect(result.steps[0]).toMatchObject({
+            success: false,
+          });
+          expect(result.steps[0].error).toContain('undeclared-agent');
+          expect(advanceFsmState).not.toHaveBeenCalled();
+        } finally {
+          advanceFsmState.mockRestore();
+        }
+      });
     });
   });
 
