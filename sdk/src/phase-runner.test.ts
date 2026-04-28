@@ -191,7 +191,7 @@ describe('PhaseRunner', () => {
   // ─── Happy path ────────────────────────────────────────────────────────
 
   describe('happy path — full lifecycle', () => {
-    it('runs all steps in order: discuss → research → plan → plan-check → execute → verify → advance', async () => {
+    it('runs all steps in order: Discuss, Research, Plan, PlanCheck, Execute, Verify, P4Compliance, Advance', async () => {
       const phaseOp = makePhaseOp({ has_context: false, has_plans: true, plan_count: 1 });
       const deps = makeDeps();
       (deps.tools.initPhaseOp as ReturnType<typeof vi.fn>).mockResolvedValue(phaseOp);
@@ -212,6 +212,7 @@ describe('PhaseRunner', () => {
         PhaseStepType.PlanCheck,
         PhaseStepType.Execute,
         PhaseStepType.Verify,
+        PhaseStepType.P4Compliance,
         PhaseStepType.Advance,
       ]);
 

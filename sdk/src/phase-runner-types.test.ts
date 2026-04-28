@@ -28,12 +28,19 @@ describe('Phase lifecycle types', () => {
       expect(PhaseStepType.Plan).toBe('plan');
       expect(PhaseStepType.Execute).toBe('execute');
       expect(PhaseStepType.Verify).toBe('verify');
+      expect(PhaseStepType.P4Compliance).toBe('p4_compliance');
+      expect(PhaseStepType.P4GapClosure).toBe('p4_gap_closure');
       expect(PhaseStepType.Advance).toBe('advance');
     });
 
-    it('has exactly 7 members', () => {
+    it('has exactly 9 members', () => {
       const values = Object.values(PhaseStepType);
-      expect(values).toHaveLength(7);
+      expect(values).toHaveLength(9);
+    });
+
+    it('models Nyquist P4 as explicit post-verify steps', () => {
+      expect(PhaseStepType.P4Compliance).toBe('p4_compliance');
+      expect(PhaseStepType.P4GapClosure).toBe('p4_gap_closure');
     });
   });
 
