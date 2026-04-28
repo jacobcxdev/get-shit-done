@@ -28,9 +28,17 @@ export type WorkflowSupportDisposition =
 export type WorkflowPostureRecord = {
   commandId?: string;
   workflowId?: string;
-  posture: 'hard-outlier' | 'composite-review' | 'unknown' | 'query-native';
+  posture:
+    | 'hard-outlier'
+    | 'composite-review'
+    | 'unknown'
+    | 'query-native'
+    | 'suspended'
+    | 'resumed-success'
+    | 'resumed-failure';
   reason: string;
   emitsPacket: false;
+  suspensionPoint?: string;
 };
 
 export type WorkflowRunnerResult =
@@ -70,6 +78,21 @@ export type WorkflowRunnerDispatchInput = {
   mandatoryProviders?: ProviderName[];
   agentContracts?: AgentEntry[];
   worktreeContext?: RuntimeWorktreeContext;
+};
+
+export type HitlOutcome = 'resumed-success' | 'resumed-failure' | 'suspended';
+
+/** Typed injectable seam for HITL suspension/resume in WorkflowRunner. */
+export type SuspensionInputProvider = {
+  /** Called by WorkflowRunner when it hits a HITL suspension point for a workflow step. */
+  getSuspensionOutcome(workflowId: string, suspensionPoint: string): HitlOutcome;
+  /** Returns the typed resume input payload for the given workflow. */
+  getResumeInput(workflowId: string): Record<string, unknown>;
+};
+
+export type WorkflowRunnerDeps = {
+  /** @internal Injected in tests to control HITL suspension outcomes deterministically. */
+  suspensionInputProvider?: SuspensionInputProvider;
 };
 
 export type WorkflowSupportMatrixEntry = {
@@ -177,6 +200,22 @@ function mandatoryProvidersForWorkflow(
   );
 }
 
+function suspensionPointsForWorkflow(
+  workflowId: string,
+  semantics: WorkflowSemanticManifest[],
+): string[] {
+  const entry = semantics.find(semantic => semantic.workflowId === workflowId);
+  return [
+    ...new Set(
+      (entry?.semantics ?? [])
+        .flatMap(semantic => ('suspensionPoints' in semantic ? semantic.suspensionPoints : []))
+        .filter((suspensionPoint): suspensionPoint is string =>
+          typeof suspensionPoint === 'string' && suspensionPoint.trim() !== '',
+        ),
+    ),
+  ].sort();
+}
+
 function reducedProviderMetadata(
   availability: ProviderAvailabilityResult | undefined,
 ): ProviderTransitionMetadata | undefined {
@@ -195,7 +234,10 @@ export class WorkflowRunner {
   private readonly workflowsById = new Map<string, WorkflowEntry>();
   private readonly supportByWorkflowId = new Map<string, WorkflowSupportMatrixEntry>();
 
-  constructor(private readonly manifests: WorkflowRunnerManifests) {
+  constructor(
+    private readonly manifests: WorkflowRunnerManifests,
+    private readonly deps: WorkflowRunnerDeps = {},
+  ) {
     if (
       !isNonEmptyArray(manifests.commandClassification) ||
       !isNonEmptyArray(manifests.workflowCoverage) ||
@@ -267,6 +309,11 @@ export class WorkflowRunner {
 
     if (support.disposition === 'hard-outlier') {
       return this.postureResult('hard-outlier', workflowId, command);
+    }
+
+    const hitlResult = this.hitlResult(input, workflowId, command);
+    if (hitlResult) {
+      return hitlResult;
     }
 
     if (support.disposition === 'composite-review' || support.disposition === 'query-native') {
@@ -373,6 +420,46 @@ export class WorkflowRunner {
     };
   }
 
+  private hitlResult(
+    input: WorkflowRunnerDispatchInput,
+    workflowId: string,
+    command: ClassificationEntry | undefined,
+  ): WorkflowRunnerResult | null {
+    const provider = this.deps.suspensionInputProvider;
+    if (!provider) {
+      return null;
+    }
+
+    const suspensionPoints = suspensionPointsForWorkflow(workflowId, this.manifests.workflowSemantics);
+    if (!suspensionPoints.includes(input.stepId)) {
+      return null;
+    }
+
+    const outcome = provider.getSuspensionOutcome(workflowId, input.stepId);
+    if (outcome !== 'suspended') {
+      provider.getResumeInput(workflowId);
+    }
+
+    const reason =
+      outcome === 'suspended'
+        ? `Workflow ${workflowId} is suspended at HITL point ${input.stepId}.`
+        : `Workflow ${workflowId} resumed from HITL point ${input.stepId} with ${outcome}.`;
+
+    return {
+      kind: 'posture',
+      record: {
+        ...(command?.commandId ? { commandId: command.commandId } : {}),
+        workflowId,
+        posture: outcome,
+        reason,
+        emitsPacket: false,
+        suspensionPoint: input.stepId,
+      },
+      workflowId,
+      posture: outcome,
+    };
+  }
+
   private packetFor(
     input: WorkflowRunnerDispatchInput,
     workflowId: string,
@@ -403,10 +490,10 @@ export class WorkflowRunner {
   }
 }
 
-export function createGeneratedWorkflowRunner(): WorkflowRunner {
+export function createGeneratedWorkflowRunner(deps: WorkflowRunnerDeps = {}): WorkflowRunner {
   return new WorkflowRunner({
     commandClassification: GENERATED_MANIFEST_REQUIRE('../generated/compile/command-classification.json') as ClassificationEntry[],
     workflowCoverage: GENERATED_MANIFEST_REQUIRE('../generated/compile/workflow-coverage.json') as WorkflowEntry[],
     workflowSemantics: GENERATED_MANIFEST_REQUIRE('../generated/compile/workflow-semantics.json') as WorkflowSemanticManifest[],
-  });
+  }, deps);
 }
