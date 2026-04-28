@@ -12,6 +12,7 @@ const vm = require('vm');
 
 const HOOKS_DIR = path.join(__dirname, '..', 'hooks');
 const DIST_DIR = path.join(HOOKS_DIR, 'dist');
+const HOOK_INSTALL_MANIFEST = path.join(__dirname, '..', 'sdk', 'src', 'generated', 'compile', 'hook-install.json');
 
 // Hooks to copy (pure Node.js, no bundling needed)
 const HOOKS_TO_COPY = [
@@ -45,6 +46,30 @@ function validateSyntax(filePath) {
       return e.message;
     }
     throw e;
+  }
+}
+
+function hookManifestName(entry) {
+  return entry.filename ?? path.basename(entry.src ?? entry.path ?? '');
+}
+
+function reconcileHookInstallManifest() {
+  const manifest = JSON.parse(fs.readFileSync(HOOK_INSTALL_MANIFEST, 'utf8'));
+  const manifestNames = new Set(manifest.map(hookManifestName));
+  const copiedHookNames = new Set(HOOKS_TO_COPY.map(hook => path.basename(hook)));
+
+  for (const hook of HOOKS_TO_COPY) {
+    const name = path.basename(hook);
+    if (!manifestNames.has(name)) {
+      process.stderr.write(`[HOOK-02] Hook '${name}' in HOOKS_TO_COPY is not in hook-install.json manifest\n`);
+      process.exitCode = 1;
+    }
+  }
+
+  for (const name of manifestNames) {
+    if (name && !copiedHookNames.has(name)) {
+      process.stderr.write(`[HOOK-02] Hook '${name}' in hook-install.json manifest is not in HOOKS_TO_COPY\n`);
+    }
   }
 }
 
@@ -88,6 +113,8 @@ function build() {
     console.error('\n\x1b[31mBuild failed: fix syntax errors above before publishing.\x1b[0m');
     process.exit(1);
   }
+
+  reconcileHookInstallManifest();
 
   console.log('\nBuild complete.');
 }

@@ -21,6 +21,7 @@ const INSTALL_SRC = path.join(__dirname, '..', 'bin', 'install.js');
 const { writeManifest, validateHookFields } = require(INSTALL_SRC);
 const BUILD_SCRIPT = path.join(__dirname, '..', 'scripts', 'build-hooks.js');
 const HOOKS_DIST = path.join(__dirname, '..', 'hooks', 'dist');
+const HOOK_INSTALL_MANIFEST_PATH = path.join(__dirname, '..', 'sdk', 'src', 'generated', 'compile', 'hook-install.json');
 
 // Expected .sh community hooks
 const EXPECTED_SH_HOOKS = [
@@ -31,6 +32,7 @@ const EXPECTED_SH_HOOKS = [
 
 // All hooks that should be in hooks/dist/ after build
 const EXPECTED_ALL_HOOKS = [
+  'gsd-check-update-worker.js',
   'gsd-check-update.js',
   'gsd-context-monitor.js',
   'gsd-prompt-guard.js',
@@ -50,6 +52,14 @@ before(() => {
     encoding: 'utf-8',
     stdio: 'pipe',
   });
+});
+
+test('EXPECTED_ALL_HOOKS matches generated hook-install.json manifest', () => {
+  const manifest = JSON.parse(fs.readFileSync(HOOK_INSTALL_MANIFEST_PATH, 'utf8'));
+  const manifestNames = manifest
+    .map(h => h.filename ?? path.basename(h.src ?? h.path ?? ''))
+    .sort();
+  assert.deepStrictEqual([...EXPECTED_ALL_HOOKS].sort(), manifestNames);
 });
 
 // ─── Helper: simulate the hook copy loop from install.js ────────────────────
