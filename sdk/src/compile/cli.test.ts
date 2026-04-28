@@ -91,4 +91,27 @@ describe('runCompileCommand parser-only paths', () => {
     expect(JSON.parse(reportJson).counts).toEqual({ commands: 0, workflows: 0, agents: 0, hooks: 0 });
     expect(logSpy.mock.calls.flat().join('\n')).toContain('"counts"');
   });
+
+  it('prints the exact 03-UI-SPEC compile count summary for successful non-JSON runs', async () => {
+    const projectDir = join(tmpdir(), `gsd-compile-cli-counts-${process.pid}-${Date.now()}-${Math.random()}`);
+    projects.push(projectDir);
+    await mkdir(join(projectDir, 'commands', 'gsd'), { recursive: true });
+    await mkdir(join(projectDir, 'get-shit-done', 'workflows'), { recursive: true });
+    await mkdir(join(projectDir, 'agents'), { recursive: true });
+    await mkdir(join(projectDir, 'hooks'), { recursive: true });
+    await mkdir(join(projectDir, '.planning'), { recursive: true });
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    process.exitCode = undefined;
+
+    await runCompileCommand(['--project-dir', projectDir]);
+
+    expect(logSpy.mock.calls.flat().join('\n')).toContain([
+      'Compile complete.',
+      '  commands:  0',
+      '  workflows: 0',
+      '  agents:    0',
+      '  hooks:     0',
+      '  outliers:  0',
+    ].join('\n'));
+  });
 });
