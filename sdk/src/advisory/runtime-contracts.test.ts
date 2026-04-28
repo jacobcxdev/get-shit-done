@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CURRENT_ADVISORY_PACKET_SCHEMA_VERSION, type AdvisoryPacket } from './packet.js';
 import {
+  type RuntimeExecutionReport,
   validatePreEmitRuntimeContract,
   validateRuntimeReportContract,
 } from './runtime-contracts.js';
@@ -152,5 +153,77 @@ describe('runtime contract validation', () => {
 
     expect(report.outcome).toBe('failure');
     expect(events).toEqual([]);
+  });
+});
+
+describe('validateRuntimeReportContract — Wave 0 trust-boundary hardening', () => {
+  function makeReport(overrides: Partial<RuntimeExecutionReport> = {}): RuntimeExecutionReport {
+    return {
+      runId: 'run-1',
+      workflowId: '/workflows/execute-plan',
+      stepId: 'execute:plan',
+      agentId: 'gsd-executor',
+      outcome: 'success',
+      markers: ['## PLAN COMPLETE'],
+      artifacts: [],
+      ...overrides,
+    };
+  }
+
+  it('emits UNDECLARED_AGENT blocking event when agentId is not in packet.agents', () => {
+    const p = packet({ agents: ['gsd-verifier'] });
+    const report = makeReport({ agentId: 'gsd-executor', outcome: 'success' });
+    const events = validateRuntimeReportContract(report, p, AGENT_CONTRACTS);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: GSDEventType.UndeclaredAgentReportRejected,
+      code: 'UNDECLARED_AGENT',
+      agentId: 'gsd-executor',
+      blocksTransition: true,
+    });
+  });
+
+  it('returns early with only UNDECLARED_AGENT when agent undeclared — does not run evidence loop', () => {
+    const p = packet({ agents: ['gsd-verifier'], expectedEvidence: ['missing-item'] });
+    const report = makeReport({ agentId: 'gsd-executor', outcome: 'success', markers: [], artifacts: [] });
+    const events = validateRuntimeReportContract(report, p, AGENT_CONTRACTS);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({ code: 'UNDECLARED_AGENT' });
+  });
+
+  it('emits EXPECTED_EVIDENCE_ABSENT when evidence item missing from markers and artifacts', () => {
+    const p = packet({
+      agents: ['gsd-executor'],
+      expectedEvidence: ['completion-marker:## PLAN COMPLETE', 'my-artifact.md'],
+    });
+    const report = makeReport({
+      agentId: 'gsd-executor',
+      outcome: 'success',
+      markers: ['## PLAN COMPLETE'],
+      artifacts: [],
+    });
+    const events = validateRuntimeReportContract(report, p, AGENT_CONTRACTS);
+    expect(events).toContainEqual(expect.objectContaining({
+      type: GSDEventType.ExpectedEvidenceAbsent,
+      code: 'EXPECTED_EVIDENCE_ABSENT',
+      evidenceId: 'my-artifact.md',
+      blocksTransition: true,
+    }));
+  });
+
+  it('emits no blocking events when all expectedEvidence items are present in markers', () => {
+    const p = packet({
+      agents: ['gsd-executor'],
+      expectedEvidence: ['completion-marker:## PLAN COMPLETE'],
+    });
+    const report = makeReport({
+      agentId: 'gsd-executor',
+      outcome: 'success',
+      markers: ['## PLAN COMPLETE'],
+      artifacts: ['SUMMARY.md'],
+    });
+    const events = validateRuntimeReportContract(report, p, AGENT_CONTRACTS);
+    const blocking = events.filter(e => (e as { blocksTransition?: boolean }).blocksTransition === true);
+    expect(blocking).toHaveLength(0);
   });
 });
