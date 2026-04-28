@@ -5,7 +5,7 @@ import { checkBaselines, writeBaselines } from '../compile/baselines.js';
 import type { CompileDiagnostic } from '../compile/types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = join(__dirname, '..', '..', '..', '..');
+const PROJECT_ROOT = join(__dirname, '..', '..', '..');
 const GENERATED_PARITY_DIR = 'sdk/src/generated/parity';
 
 type DispositionEntry = {
@@ -146,7 +146,9 @@ async function buildParityWorkflowIndex(): Promise<ParityWorkflowEntry[]> {
   return classification.map((entry) => {
     const workflowId = entry.workflowId ?? null;
     const parityTier: ParityWorkflowEntry['parityTier'] =
-      entry.isHardOutlier || entry.category === 'hard-outlier' || (entry.category === 'dynamic-branch' && !workflowId)
+      entry.isHardOutlier ||
+      entry.category === 'hard-outlier' ||
+      (entry.category === 'dynamic-branch' && (!workflowId || !branchIdsFor.has(workflowId)))
         ? 'hard-outlier'
         : entry.category === 'query-utility'
           ? 'query-native'

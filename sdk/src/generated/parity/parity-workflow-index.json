@@ -1,0 +1,810 @@
+[
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-check-todos",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/check-todos"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-do",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/do"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-forensics",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/forensics"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-inbox",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/inbox"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-manager",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/manager"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-next",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/next"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-plan-review-convergence",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/plan-review-convergence"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-settings-advanced",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/settings-advanced"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-settings-integrations",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/settings-integrations"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-sketch",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/sketch"
+  },
+  {
+    "branchIds": [
+      "mode:auto",
+      "mode:gaps",
+      "mode:prd",
+      "mode:reviews",
+      "mode:skip-research",
+      "mode:skip-verify"
+    ],
+    "category": "dynamic-branch",
+    "commandId": "/gsd-spike",
+    "parityTier": "dynamic-branch",
+    "workflowId": "/workflows/spike"
+  },
+  {
+    "category": "composite",
+    "commandId": "/gsd-ai-integration-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/ai-integration-phase"
+  },
+  {
+    "category": "composite",
+    "commandId": "/gsd-audit-fix",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/audit-fix"
+  },
+  {
+    "category": "composite",
+    "commandId": "/gsd-autonomous",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/autonomous"
+  },
+  {
+    "category": "composite",
+    "commandId": "/gsd-docs-update",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/docs-update"
+  },
+  {
+    "category": "composite",
+    "commandId": "/gsd-ingest-docs",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/ingest-docs"
+  },
+  {
+    "category": "composite",
+    "commandId": "/gsd-quick",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/quick"
+  },
+  {
+    "category": "composite",
+    "commandId": "/gsd-ship",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/ship"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-add-backlog",
+    "parityTier": "deterministic",
+    "workflowId": null
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-add-phase",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/add-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-add-tests",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/add-tests"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-add-todo",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/add-todo"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-analyze-dependencies",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/analyze-dependencies"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-audit-uat",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/audit-uat"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-cleanup",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/cleanup"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-complete-milestone",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/complete-milestone"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-discuss-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/discuss-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-edit-phase",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/edit-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-execute-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/execute-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-extract_learnings",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/extract_learnings"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-import",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/import"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-insert-phase",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/insert-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-milestone-summary",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/milestone-summary"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-new-milestone",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/new-milestone"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-new-project",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/new-project"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-new-workspace",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/new-workspace"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-note",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/note"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-pause-work",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/pause-work"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-plan-milestone-gaps",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/plan-milestone-gaps"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-plan-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/plan-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-plant-seed",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/plant-seed"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-pr-branch",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/pr-branch"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-remove-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/remove-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-remove-workspace",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/remove-workspace"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-research-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/research-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-resume-work",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/resume-project"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-sketch-wrap-up",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/sketch-wrap-up"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-spec-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/spec-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-spike-wrap-up",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/spike-wrap-up"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-ui-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/ui-phase"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-undo",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/undo"
+  },
+  {
+    "category": "core-lifecycle",
+    "commandId": "/gsd-verify-work",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/verify-work"
+  },
+  {
+    "category": "dynamic-branch",
+    "commandId": "/gsd-explore",
+    "parityTier": "hard-outlier",
+    "workflowId": "/workflows/explore"
+  },
+  {
+    "category": "dynamic-branch",
+    "commandId": "/gsd-review-backlog",
+    "parityTier": "hard-outlier",
+    "workflowId": null
+  },
+  {
+    "category": "hard-outlier",
+    "commandId": "/gsd-fast",
+    "parityTier": "hard-outlier",
+    "workflowId": "/workflows/fast"
+  },
+  {
+    "category": "hard-outlier",
+    "commandId": "/gsd-from-gsd2",
+    "parityTier": "hard-outlier",
+    "workflowId": null
+  },
+  {
+    "category": "hard-outlier",
+    "commandId": "/gsd-graphify",
+    "parityTier": "hard-outlier",
+    "workflowId": null
+  },
+  {
+    "category": "hard-outlier",
+    "commandId": "/gsd-review",
+    "parityTier": "hard-outlier",
+    "workflowId": "/workflows/review"
+  },
+  {
+    "category": "hard-outlier",
+    "commandId": "/gsd-ultraplan-phase",
+    "parityTier": "hard-outlier",
+    "workflowId": "/workflows/ultraplan-phase"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-debug",
+    "parityTier": "query-native",
+    "workflowId": null
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-health",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/health"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-help",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/help"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-intel",
+    "parityTier": "query-native",
+    "workflowId": null
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-join-discord",
+    "parityTier": "query-native",
+    "workflowId": null
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-list-phase-assumptions",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/list-phase-assumptions"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-list-workspaces",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/list-workspaces"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-progress",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/progress"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-reapply-patches",
+    "parityTier": "query-native",
+    "workflowId": null
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-scan",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/scan"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-session-report",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/session-report"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-set-profile",
+    "parityTier": "query-native",
+    "workflowId": null
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-settings",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/settings"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-stats",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/stats"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-sync-skills",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/sync-skills"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-thread",
+    "parityTier": "query-native",
+    "workflowId": null
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-update",
+    "parityTier": "query-native",
+    "workflowId": "/workflows/update"
+  },
+  {
+    "category": "query-utility",
+    "commandId": "/gsd-workstreams",
+    "parityTier": "query-native",
+    "workflowId": null
+  },
+  {
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-audit-milestone",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/audit-milestone"
+  },
+  {
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-code-review-fix",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/code-review-fix"
+  },
+  {
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-code-review",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/code-review"
+  },
+  {
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-eval-review",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/eval-review"
+  },
+  {
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-map-codebase",
+    "parityTier": "deterministic",
+    "workflowId": "/workflows/map-codebase"
+  },
+  {
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-profile-user",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/profile-user"
+  },
+  {
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-secure-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/secure-phase"
+  },
+  {
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-ui-review",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/ui-review"
+  },
+  {
+    "category": "single-agent-bounded",
+    "commandId": "/gsd-validate-phase",
+    "parityTier": "hitl",
+    "suspensionPoints": [
+      "AskUserQuestion",
+      "checkpoint",
+      "human-verify",
+      "pause"
+    ],
+    "workflowId": "/workflows/validate-phase"
+  }
+]

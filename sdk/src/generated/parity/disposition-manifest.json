@@ -1,0 +1,218 @@
+[
+  {
+    "behaviour": "skill-file slimming",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const c=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/command-classification.json','utf8')); if(!Array.isArray(c)||c.length!==86) throw new Error('command classification manifest missing full corpus')\"",
+    "id": "UPDT-B01",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/advisory/packet.ts | sdk/src/generated/compile/command-classification.json"
+  },
+  {
+    "behaviour": "workflow splitting into smaller step files",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const s=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/workflow-semantics.json','utf8')); if(!Array.isArray(s)||s.length!==84) throw new Error('workflow semantics manifest missing full corpus')\"",
+    "id": "UPDT-B02",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/phase-runner.ts | sdk/src/generated/compile/workflow-semantics.json"
+  },
+  {
+    "behaviour": "workflow preamble migration into specific split files that need that context",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const src=require('fs').readFileSync('sdk/src/advisory/packet.ts','utf8'); if(!src.includes('context')||!src.includes('expectedEvidence')) throw new Error('packet context/evidence contract missing')\"",
+    "id": "UPDT-B03",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/advisory/packet.ts | sdk/src/phase-runner.ts"
+  },
+  {
+    "behaviour": "skill process extraction into standalone workflow files for debug, reapply-patches, intel, graphify, and workstreams",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const c=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/command-classification.json','utf8')); for(const id of ['/gsd-debug','/gsd-reapply-patches','/gsd-intel','/gsd-graphify','/gsd-workstreams']) if(!c.some(e=>e.commandId===id)) throw new Error('missing classification for '+id)\"",
+    "id": "UPDT-B04",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/generated/compile/command-classification.json"
+  },
+  {
+    "behaviour": "next pointers and obstacle protocol injection",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const src=require('fs').readFileSync('sdk/src/advisory/fsm-state.ts','utf8'); if(!src.includes('transitionHistory')||!src.includes('advanceFsmState')) throw new Error('typed transition history contract missing')\"",
+    "id": "UPDT-B05",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/advisory/fsm-state.ts | sdk/src/phase-runner.ts"
+  },
+  {
+    "behaviour": "post-agent checkpoints",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const src=require('fs').readFileSync('sdk/src/advisory/packet.ts','utf8'); if(!src.includes('allowedOutcomes')||!src.includes('reportCommand')) throw new Error('checkpoint/report packet fields missing')\"",
+    "id": "UPDT-B06",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/advisory/packet.ts"
+  },
+  {
+    "behaviour": "watchdog start injection for full-phase workflows",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const p=require('fs').readFileSync('sdk/src/phase-runner.ts','utf8'); const e=require('fs').readFileSync('sdk/src/event-stream.ts','utf8'); if(!p.includes('GSDEventType')||!e.includes('GSDEvent')) throw new Error('runtime lifecycle event surface missing')\"",
+    "id": "UPDT-B07",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/phase-runner.ts | sdk/src/event-stream.ts"
+  },
+  {
+    "behaviour": "watchdog bookends for split workflows such as quick and manager",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const s=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/workflow-semantics.json','utf8')); for(const id of ['/workflows/quick','/workflows/manager']) if(!s.some(e=>e.workflowId===id&&e.semantics.some(x=>x.family==='non-blocking-side-effect'||x.family==='parallel-wave'))) throw new Error('missing lifecycle semantics for '+id)\"",
+    "id": "UPDT-B08",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/generated/compile/workflow-semantics.json"
+  },
+  {
+    "behaviour": "artefact verification",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const src=require('fs').readFileSync('sdk/src/compile/packet-contracts.ts','utf8'); if(!src.includes('expectedEvidence')||!src.includes('output artifact')) throw new Error('packet evidence validation missing')\"",
+    "id": "UPDT-B09",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/compile/packet-contracts.ts"
+  },
+  {
+    "behaviour": "disk-write mandates for the 14 audited agents",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const a=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/agent-contracts.json','utf8')); if(a.filter(e=>e.diskWriteMandate).length!==14) throw new Error('expected 14 disk-write mandate agents')\"",
+    "id": "UPDT-B10",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/generated/compile/agent-contracts.json | sdk/src/compile/packet-contracts.ts"
+  },
+  {
+    "behaviour": "no-force-add git safety",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const src=require('fs').readFileSync('sdk/src/compile/packet-contracts.ts','utf8'); if(!src.includes('allowedTools')||!src.includes('diskWriteMandate')) throw new Error('agent safety policy validation missing')\"",
+    "id": "UPDT-B11",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/compile/packet-contracts.ts | sdk/src/generated/compile/agent-contracts.json"
+  },
+  {
+    "behaviour": "path normalisation",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const p=require('fs').readFileSync('sdk/src/compile/paths.ts','utf8'); const h=require('fs').readFileSync('sdk/src/query/helpers.ts','utf8'); if(!p.includes('toRepoRelative')||!h.includes('toPosixPath')) throw new Error('path normalization helpers missing')\"",
+    "id": "UPDT-B12",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/compile/paths.ts | sdk/src/query/helpers.ts"
+  },
+  {
+    "behaviour": "cc-clear advance behaviour",
+    "disposition": "open-gap",
+    "evidenceCheck": "node -e \"const c=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/command-classification.json','utf8')); if(!c.some(e=>e.commandId==='/gsd-progress'||e.commandId==='/gsd-next')) throw new Error('advance runtime integration commands missing')\"",
+    "id": "UPDT-B13",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "blocked",
+    "targetSurface": "runtime integration extension"
+  },
+  {
+    "behaviour": "multi-model enforcement in monolithic and split workflow contexts",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const p=require('fs').readFileSync('sdk/src/advisory/provider-availability.ts','utf8'); const q=require('fs').readFileSync('sdk/src/query/fsm-state.ts','utf8'); if(!p.includes('providerConfidence')||!q.includes('missingProviders')) throw new Error('provider fallback metadata missing')\"",
+    "id": "UPDT-B14",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/advisory/provider-availability.ts | sdk/src/query/fsm-state.ts"
+  },
+  {
+    "behaviour": "Codex/Gemini routing config and per-step routing distinctions",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const src=require('fs').readFileSync('sdk/src/compile/workflow-semantics.ts','utf8'); if(!src.includes('mandatoryProvidersForWorkflow')||!src.includes('agent_routing')) throw new Error('routing provider semantics missing')\"",
+    "id": "UPDT-B15",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/compile/workflow-semantics.ts | .planning/config.json"
+  },
+  {
+    "behaviour": "Nyquist compliance states and gates",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const p=require('fs').readFileSync('sdk/src/phase-runner.ts','utf8'); const v=require('fs').readFileSync('sdk/src/query/validate.ts','utf8'); if(!p.includes('P4Compliance')||!v.includes('Nyquist')) throw new Error('Nyquist P4 compliance surface missing')\"",
+    "id": "UPDT-B16",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/phase-runner.ts | sdk/src/query/validate.ts"
+  },
+  {
+    "behaviour": "config schema/display patches",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const s=require('fs').readFileSync('sdk/src/query/config-schema.ts','utf8'); if(!s.includes('agent_routing')||!s.includes('codex_model')||!s.includes('gemini_model')) throw new Error('config schema/display support missing')\"",
+    "id": "UPDT-B17",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/query/config-schema.ts | sdk/src/query/config-query.ts"
+  },
+  {
+    "behaviour": "schema-translation logic for Codex and Gemini config",
+    "disposition": "open-gap",
+    "evidenceCheck": "node -e \"const s=require('fs').readFileSync('sdk/src/query/config-schema.ts','utf8'); if(!s.includes('codex_config')||!s.includes('gemini_config')) throw new Error('config translation schema proxy missing')\"",
+    "id": "UPDT-B18",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "blocked",
+    "targetSurface": "get-shit-done/bin/lib/init.cjs | sdk/src/query/init.ts"
+  },
+  {
+    "behaviour": "missing hook restoration",
+    "disposition": "absorbed",
+    "evidenceCheck": "node --test tests/install-hooks-copy.test.cjs",
+    "id": "UPDT-B19",
+    "requirementId": "HOOK-06",
+    "retirementStatus": "unblocked",
+    "targetSurface": "bin/install.js | scripts/build-hooks.js | sdk/src/generated/compile/hook-install.json"
+  },
+  {
+    "behaviour": "unknown workflow warnings and compiler coverage for newly introduced upstream workflows",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const w=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/workflow-coverage.json','utf8')); const c=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/command-coverage.json','utf8')); if(!Array.isArray(w)||w.length!==84||!Array.isArray(c)||c.length!==86) throw new Error('coverage manifests missing expected corpus counts')\"",
+    "id": "UPDT-B20",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/generated/compile/workflow-coverage.json | sdk/src/generated/compile/command-coverage.json"
+  },
+  {
+    "behaviour": "generated model string refresh",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const cfg=JSON.parse(require('fs').readFileSync('.planning/config.json','utf8')); if(!cfg.codex_model||!cfg.gemini_model||!cfg.agent_routing) throw new Error('generated model/routing config missing')\"",
+    "id": "UPDT-B21",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/generated/compile/workflow-semantics.json | .planning/config.json"
+  },
+  {
+    "behaviour": "verify-work normalisation passes",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const v=require('fs').readFileSync('sdk/src/query/validate.ts','utf8'); const o=require('fs').readFileSync('sdk/src/query/output.ts','utf8'); if(!v.includes('repairs')||!o.includes('formatQueryOutput')) throw new Error('verification output normalizers missing')\"",
+    "id": "UPDT-B22",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/query/validate.ts | sdk/src/query/cli-output.ts"
+  },
+  {
+    "behaviour": "tool-fallback guidance for gsd-sdk and cq --json dependent steps",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const q=require('fs').readFileSync('sdk/src/query/index.ts','utf8'); const cli=require('fs').readFileSync('sdk/src/cli.ts','utf8'); if(!q.includes('alias')||!cli.includes('query')) throw new Error('typed query fallback surface missing')\"",
+    "id": "UPDT-B23",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/query/index.ts | sdk/src/cli.ts"
+  },
+  {
+    "behaviour": "ordering, idempotency, and transactionality protection",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const s=require('fs').readFileSync('sdk/src/query/state-mutation.ts','utf8'); if(!s.includes('acquireStateLock')||!s.includes('readModifyWriteStateMd')) throw new Error('atomic state mutation helpers missing')\"",
+    "id": "UPDT-B24",
+    "requirementId": "UPDT-02",
+    "retirementStatus": "unblocked",
+    "targetSurface": "sdk/src/query/state-mutation.ts | sdk/src/query/helpers.ts"
+  }
+]
