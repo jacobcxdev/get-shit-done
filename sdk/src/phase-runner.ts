@@ -27,7 +27,8 @@ import type { PromptFactory } from './phase-prompt.js';
 import type { ContextEngine } from './context-engine.js';
 import type { GSDLogger } from './logger.js';
 import type { WorkflowRunner, WorkflowRunnerResult } from './advisory/workflow-runner.js';
-import { advanceFsmState, type FsmTransitionResult } from './advisory/fsm-state.js';
+import { advanceFsmState, fsmStatePath, parseFsmRunState, type FsmRunState, type FsmTransitionResult } from './advisory/fsm-state.js';
+import type { SealedExtensionGraph } from './advisory/extension-registry.js';
 import { configSnapshotHash } from './advisory/routing.js';
 import { validateRuntimeReportContract } from './advisory/runtime-contracts.js';
 import type { AgentEntry } from './compile/types.js';
@@ -72,6 +73,8 @@ export interface PhaseRunnerDeps {
   runtimeReportHandler?: RuntimeReportHandler;
   agentContracts?: AgentEntry[];
   logger?: GSDLogger;
+  /** Optional sealed extension graph for gate evaluation and lifecycle hooks. */
+  sealedGraph?: SealedExtensionGraph;
   /** @internal Test-only: tolerate missing FSM init. Never set in production, parity gates, or retirement gates. */
   noFsmForTesting?: true;
 }
@@ -94,6 +97,7 @@ export class PhaseRunner {
   private activeWorkstream?: string;
   private readonly logger?: GSDLogger;
   private readonly noFsmForTesting?: true;
+  private readonly sealedGraph?: SealedExtensionGraph;
 
   constructor(deps: PhaseRunnerDeps) {
     this.projectDir = deps.projectDir;
@@ -110,6 +114,7 @@ export class PhaseRunner {
     this.activeWorkstream = deps.workstream;
     this.logger = deps.logger;
     this.noFsmForTesting = deps.noFsmForTesting;
+    this.sealedGraph = deps.sealedGraph;
   }
 
   /**
@@ -437,6 +442,43 @@ export class PhaseRunner {
     const providerMetadata = runnerResult.providerMetadata;
     const handler = this.activeRuntimeReportHandler;
 
+    // Gate pre-check: evaluate extension gates before invoking handler or advancing FSM state.
+    if (this.sealedGraph !== undefined) {
+      let fsmSnapshot: Readonly<FsmRunState> | undefined;
+      try {
+        const statePath = fsmStatePath(this.projectDir, this.activeWorkstream);
+        const raw = await readFile(statePath, 'utf-8');
+        fsmSnapshot = parseFsmRunState(raw) as Readonly<FsmRunState>;
+      } catch {
+        // If FSM state cannot be read (e.g. not initialized), skip gate evaluation
+      }
+
+      if (fsmSnapshot !== undefined) {
+        const gateResult = this.sealedGraph.evaluateGates(packet.stepId, fsmSnapshot);
+        if (gateResult.kind === 'gate-failed') {
+          const durationMs = Date.now() - stepStart;
+          return {
+            step,
+            success: false,
+            durationMs,
+            error: 'gate-failed',
+            packet,
+            ...(providerMetadata ? { providerMetadata } : {}),
+            data: {
+              controlEvent: {
+                kind: 'control',
+                event: 'gate-failed',
+                extensionId: gateResult.extensionId,
+                targetStepId: packet.stepId,
+                workflowId: packet.workflowId,
+                runId: packet.runId,
+              },
+            },
+          };
+        }
+      }
+    }
+
     if (!handler) {
       const durationMs = Date.now() - stepStart;
       this.eventStream.emitEvent({
@@ -660,7 +702,9 @@ export class PhaseRunner {
     const durationMs = Date.now() - stepStart;
     const error = runnerResult.kind === 'posture'
       ? runnerResult.record.reason
-      : runnerResult.message;
+      : runnerResult.kind === 'control'
+        ? `control:${runnerResult.event.event}`
+        : runnerResult.message;
     const posture = runnerResult.kind === 'posture' ? runnerResult.posture : undefined;
 
     this.eventStream.emitEvent({
@@ -763,7 +807,9 @@ export class PhaseRunner {
 
     const message = runnerResult.kind === 'posture'
       ? runnerResult.record.reason
-      : runnerResult.message;
+      : runnerResult.kind === 'control'
+        ? `control:${runnerResult.event.event}`
+        : runnerResult.message;
     const recoveryHint = 'Run P4 gap closure before advancing this phase.';
 
     this.eventStream.emitEvent({
@@ -1695,7 +1741,9 @@ export class PhaseRunner {
       const durationMs = Date.now() - stepStart;
       const errorMsg = runnerResult.kind === 'posture'
         ? runnerResult.record.reason
-        : runnerResult.message;
+        : runnerResult.kind === 'control'
+          ? `control:${runnerResult.event.event}`
+          : runnerResult.message;
 
       this.eventStream.emitEvent({
         type: GSDEventType.PhaseStepComplete,

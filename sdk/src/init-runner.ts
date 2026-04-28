@@ -488,7 +488,9 @@ export class InitRunner {
 
       const error = runnerResult.kind === 'error'
         ? runnerResult.message
-        : runnerResult.record.reason;
+        : runnerResult.kind === 'control'
+          ? `control:${runnerResult.event.event}`
+          : runnerResult.record.reason;
 
       const stepResult: InitStepResult = {
         step,

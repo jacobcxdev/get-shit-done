@@ -16,6 +16,8 @@ import {
 } from './runtime-contracts.js';
 import type { WorkflowSemanticManifest } from './workflow-semantics.js';
 import type { AgentEntry, ClassificationEntry, WorkflowEntry } from '../compile/types.js';
+import type { AdvisoryControlEvent } from './control-events.js';
+import type { SealedExtensionGraph } from './extension-registry.js';
 
 export type WorkflowSupportDisposition =
   | 'packet-template'
@@ -56,7 +58,8 @@ export type WorkflowRunnerResult =
     message: string;
     workflowId?: string;
     commandId?: string;
-  };
+  }
+  | { kind: 'control'; event: AdvisoryControlEvent };
 
 export type WorkflowRunnerManifests = {
   commandClassification: ClassificationEntry[];
@@ -237,6 +240,7 @@ export class WorkflowRunner {
   constructor(
     private readonly manifests: WorkflowRunnerManifests,
     private readonly deps: WorkflowRunnerDeps = {},
+    private readonly sealedGraph?: SealedExtensionGraph,
   ) {
     if (
       !isNonEmptyArray(manifests.commandClassification) ||
@@ -466,7 +470,7 @@ export class WorkflowRunner {
     stepId: string,
     command: ClassificationEntry | undefined,
   ): AdvisoryPacket {
-    return {
+    let packet: AdvisoryPacket = {
       schemaVersion: CURRENT_ADVISORY_PACKET_SCHEMA_VERSION,
       runId: input.runId,
       workflowId,
@@ -487,6 +491,19 @@ export class WorkflowRunner {
       extensionIds: [],
       executionConstraints: {},
     };
+
+    if (this.sealedGraph !== undefined) {
+      const replacement = this.sealedGraph.instructionReplacementFor(stepId);
+      if (replacement !== undefined) {
+        packet = {
+          ...packet,
+          instruction: replacement.instruction,
+          extensionIds: [...packet.extensionIds, replacement.extensionId],
+        };
+      }
+    }
+
+    return packet;
   }
 }
 
