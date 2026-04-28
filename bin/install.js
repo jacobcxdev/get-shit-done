@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+// AUDIT: .plans/1755-install-audit-fix.md reconciliation, reviewed 2026-04-28.
+// AUDIT: Already-landed: HOOK-01/HOOK-02 executable hook permissions are applied after .js and .sh hook writes in both hook install loops (around lines 6286 and 6408 before this audit block).
+// AUDIT: Already-landed: HOOK-03 Codex hook registration and command paths use hooks/gsd-check-update.js, with legacy gsd-update-check.js migration retained (around lines 6442, 6542, and 6585 before this audit block).
+// AUDIT: Already-landed: HOOK-04 writeManifest() tracks both .js and .sh hook filenames for settings.json runtimes (around line 5735 before this audit block).
+// AUDIT: Already-landed: stale update-cache invalidation uses ~/.cache/gsd/gsd-update-check.json (around line 6318 before this audit block).
+// AUDIT: Already-landed: uninstall hook list includes gsd-workflow-guard.js and all shipped .sh hooks, omits phantom gsd-check-update.sh, and settings cleanup filters community hooks (around lines 5181 and 5233 before this audit block).
+// AUDIT: Still-open: HOOK-05 hook copy refresh should compare content hashes before skipping existing files; add hash-aware writes/copies so matching destinations are skipped and stale destinations refresh.
+
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -5639,6 +5647,26 @@ function fileHash(filePath) {
   return crypto.createHash('sha256').update(content).digest('hex');
 }
 
+function contentHash(content) {
+  return crypto.createHash('sha256').update(content).digest('hex');
+}
+
+function fileContentMatches(filePath, content) {
+  return fs.existsSync(filePath) && fileHash(filePath) === contentHash(content);
+}
+
+function writeFileIfChanged(filePath, content) {
+  if (fileContentMatches(filePath, content)) return false;
+  fs.writeFileSync(filePath, content);
+  return true;
+}
+
+function copyFileIfChanged(srcFile, destFile) {
+  if (fs.existsSync(destFile) && fileHash(srcFile) === fileHash(destFile)) return false;
+  fs.copyFileSync(srcFile, destFile);
+  return true;
+}
+
 /**
  * Recursively collect all files in dir with their hashes
  */
@@ -6281,7 +6309,7 @@ function install(isGlobal, runtime = 'claude') {
               content = content.replace(/\bClaude Code\b/g, 'Qwen Code');
             }
             content = content.replace(/\{\{GSD_VERSION\}\}/g, pkg.version);
-            fs.writeFileSync(destFile, content);
+            writeFileIfChanged(destFile, content);
             // Ensure hook files are executable (fixes #1162 — missing +x permission)
             try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows doesn't support chmod */ }
           } else {
@@ -6290,10 +6318,10 @@ function install(isGlobal, runtime = 'claude') {
             if (entry.endsWith('.sh')) {
               let content = fs.readFileSync(srcFile, 'utf8');
               content = content.replace(/\{\{GSD_VERSION\}\}/g, pkg.version);
-              fs.writeFileSync(destFile, content);
+              writeFileIfChanged(destFile, content);
               try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows doesn't support chmod */ }
             } else {
-              fs.copyFileSync(srcFile, destFile);
+              copyFileIfChanged(srcFile, destFile);
             }
           }
         }
@@ -6404,16 +6432,16 @@ function install(isGlobal, runtime = 'claude') {
           content = content.replace(/\/\.claude\//g, `/${getDirName(runtime)}/`);
           content = content.replace(/\.claude\//g, `${getDirName(runtime)}/`);
           content = content.replace(/\{\{GSD_VERSION\}\}/g, pkg.version);
-          fs.writeFileSync(destFile, content);
+          writeFileIfChanged(destFile, content);
           try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
         } else {
           if (entry.endsWith('.sh')) {
             let content = fs.readFileSync(srcFile, 'utf8');
             content = content.replace(/\{\{GSD_VERSION\}\}/g, pkg.version);
-            fs.writeFileSync(destFile, content);
+            writeFileIfChanged(destFile, content);
             try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
           } else {
-            fs.copyFileSync(srcFile, destFile);
+            copyFileIfChanged(srcFile, destFile);
           }
         }
       }
