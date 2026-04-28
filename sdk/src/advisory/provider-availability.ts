@@ -9,6 +9,7 @@ export type ProviderStatusSource = {
   check(providers: ProviderName[]): Promise<ProviderAvailabilityResult>;
 };
 
+// Tests inject ProviderStatusSource; Phase 3 intentionally exports no production provider source.
 export type ProviderConfidenceKind = 'full' | 'reduced' | 'blocked';
 export type ProviderConfidence = 'full' | `reduced:${string}` | `blocked:${string}`;
 

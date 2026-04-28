@@ -4,6 +4,7 @@ import {
   deriveConfidenceFromHistory,
   normalizeProviderList,
 } from './provider-availability.js';
+import * as providerAvailability from './provider-availability.js';
 
 describe('provider confidence derivation', () => {
   it('normalizes provider lists with stable de-duplication and ordering', () => {
@@ -57,5 +58,9 @@ describe('provider confidence derivation', () => {
       unavailable: ['gemini'],
     });
     expect(source).toHaveBeenCalledWith(['claude', 'gemini']);
+  });
+
+  it('does not export a production provider source from the default advisory path', () => {
+    expect(providerAvailability).not.toHaveProperty('cqProviderStatusSource');
   });
 });
