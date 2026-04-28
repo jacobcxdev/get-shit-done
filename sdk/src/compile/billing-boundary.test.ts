@@ -55,6 +55,62 @@ describe('billing boundary import graph walker', () => {
     ]);
   });
 
+  it('records forbidden default plus named imports', async () => {
+    const entrypoint = await writeFixture(
+      'entrypoint.ts',
+      `import defaultQuery, { query } from '${FORBIDDEN_MODULE}';\n`,
+    );
+
+    const violations = await walkImports(entrypoint, new Set(), [], 0, FORBIDDEN_MODEL_SESSION_MODULES);
+
+    expect(violations).toEqual([
+      {
+        chain: [entrypoint],
+        forbiddenModule: FORBIDDEN_MODULE,
+      },
+    ]);
+  });
+
+  it('records non-awaited advisory dynamic imports', async () => {
+    const entrypoint = await writeFixture(
+      'sdk/src/compile/entrypoint.ts',
+      `const loader = import('${FORBIDDEN_MODULE}');\n`,
+    );
+
+    const violations = await walkImports(
+      entrypoint,
+      new Set(),
+      [],
+      0,
+      FORBIDDEN_MODEL_SESSION_MODULES,
+      { includeAdvisoryDynamic: true },
+    );
+
+    expect(violations).toEqual([
+      {
+        chain: [entrypoint],
+        forbiddenModule: FORBIDDEN_MODULE,
+      },
+    ]);
+  });
+
+  it('records forbidden imports reached through directory index resolution', async () => {
+    const entrypoint = await writeFixture('entrypoint.ts', "import { query } from './adapter';\n");
+    const adapter = await writeFixture(
+      'adapter/index.ts',
+      `import { query } from '${FORBIDDEN_MODULE}';\n`,
+    );
+
+    const violations = await walkImports(entrypoint, new Set(), [], 0, FORBIDDEN_MODEL_SESSION_MODULES);
+
+    expect(violations).toEqual([
+      {
+        chain: [entrypoint, adapter],
+        forbiddenModule: FORBIDDEN_MODULE,
+      },
+    ]);
+  });
+
   it('records a transitive forbidden import with a file-only chain', async () => {
     const entrypoint = await writeFixture('entrypoint.ts', "import './middle.js';\n");
     const middle = await writeFixture('middle.ts', `import { query } from '${FORBIDDEN_MODULE}';\n`);
@@ -168,5 +224,34 @@ describe('checkBillingBoundary', () => {
     expect(report.clean).toBe(true);
     expect(report.violations).toEqual([]);
     expect(diagnostics.filter((diagnostic) => diagnostic.code === 'BILL-01')).toEqual([]);
+  });
+});
+
+describe('extension entrypoint billing boundary', () => {
+  it('includes extension entry file in walk when provided', async () => {
+    await writeFixture('sdk/src/compile/cli.ts', '// clean\n');
+    await writeFixture('sdk/src/query/index.ts', '// clean\n');
+    const extEntry = await writeFixture(
+      'extensions/my-gate.ts',
+      `import { query } from '${FORBIDDEN_MODULE}';\n`,
+    );
+    const diagnostics: CompileDiagnostic[] = [];
+
+    const report = await checkBillingBoundary(projectDir, diagnostics, [extEntry]);
+
+    expect(report.clean).toBe(false);
+    expect(report.violations.some(v => v.entrypoint.includes('extensions/my-gate'))).toBe(true);
+    expect(diagnostics.some(d => d.code === 'BILL-01')).toBe(true);
+  });
+
+  it('does not report violation when extension entry file is clean', async () => {
+    await writeFixture('sdk/src/compile/cli.ts', '// clean\n');
+    await writeFixture('sdk/src/query/index.ts', '// clean\n');
+    const extEntry = await writeFixture('extensions/clean-gate.ts', 'export const check = () => true;\n');
+    const diagnostics: CompileDiagnostic[] = [];
+
+    const report = await checkBillingBoundary(projectDir, diagnostics, [extEntry]);
+
+    expect(report.clean).toBe(true);
   });
 });
