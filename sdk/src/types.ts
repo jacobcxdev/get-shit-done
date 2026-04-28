@@ -285,6 +285,8 @@ export enum GSDEventType {
   WorktreeRequired = 'worktree_required',
   CompletionMarkerMissing = 'completion_marker_missing',
   CompletionMarkerAbsent = 'completion_marker_absent',
+  UndeclaredAgentReportRejected = 'undeclared-agent-report-rejected',
+  ExpectedEvidenceAbsent = 'expected-evidence-absent',
 }
 
 /**
@@ -896,6 +898,32 @@ export interface GSDCompletionMarkerAbsentEvent extends GSDEventBase {
   blocksTransition: true;
 }
 
+export interface GSDUndeclaredAgentReportRejectedEvent {
+  type: GSDEventType.UndeclaredAgentReportRejected;
+  timestamp: string;
+  sessionId: string;
+  workflowId: string;
+  stepId: string;
+  agentId: string;
+  code: 'UNDECLARED_AGENT';
+  message: string;
+  recoveryHint: string;
+  blocksTransition: true;
+}
+
+export interface GSDExpectedEvidenceAbsentEvent {
+  type: GSDEventType.ExpectedEvidenceAbsent;
+  timestamp: string;
+  sessionId: string;
+  workflowId: string;
+  stepId: string;
+  evidenceId: string;
+  code: 'EXPECTED_EVIDENCE_ABSENT';
+  message: string;
+  recoveryHint: string;
+  blocksTransition: true;
+}
+
 /**
  * Discriminated union of all GSD events.
  */
@@ -942,7 +970,9 @@ export type GSDEvent =
   | GSDP4ComplianceFailedEvent
   | GSDWorktreeRequiredEvent
   | GSDCompletionMarkerMissingEvent
-  | GSDCompletionMarkerAbsentEvent;
+  | GSDCompletionMarkerAbsentEvent
+  | GSDUndeclaredAgentReportRejectedEvent
+  | GSDExpectedEvidenceAbsentEvent;
 
 /**
  * Transport handler interface for consuming GSD events.
