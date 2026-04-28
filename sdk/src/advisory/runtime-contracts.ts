@@ -4,8 +4,10 @@ import {
   GSDEventType,
   type GSDCompletionMarkerAbsentEvent,
   type GSDCompletionMarkerMissingEvent,
+  type GSDExpectedEvidenceAbsentEvent,
   type GSDFSMTransitionRejectedEvent,
   type GSDEvent,
+  type GSDUndeclaredAgentReportRejectedEvent,
   type GSDWorktreeRequiredEvent,
 } from '../types.js';
 
@@ -28,6 +30,10 @@ const COMPLETION_MARKER_MISSING_RECOVERY_HINT =
   'Add expected evidence declaration to the packet definition then re-compile';
 const COMPLETION_MARKER_ABSENT_RECOVERY_HINT =
   'Re-run the agent step or verify the required marker was written, then retry the FSM transition';
+const UNDECLARED_AGENT_RECOVERY_HINT =
+  'Ensure the runtime report agentId matches one of the agents declared in the emitted packet, then retry';
+const EXPECTED_EVIDENCE_ABSENT_RECOVERY_HINT =
+  'Verify the agent wrote all required completion markers and artifacts declared in packet.expectedEvidence, then retry';
 
 function hasActiveWorktree(context: RuntimeWorktreeContext): boolean {
   return typeof context.activeWorktreePath === 'string' && context.activeWorktreePath.trim().length > 0;
@@ -125,6 +131,41 @@ function runtimeReportRejectedEvent(
   };
 }
 
+function undeclaredAgentReportRejectedEvent(
+  report: RuntimeExecutionReport,
+  packet: AdvisoryPacket,
+): GSDUndeclaredAgentReportRejectedEvent {
+  return {
+    type: GSDEventType.UndeclaredAgentReportRejected,
+    ...eventBase(packet.runId),
+    workflowId: packet.workflowId,
+    stepId: packet.stepId,
+    agentId: report.agentId,
+    code: 'UNDECLARED_AGENT',
+    message: `Runtime report agentId '${report.agentId}' is not declared in packet.agents for workflowId='${packet.workflowId}' stepId='${packet.stepId}'`,
+    recoveryHint: UNDECLARED_AGENT_RECOVERY_HINT,
+    blocksTransition: true,
+  };
+}
+
+function expectedEvidenceAbsentEvent(
+  report: RuntimeExecutionReport,
+  packet: AdvisoryPacket,
+  evidenceId: string,
+): GSDExpectedEvidenceAbsentEvent {
+  return {
+    type: GSDEventType.ExpectedEvidenceAbsent,
+    ...eventBase(report.runId),
+    workflowId: report.workflowId,
+    stepId: report.stepId,
+    evidenceId,
+    code: 'EXPECTED_EVIDENCE_ABSENT',
+    message: `Expected evidence '${evidenceId}' was not found in runtime report markers or artifacts for workflowId='${report.workflowId}' stepId='${report.stepId}'`,
+    recoveryHint: EXPECTED_EVIDENCE_ABSENT_RECOVERY_HINT,
+    blocksTransition: true,
+  };
+}
+
 export function validatePreEmitRuntimeContract(
   packet: AdvisoryPacket,
   agents: AgentEntry[],
@@ -186,6 +227,11 @@ export function validateRuntimeReportContract(
     )];
   }
 
+  // Fail closed: agentId must be declared in packet.agents
+  if (!packet.agents.includes(report.agentId)) {
+    return [undeclaredAgentReportRejectedEvent(report, packet)];
+  }
+
   if (report.outcome !== 'success') {
     return [];
   }
@@ -203,6 +249,18 @@ export function validateRuntimeReportContract(
     const missingArtifacts = agent.outputArtifacts.filter(artifact => !reportedArtifacts.has(artifact));
     if (missingArtifacts.length > 0) {
       events.push(completionMarkerAbsentEvent(report, agent.id, { artifactPaths: missingArtifacts }));
+    }
+  }
+
+  // Fail closed: every packet.expectedEvidence item must appear in report markers or artifacts
+  for (const evidenceId of packet.expectedEvidence) {
+    const rawId = evidenceId.startsWith('completion-marker:')
+      ? evidenceId.slice('completion-marker:'.length)
+      : evidenceId;
+    const presentAsMarker = reportedMarkers.has(rawId) || reportedMarkers.has(evidenceId);
+    const presentAsArtifact = reportedArtifacts.has(rawId) || reportedArtifacts.has(evidenceId);
+    if (!presentAsMarker && !presentAsArtifact) {
+      events.push(expectedEvidenceAbsentEvent(report, packet, evidenceId));
     }
   }
 
