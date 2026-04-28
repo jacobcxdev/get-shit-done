@@ -323,7 +323,10 @@ describe('WorkflowRunner', () => {
     expect(Array.isArray(result.packet)).toBe(false);
     expect(result.packet.configSnapshotHash).toMatch(/^[a-f0-9]{64}$/);
     expect(result.packet.instruction).not.toContain('\n- ');
-    expect(result.packet.reportCommand).toBe('gsd-sdk query fsm.transition <workstream> <onSuccess> success');
+    expect(result.packet.reportCommand).toContain('RuntimeExecutionReport');
+    expect(result.packet.reportCommand).toContain('runtimeReportHandler');
+    expect(result.packet.reportCommand).toContain('packet.allowedOutcomes');
+    expect(result.packet.reportCommand).not.toContain('fsm.transition');
   });
 
   it('keeps packet dispatch moving with reduced confidence when optional providers are unavailable', () => {

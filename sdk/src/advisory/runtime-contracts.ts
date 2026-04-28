@@ -4,6 +4,7 @@ import {
   GSDEventType,
   type GSDCompletionMarkerAbsentEvent,
   type GSDCompletionMarkerMissingEvent,
+  type GSDFSMTransitionRejectedEvent,
   type GSDEvent,
   type GSDWorktreeRequiredEvent,
 } from '../types.js';
@@ -105,6 +106,25 @@ function completionMarkerAbsentEvent(
   };
 }
 
+function runtimeReportRejectedEvent(
+  report: RuntimeExecutionReport,
+  packet: AdvisoryPacket,
+  code: 'RUNTIME_REPORT_SPOOFED' | 'RUNTIME_OUTCOME_NOT_ALLOWED',
+  message: string,
+): GSDFSMTransitionRejectedEvent & { blocksTransition: true } {
+  return {
+    type: GSDEventType.FSMTransitionRejected,
+    ...eventBase(packet.runId),
+    fromState: packet.stateId,
+    attemptedToState: report.outcome === 'success' ? packet.onSuccess : packet.onFailure,
+    runId: packet.runId,
+    code,
+    message,
+    recoveryHint: 'Return a RuntimeExecutionReport for the emitted packet identity and one packet.allowedOutcomes value, then retry',
+    blocksTransition: true,
+  };
+}
+
 export function validatePreEmitRuntimeContract(
   packet: AdvisoryPacket,
   agents: AgentEntry[],
@@ -130,6 +150,42 @@ export function validateRuntimeReportContract(
   packet: AdvisoryPacket,
   agents: AgentEntry[],
 ): GSDEvent[] {
+  if (report.runId !== packet.runId) {
+    return [runtimeReportRejectedEvent(
+      report,
+      packet,
+      'RUNTIME_REPORT_SPOOFED',
+      `Runtime report runId '${report.runId}' does not match packet runId '${packet.runId}'`,
+    )];
+  }
+
+  if (report.workflowId !== packet.workflowId) {
+    return [runtimeReportRejectedEvent(
+      report,
+      packet,
+      'RUNTIME_REPORT_SPOOFED',
+      `Runtime report workflowId '${report.workflowId}' does not match packet workflowId '${packet.workflowId}'`,
+    )];
+  }
+
+  if (report.stepId !== packet.stepId) {
+    return [runtimeReportRejectedEvent(
+      report,
+      packet,
+      'RUNTIME_REPORT_SPOOFED',
+      `Runtime report stepId '${report.stepId}' does not match packet stepId '${packet.stepId}'`,
+    )];
+  }
+
+  if (!packet.allowedOutcomes.includes(report.outcome)) {
+    return [runtimeReportRejectedEvent(
+      report,
+      packet,
+      'RUNTIME_OUTCOME_NOT_ALLOWED',
+      `Runtime report outcome '${report.outcome}' is not one of packet.allowedOutcomes`,
+    )];
+  }
+
   if (report.outcome !== 'success') {
     return [];
   }

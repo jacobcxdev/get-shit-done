@@ -5,7 +5,11 @@
  * that make up a GSD plan file.
  */
 
+import type { AdvisoryPacket } from './advisory/packet.js';
+import type { ProviderTransitionMetadata } from './advisory/provider-availability.js';
+import type { RuntimeExecutionReport } from './advisory/runtime-contracts.js';
 import type { WorkflowRunner } from './advisory/workflow-runner.js';
+import type { AgentEntry } from './compile/types.js';
 
 // ─── Frontmatter types ───────────────────────────────────────────────────────
 
@@ -648,7 +652,11 @@ export interface InitStepResult {
   costUsd: number;
   error?: string;
   artifacts?: string[];
-  providerMetadata?: import('./advisory/provider-availability.js').ProviderTransitionMetadata;
+  packet?: AdvisoryPacket;
+  providerMetadata?: ProviderTransitionMetadata;
+  awaitingRuntimeReport?: boolean;
+  runtimeReport?: RuntimeExecutionReport;
+  runtimeEvents?: GSDEvent[];
 }
 
 /**
@@ -789,6 +797,7 @@ export interface GSDFSMTransitionRejectedEvent extends GSDEventBase {
   code: string;
   message: string;
   recoveryHint: string;
+  blocksTransition?: true;
 }
 
 /**
@@ -983,6 +992,16 @@ export interface CostTracker {
 
 // ─── S03: Phase lifecycle types ──────────────────────────────────────────────
 
+export type RuntimeReportHandlerInput = {
+  packet: AdvisoryPacket;
+  providerMetadata?: ProviderTransitionMetadata;
+  phaseNumber?: string;
+  step?: PhaseStepType;
+  initStep?: InitStepName;
+};
+
+export type RuntimeReportHandler = (input: RuntimeReportHandlerInput) => Promise<RuntimeExecutionReport | null>;
+
 /**
  * Steps in the phase lifecycle state machine.
  * Extends beyond the existing PhaseType enum (which covers session types)
@@ -1032,8 +1051,11 @@ export interface PhaseStepResult {
   durationMs: number;
   error?: string;
   planResults?: PlanResult[];
-  packet?: import('./advisory/packet.js').AdvisoryPacket;
-  providerMetadata?: import('./advisory/provider-availability.js').ProviderTransitionMetadata;
+  packet?: AdvisoryPacket;
+  providerMetadata?: ProviderTransitionMetadata;
+  awaitingRuntimeReport?: boolean;
+  runtimeReport?: RuntimeExecutionReport;
+  runtimeEvents?: GSDEvent[];
   posture?: string;
   data?: Record<string, unknown>;
 }
@@ -1074,4 +1096,8 @@ export interface PhaseRunnerOptions {
   legacyModelBacked?: boolean;
   /** Workstream name used for FSM path selection. Does not affect session/model behavior. */
   workstream?: string;
+  /** Runtime callback used to report packet execution outcomes back to the SDK. */
+  runtimeReportHandler?: RuntimeReportHandler;
+  /** Agent contracts used to validate runtime reports before FSM transitions. */
+  agentContracts?: AgentEntry[];
 }

@@ -16,6 +16,8 @@ import type {
   SessionOptions,
   PhasePlanIndex,
   PlanInfo,
+  RuntimeReportHandler,
+  GSDEvent,
 } from './types.js';
 import { PhaseStepType, PhaseType, GSDEventType } from './types.js';
 import type { GSDConfig } from './config.js';
@@ -27,6 +29,8 @@ import type { GSDLogger } from './logger.js';
 import type { WorkflowRunner, WorkflowRunnerResult } from './advisory/workflow-runner.js';
 import { advanceFsmState, type FsmTransitionResult } from './advisory/fsm-state.js';
 import { configSnapshotHash } from './advisory/routing.js';
+import { validateRuntimeReportContract } from './advisory/runtime-contracts.js';
+import type { AgentEntry } from './compile/types.js';
 import { parsePlanFile } from './plan-parser.js';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -65,6 +69,8 @@ export interface PhaseRunnerDeps {
   config: GSDConfig;
   workflowRunner: WorkflowRunner;
   workstream?: string;
+  runtimeReportHandler?: RuntimeReportHandler;
+  agentContracts?: AgentEntry[];
   logger?: GSDLogger;
 }
 
@@ -79,6 +85,11 @@ export class PhaseRunner {
   private readonly config: GSDConfig;
   private readonly workflowRunner: WorkflowRunner;
   private readonly workstream?: string;
+  private readonly defaultRuntimeReportHandler?: RuntimeReportHandler;
+  private readonly defaultAgentContracts: AgentEntry[];
+  private activeRuntimeReportHandler?: RuntimeReportHandler;
+  private activeAgentContracts: AgentEntry[];
+  private activeWorkstream?: string;
   private readonly logger?: GSDLogger;
 
   constructor(deps: PhaseRunnerDeps) {
@@ -90,6 +101,10 @@ export class PhaseRunner {
     this.config = deps.config;
     this.workflowRunner = deps.workflowRunner;
     this.workstream = deps.workstream;
+    this.defaultRuntimeReportHandler = deps.runtimeReportHandler;
+    this.defaultAgentContracts = deps.agentContracts ?? [];
+    this.activeAgentContracts = this.defaultAgentContracts;
+    this.activeWorkstream = deps.workstream;
     this.logger = deps.logger;
   }
 
@@ -106,6 +121,9 @@ export class PhaseRunner {
     const legacyModelBacked = options?.legacyModelBacked === true;
     const configSnapshot = this.config as unknown as Record<string, unknown>;
     const workstream = options?.workstream ?? this.workstream;
+    this.activeRuntimeReportHandler = options?.runtimeReportHandler ?? this.defaultRuntimeReportHandler;
+    this.activeAgentContracts = options?.agentContracts ?? this.defaultAgentContracts;
+    this.activeWorkstream = workstream;
 
     // ── Init: query phase state ──
     let phaseOp: PhaseOpInfo;
@@ -158,15 +176,20 @@ export class PhaseRunner {
         // AI self-discuss: auto-mode with no context — run a self-discuss session
         const result = await this.retryOnce('self-discuss', () => this.runSelfDiscussStep(phaseNumber, sessionOpts, legacyModelBacked, configSnapshot));
         steps.push(result);
-
-        // Re-query phase state to check if context was created
-        try {
-          phaseOp = await this.tools.initPhaseOp(phaseNumber);
-        } catch {
-          // If re-query fails, proceed with original state
+        if (this.shouldPauseAdvisory(result, legacyModelBacked)) {
+          halted = true;
         }
 
-        if (!phaseOp.has_context) {
+        // Re-query phase state to check if context was created
+        if (!halted) {
+          try {
+            phaseOp = await this.tools.initPhaseOp(phaseNumber);
+          } catch {
+            // If re-query fails, proceed with original state
+          }
+        }
+
+        if (!halted && !phaseOp.has_context) {
           const decision = await this.invokeBlockerCallback(callbacks, phaseNumber, PhaseStepType.Discuss, 'No context after self-discuss step');
           if (decision === 'stop') {
             halted = true;
@@ -175,15 +198,20 @@ export class PhaseRunner {
       } else if (!shouldSkip) {
         const result = await this.retryOnce('discuss', () => this.runStep(PhaseStepType.Discuss, phaseNumber, sessionOpts, legacyModelBacked, configSnapshot));
         steps.push(result);
-
-        // Re-query phase state to check if context was created
-        try {
-          phaseOp = await this.tools.initPhaseOp(phaseNumber);
-        } catch {
-          // If re-query fails, proceed with original state
+        if (this.shouldPauseAdvisory(result, legacyModelBacked)) {
+          halted = true;
         }
 
-        if (!phaseOp.has_context) {
+        // Re-query phase state to check if context was created
+        if (!halted) {
+          try {
+            phaseOp = await this.tools.initPhaseOp(phaseNumber);
+          } catch {
+            // If re-query fails, proceed with original state
+          }
+        }
+
+        if (!halted && !phaseOp.has_context) {
           // No context after discuss — invoke blocker callback
           const decision = await this.invokeBlockerCallback(callbacks, phaseNumber, PhaseStepType.Discuss, 'No context after discuss step');
           if (decision === 'stop') {
@@ -200,6 +228,9 @@ export class PhaseRunner {
       } else {
         const result = await this.retryOnce('research', () => this.runStep(PhaseStepType.Research, phaseNumber, sessionOpts, legacyModelBacked, configSnapshot));
         steps.push(result);
+        if (this.shouldPauseAdvisory(result, legacyModelBacked)) {
+          halted = true;
+        }
       }
     }
 
@@ -222,15 +253,20 @@ export class PhaseRunner {
     if (!halted) {
       const result = await this.retryOnce('plan', () => this.runStep(PhaseStepType.Plan, phaseNumber, sessionOpts, legacyModelBacked, configSnapshot));
       steps.push(result);
-
-      // Re-query to check for plans
-      try {
-        phaseOp = await this.tools.initPhaseOp(phaseNumber);
-      } catch {
-        // Proceed with prior state
+      if (this.shouldPauseAdvisory(result, legacyModelBacked)) {
+        halted = true;
       }
 
-      if (!phaseOp.has_plans || phaseOp.plan_count === 0) {
+      // Re-query to check for plans
+      if (!halted) {
+        try {
+          phaseOp = await this.tools.initPhaseOp(phaseNumber);
+        } catch {
+          // Proceed with prior state
+        }
+      }
+
+      if (!halted && (!phaseOp.has_plans || phaseOp.plan_count === 0)) {
         const decision = await this.invokeBlockerCallback(callbacks, phaseNumber, PhaseStepType.Plan, 'No plans created after plan step');
         if (decision === 'stop') {
           halted = true;
@@ -242,21 +278,32 @@ export class PhaseRunner {
     if (!halted && this.config.workflow.plan_check) {
       const planCheckResult = await this.retryOnce('plan-check', () => this.runPlanCheckStep(phaseNumber, sessionOpts, legacyModelBacked, configSnapshot));
       steps.push(planCheckResult);
+      if (this.shouldPauseAdvisory(planCheckResult, legacyModelBacked)) {
+        halted = true;
+      }
 
       // If plan-check failed, re-plan once then re-check once (D023)
-      if (!planCheckResult.success) {
+      if (!halted && !planCheckResult.success) {
         this.logger?.info(`Plan check failed for phase ${phaseNumber}, re-planning once (D023)`);
 
         // Re-run plan step with feedback
         const replanResult = await this.runStep(PhaseStepType.Plan, phaseNumber, sessionOpts, legacyModelBacked, configSnapshot);
         steps.push(replanResult);
+        if (this.shouldPauseAdvisory(replanResult, legacyModelBacked)) {
+          halted = true;
+        }
 
         // Re-check once
-        const recheckResult = await this.runPlanCheckStep(phaseNumber, sessionOpts, legacyModelBacked, configSnapshot);
-        steps.push(recheckResult);
+        if (!halted) {
+          const recheckResult = await this.runPlanCheckStep(phaseNumber, sessionOpts, legacyModelBacked, configSnapshot);
+          steps.push(recheckResult);
+          if (this.shouldPauseAdvisory(recheckResult, legacyModelBacked)) {
+            halted = true;
+          }
 
-        if (!recheckResult.success) {
-          this.logger?.warn(`Plan check failed again after re-plan for phase ${phaseNumber}. Proceeding with warning (D023).`);
+          if (!recheckResult.success) {
+            this.logger?.warn(`Plan check failed again after re-plan for phase ${phaseNumber}. Proceeding with warning (D023).`);
+          }
         }
       }
     }
@@ -265,6 +312,9 @@ export class PhaseRunner {
     if (!halted) {
       const executeResult = await this.retryOnce('execute', () => this.runExecuteStep(phaseNumber, sessionOpts, legacyModelBacked, configSnapshot));
       steps.push(executeResult);
+      if (this.shouldPauseAdvisory(executeResult, legacyModelBacked)) {
+        halted = true;
+      }
     }
 
     // ── Step 5: Verify ──
@@ -276,6 +326,9 @@ export class PhaseRunner {
         // retries on unexpected session throws, not on verification outcomes like gaps_found.
         const verifyResult = await this.retryOnce('verify', () => this.runVerifyStep(phaseNumber, sessionOpts, callbacks, options, legacyModelBacked, configSnapshot));
         steps.push(verifyResult);
+        if (this.shouldPauseAdvisory(verifyResult, legacyModelBacked)) {
+          halted = true;
+        }
 
         // Check if verify resulted in a halt
         if (!verifyResult.success && verifyResult.error === 'halted_by_callback') {
@@ -291,12 +344,15 @@ export class PhaseRunner {
     if (!halted && verifyPassed) {
       const p4Result = await this.runP4ComplianceStep(phaseNumber, configSnapshot, workstream);
       steps.push(p4Result);
-      p4Passed = p4Result.success;
+      if (this.shouldPauseAdvisory(p4Result, legacyModelBacked)) {
+        halted = true;
+      }
+      p4Passed = p4Result.success && !this.shouldPauseAdvisory(p4Result, legacyModelBacked);
     }
 
     // ── Step 7: Advance ──
     if (!halted && verifyPassed && p4Passed) {
-      const advanceResult = await this.runAdvanceStep(phaseNumber, sessionOpts, callbacks);
+      const advanceResult = await this.runAdvanceStep(phaseNumber, sessionOpts, callbacks, legacyModelBacked, configSnapshot);
       steps.push(advanceResult);
     } else if (!halted && !verifyPassed) {
       this.logger?.warn(`Skipping advance for phase ${phaseNumber}: verification found gaps`);
@@ -340,6 +396,190 @@ export class PhaseRunner {
     return step.replace(/_/g, '-');
   }
 
+  private hasBlockingRuntimeEvent(events: GSDEvent[]): boolean {
+    return events.some(event =>
+      ('blocksTransition' in event && event.blocksTransition === true) ||
+      event.type === GSDEventType.FSMTransitionRejected,
+    );
+  }
+
+  private shouldPauseAdvisory(result: PhaseStepResult, legacyModelBacked: boolean): boolean {
+    if (legacyModelBacked) return false;
+    return result.awaitingRuntimeReport === true || this.hasBlockingRuntimeEvent(result.runtimeEvents ?? []);
+  }
+
+  private runtimeEventError(events: GSDEvent[]): string {
+    return events
+      .map(event => {
+        if (event.type === GSDEventType.FSMTransitionRejected) {
+          return 'runtime-report-spoofed';
+        }
+        if ('code' in event && typeof event.code === 'string') {
+          return event.code.toLowerCase().replace(/_/g, '-');
+        }
+        return event.type.replace(/_/g, '-');
+      })
+      .join(',');
+  }
+
+  private async resolveAdvisoryPacketResult(input: {
+    step: PhaseStepType;
+    phaseNumber: string;
+    stepStart: number;
+    runnerResult: Extract<WorkflowRunnerResult, { kind: 'packet' }>;
+  }): Promise<PhaseStepResult> {
+    const { step, phaseNumber, stepStart, runnerResult } = input;
+    const packet = runnerResult.packet;
+    const providerMetadata = runnerResult.providerMetadata;
+    const handler = this.activeRuntimeReportHandler;
+
+    if (!handler) {
+      const durationMs = Date.now() - stepStart;
+      this.eventStream.emitEvent({
+        type: GSDEventType.PhaseStepComplete,
+        timestamp: new Date().toISOString(),
+        sessionId: '',
+        phaseNumber,
+        step,
+        success: false,
+        durationMs,
+        error: 'awaiting-runtime-report',
+      });
+      return {
+        step,
+        success: false,
+        durationMs,
+        error: 'awaiting-runtime-report',
+        awaitingRuntimeReport: true,
+        packet,
+        ...(providerMetadata ? { providerMetadata } : {}),
+      };
+    }
+
+    let runtimeReport = await handler({
+      packet,
+      step,
+      phaseNumber,
+      ...(providerMetadata ? { providerMetadata } : {}),
+    });
+
+    if (runtimeReport === null) {
+      const durationMs = Date.now() - stepStart;
+      this.eventStream.emitEvent({
+        type: GSDEventType.PhaseStepComplete,
+        timestamp: new Date().toISOString(),
+        sessionId: '',
+        phaseNumber,
+        step,
+        success: false,
+        durationMs,
+        error: 'awaiting-runtime-report',
+      });
+      return {
+        step,
+        success: false,
+        durationMs,
+        error: 'awaiting-runtime-report',
+        awaitingRuntimeReport: true,
+        packet,
+        ...(providerMetadata ? { providerMetadata } : {}),
+      };
+    }
+
+    const runtimeEvents = validateRuntimeReportContract(runtimeReport, packet, this.activeAgentContracts);
+    if (this.hasBlockingRuntimeEvent(runtimeEvents)) {
+      const durationMs = Date.now() - stepStart;
+      const error = this.runtimeEventError(runtimeEvents);
+      this.eventStream.emitEvent({
+        type: GSDEventType.PhaseStepComplete,
+        timestamp: new Date().toISOString(),
+        sessionId: '',
+        phaseNumber,
+        step,
+        success: false,
+        durationMs,
+        error,
+      });
+      return {
+        step,
+        success: false,
+        durationMs,
+        error,
+        packet,
+        runtimeReport,
+        runtimeEvents,
+        ...(providerMetadata ? { providerMetadata } : {}),
+      };
+    }
+
+    try {
+      await advanceFsmState({
+        projectDir: this.projectDir,
+        workstream: this.activeWorkstream,
+        toState: runtimeReport.outcome === 'success' ? packet.onSuccess : packet.onFailure,
+        outcome: runtimeReport.outcome,
+        configSnapshotHash: packet.configSnapshotHash,
+        ...(providerMetadata ? { providerMetadata } : {}),
+      });
+    } catch (error) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code?: unknown }).code === 'init-required'
+      ) {
+        this.logger?.debug('Runtime report validated but FSM state is not initialized; transition history write skipped', {
+          phase: phaseNumber,
+          step,
+          workstream: this.activeWorkstream,
+        });
+      } else {
+      const durationMs = Date.now() - stepStart;
+      const message = error instanceof Error ? error.message : String(error);
+      this.eventStream.emitEvent({
+        type: GSDEventType.PhaseStepComplete,
+        timestamp: new Date().toISOString(),
+        sessionId: '',
+        phaseNumber,
+        step,
+        success: false,
+        durationMs,
+        error: message,
+      });
+      return {
+        step,
+        success: false,
+        durationMs,
+        error: message,
+        packet,
+        runtimeReport,
+        runtimeEvents,
+        ...(providerMetadata ? { providerMetadata } : {}),
+      };
+      }
+    }
+
+    const durationMs = Date.now() - stepStart;
+    this.eventStream.emitEvent({
+      type: GSDEventType.PhaseStepComplete,
+      timestamp: new Date().toISOString(),
+      sessionId: '',
+      phaseNumber,
+      step,
+      success: true,
+      durationMs,
+    });
+    return {
+      step,
+      success: true,
+      durationMs,
+      packet,
+      runtimeReport,
+      runtimeEvents,
+      ...(providerMetadata ? { providerMetadata } : {}),
+    };
+  }
+
   private async runAdvisoryStep(
     step: PhaseStepType,
     phaseNumber: string,
@@ -366,6 +606,7 @@ export class PhaseRunner {
         stateId,
         stepId,
         configSnapshot,
+        agentContracts: this.activeAgentContracts,
       });
     } catch (err) {
       const durationMs = Date.now() - stepStart;
@@ -383,27 +624,16 @@ export class PhaseRunner {
       return { step, success: false, durationMs, error };
     }
 
-    const durationMs = Date.now() - stepStart;
-
     if (runnerResult.kind === 'packet') {
-      this.eventStream.emitEvent({
-        type: GSDEventType.PhaseStepComplete,
-        timestamp: new Date().toISOString(),
-        sessionId: '',
+      return this.resolveAdvisoryPacketResult({
+        step,
         phaseNumber,
-        step,
-        success: true,
-        durationMs,
+        stepStart,
+        runnerResult,
       });
-      return {
-        step,
-        success: true,
-        durationMs,
-        packet: runnerResult.packet,
-        ...(runnerResult.providerMetadata ? { providerMetadata: runnerResult.providerMetadata } : {}),
-      };
     }
 
+    const durationMs = Date.now() - stepStart;
     const error = runnerResult.kind === 'posture'
       ? runnerResult.record.reason
       : runnerResult.message;
@@ -482,6 +712,7 @@ export class PhaseRunner {
         configSnapshot,
         onSuccess: 'advance',
         onFailure: 'p4-gap-closure',
+        agentContracts: this.activeAgentContracts,
       });
     } catch (err) {
       runnerResult = {
@@ -498,22 +729,12 @@ export class PhaseRunner {
         ...runnerResult.packet,
         expectedEvidence: [P4_COMPLIANCE_EVIDENCE_ID],
       };
-      this.eventStream.emitEvent({
-        type: GSDEventType.PhaseStepComplete,
-        timestamp: new Date().toISOString(),
-        sessionId: '',
+      return this.resolveAdvisoryPacketResult({
+        step: PhaseStepType.P4Compliance,
         phaseNumber,
-        step: PhaseStepType.P4Compliance,
-        success: true,
-        durationMs,
+        stepStart,
+        runnerResult: { ...runnerResult, packet },
       });
-      return {
-        step: PhaseStepType.P4Compliance,
-        success: true,
-        durationMs,
-        packet,
-        ...(runnerResult.providerMetadata ? { providerMetadata: runnerResult.providerMetadata } : {}),
-      };
     }
 
     const message = runnerResult.kind === 'posture'
@@ -598,6 +819,8 @@ export class PhaseRunner {
   private async retryOnce<T extends PhaseStepResult>(label: string, fn: () => Promise<T>): Promise<T> {
     const result = await fn();
     if (result.success) return result;
+    if (result.awaitingRuntimeReport) return result;
+    if (this.hasBlockingRuntimeEvent(result.runtimeEvents ?? [])) return result;
 
     // Don't retry verify outcomes (gaps_found, human_needed) — they have their own retry logic.
     if (result.error?.startsWith('verification_')) return result;
@@ -1351,6 +1574,8 @@ export class PhaseRunner {
     phaseNumber: string,
     _sessionOpts: SessionOptions,
     callbacks: HumanGateCallbacks,
+    legacyModelBacked: boolean,
+    configSnapshot: Record<string, unknown>,
   ): Promise<PhaseStepResult> {
     const stepStart = Date.now();
 
@@ -1399,6 +1624,71 @@ export class PhaseRunner {
         success: false,
         durationMs,
         error: 'advance_rejected',
+      };
+    }
+
+    if (!legacyModelBacked) {
+      let runnerResult: WorkflowRunnerResult;
+      try {
+        runnerResult = this.workflowRunner.dispatch({
+          runId: `phase-${phaseNumber}`,
+          workflowId: PHASE_RUNNER_WORKFLOW_ID,
+          stateId: this.phaseStepId(PhaseStepType.Advance),
+          stepId: this.phaseStepId(PhaseStepType.Advance),
+          configSnapshot,
+          onSuccess: 'complete',
+          onFailure: 'blocked',
+          agentContracts: this.activeAgentContracts,
+        });
+      } catch (err) {
+        runnerResult = {
+          kind: 'error',
+          code: 'dispatch-error',
+          message: err instanceof Error ? err.message : String(err),
+          workflowId: PHASE_RUNNER_WORKFLOW_ID,
+        };
+      }
+
+      if (runnerResult.kind === 'packet') {
+        const packet = {
+          ...runnerResult.packet,
+          goal: `Phase ${phaseNumber} completion intent`,
+          instruction:
+            `Signal completion intent for phase ${phaseNumber}. Claude Code/runtime may execute phaseComplete and must report RuntimeExecutionReport evidence before the SDK records completion.`,
+          expectedEvidence: [
+            ...runnerResult.packet.expectedEvidence,
+            `runtime:phaseComplete:${phaseNumber}`,
+          ],
+        };
+        return this.resolveAdvisoryPacketResult({
+          step: PhaseStepType.Advance,
+          phaseNumber,
+          stepStart,
+          runnerResult: { ...runnerResult, packet },
+        });
+      }
+
+      const durationMs = Date.now() - stepStart;
+      const errorMsg = runnerResult.kind === 'posture'
+        ? runnerResult.record.reason
+        : runnerResult.message;
+
+      this.eventStream.emitEvent({
+        type: GSDEventType.PhaseStepComplete,
+        timestamp: new Date().toISOString(),
+        sessionId: '',
+        phaseNumber,
+        step: PhaseStepType.Advance,
+        success: false,
+        durationMs,
+        error: errorMsg,
+      });
+
+      return {
+        step: PhaseStepType.Advance,
+        success: false,
+        durationMs,
+        error: errorMsg,
       };
     }
 

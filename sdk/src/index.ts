@@ -37,6 +37,8 @@ import { PromptFactory } from './phase-prompt.js';
 import { createGeneratedWorkflowRunner, type WorkflowRunner } from './advisory/workflow-runner.js';
 
 export type { AdvisoryPacket, AdvisoryExecutionConstraints, AdvisoryPacketValidationIssue } from './advisory/packet.js';
+export type { RuntimeExecutionReport, RuntimeWorktreeContext } from './advisory/runtime-contracts.js';
+export type { RuntimeReportHandler, RuntimeReportHandlerInput } from './types.js';
 export { CURRENT_ADVISORY_PACKET_SCHEMA_VERSION, validateAdvisoryPacket } from './advisory/packet.js';
 export {
   WorkflowRunner,

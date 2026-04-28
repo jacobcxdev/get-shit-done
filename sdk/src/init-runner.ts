@@ -24,6 +24,8 @@ import type {
   GSDInitResearchSpawnEvent,
   GSDInitRequiredEvent,
   PlanResult,
+  RuntimeReportHandler,
+  GSDEvent,
 } from './types.js';
 import { GSDEventType, PhaseStepType } from './types.js';
 import type { GSDTools } from './gsd-tools.js';
@@ -32,6 +34,8 @@ import { loadConfig } from './config.js';
 import { sanitizePrompt } from './prompt-sanitizer.js';
 import { resolveAgentsDir } from './query/helpers.js';
 import type { WorkflowRunner, WorkflowRunnerResult } from './advisory/workflow-runner.js';
+import { validateRuntimeReportContract } from './advisory/runtime-contracts.js';
+import type { AgentEntry } from './compile/types.js';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -85,6 +89,8 @@ export interface InitRunnerDeps {
   eventStream: GSDEventStream;
   config?: Partial<InitConfig>;
   workflowRunner: WorkflowRunner;
+  runtimeReportHandler?: RuntimeReportHandler;
+  agentContracts?: AgentEntry[];
   /** Override for SDK prompts directory. Defaults to package-relative sdk/prompts/. */
   sdkPromptsDir?: string;
 }
@@ -97,6 +103,8 @@ export class InitRunner {
   private readonly sessionId: string;
   private readonly sdkPromptsDir: string;
   private readonly workflowRunner: WorkflowRunner;
+  private readonly runtimeReportHandler?: RuntimeReportHandler;
+  private readonly agentContracts: AgentEntry[];
 
   constructor(deps: InitRunnerDeps) {
     this.projectDir = deps.projectDir;
@@ -110,6 +118,8 @@ export class InitRunner {
       legacyModelBacked: deps.config?.legacyModelBacked === true,
     };
     this.workflowRunner = deps.workflowRunner;
+    this.runtimeReportHandler = deps.runtimeReportHandler;
+    this.agentContracts = deps.agentContracts ?? [];
     this.sessionId = `init-${Date.now()}`;
     // SDK prompts dir: explicit override → package-relative default via import.meta.url
     this.sdkPromptsDir =
@@ -335,6 +345,13 @@ export class InitRunner {
     }
   }
 
+  private hasBlockingRuntimeEvent(events: GSDEvent[]): boolean {
+    return events.some(event =>
+      ('blocksTransition' in event && event.blocksTransition === true) ||
+      event.type === GSDEventType.FSMTransitionRejected,
+    );
+  }
+
   private async runAdvisoryInitStep(
     step: InitStepName,
     input: string,
@@ -358,14 +375,104 @@ export class InitRunner {
       const durationMs = Date.now() - stepStart;
 
       if (runnerResult.kind === 'packet') {
-        const artifacts = [...runnerResult.packet.expectedEvidence];
+        const packet = runnerResult.packet;
+        const artifacts = [...packet.expectedEvidence];
+        const providerMetadata = runnerResult.providerMetadata;
+
+        if (!this.runtimeReportHandler) {
+          const stepResult: InitStepResult = {
+            step,
+            success: false,
+            durationMs,
+            costUsd: 0,
+            error: 'awaiting-runtime-report',
+            awaitingRuntimeReport: true,
+            packet,
+            artifacts,
+            ...(providerMetadata ? { providerMetadata } : {}),
+          };
+
+          this.emitEvent<GSDInitStepCompleteEvent>({
+            type: GSDEventType.InitStepComplete,
+            step,
+            success: false,
+            durationMs,
+            costUsd: 0,
+            error: 'awaiting-runtime-report',
+          });
+
+          return stepResult;
+        }
+
+        const runtimeReport = await this.runtimeReportHandler({
+          packet,
+          initStep: step,
+          ...(providerMetadata ? { providerMetadata } : {}),
+        });
+
+        if (runtimeReport === null) {
+          const stepResult: InitStepResult = {
+            step,
+            success: false,
+            durationMs,
+            costUsd: 0,
+            error: 'awaiting-runtime-report',
+            awaitingRuntimeReport: true,
+            packet,
+            artifacts,
+            ...(providerMetadata ? { providerMetadata } : {}),
+          };
+
+          this.emitEvent<GSDInitStepCompleteEvent>({
+            type: GSDEventType.InitStepComplete,
+            step,
+            success: false,
+            durationMs,
+            costUsd: 0,
+            error: 'awaiting-runtime-report',
+          });
+
+          return stepResult;
+        }
+
+        const runtimeEvents = validateRuntimeReportContract(runtimeReport, packet, this.agentContracts);
+        if (this.hasBlockingRuntimeEvent(runtimeEvents)) {
+          const error = runtimeEvents.map(event => event.type).join(',');
+          const stepResult: InitStepResult = {
+            step,
+            success: false,
+            durationMs,
+            costUsd: 0,
+            error,
+            packet,
+            artifacts,
+            runtimeReport,
+            runtimeEvents,
+            ...(providerMetadata ? { providerMetadata } : {}),
+          };
+
+          this.emitEvent<GSDInitStepCompleteEvent>({
+            type: GSDEventType.InitStepComplete,
+            step,
+            success: false,
+            durationMs,
+            costUsd: 0,
+            error,
+          });
+
+          return stepResult;
+        }
+
         const stepResult: InitStepResult = {
           step,
           success: true,
           durationMs,
           costUsd: 0,
+          packet,
           artifacts,
-          ...(runnerResult.providerMetadata ? { providerMetadata: runnerResult.providerMetadata } : {}),
+          runtimeReport,
+          runtimeEvents,
+          ...(providerMetadata ? { providerMetadata } : {}),
         };
 
         this.emitEvent<GSDInitStepCompleteEvent>({

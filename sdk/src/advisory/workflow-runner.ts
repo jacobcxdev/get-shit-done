@@ -92,7 +92,8 @@ export class WorkflowRunnerError extends Error {
 }
 
 const GENERATED_MANIFEST_REQUIRE = createRequire(import.meta.url);
-const REPORT_COMMAND = 'gsd-sdk query fsm.transition <workstream> <onSuccess> success';
+const REPORT_COMMAND =
+  'Return RuntimeExecutionReport via runtimeReportHandler with runId, workflowId, stepId, outcome from packet.allowedOutcomes, markers, and artifacts';
 
 function isNonEmptyArray<T>(value: T[]): boolean {
   return Array.isArray(value) && value.length > 0;

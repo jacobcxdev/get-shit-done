@@ -198,6 +198,8 @@ function makeDeps(overrides: Partial<PhaseRunnerDeps> = {}): PhaseRunnerDeps {
     } as any,
     config: makeConfig(),
     workflowRunner: workflowRunner as any,
+    runtimeReportHandler: vi.fn(async ({ packet }: { packet: AdvisoryPacket }) => makeRuntimeReport(packet)),
+    agentContracts: RUNTIME_AGENT_CONTRACTS,
     ...overrides,
   };
 }
@@ -459,7 +461,7 @@ describe('PhaseRunner', () => {
 
         const deps = makeDeps({ projectDir, config });
         const runner = new PhaseRunner(deps);
-        const result = await runner.run('1');
+        const result = await runner.run('1', { legacyModelBacked: true });
 
         const persisted = JSON.parse(await readFile(fsmStatePath(projectDir), 'utf-8'));
         expect(persisted.currentState).toBe('p4-compliance');
@@ -603,7 +605,8 @@ describe('PhaseRunner', () => {
       const deps = makeDeps({
         config: runtimeOnlyConfig(),
         workflowRunner: workflowRunner as any,
-      });
+        runtimeReportHandler: undefined,
+      } as any);
       const runner = new PhaseRunner(deps);
 
       const result = await runner.run('1', { agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
@@ -793,7 +796,7 @@ describe('PhaseRunner', () => {
       } as any);
       const runtimeReportHandler = vi.fn(async ({ packet }: { packet: AdvisoryPacket }) =>
         makeRuntimeReport(packet, {
-          markers: [...packet.expectedEvidence, 'runtime phaseComplete executed'],
+          markers: ['## PLAN COMPLETE', ...packet.expectedEvidence, 'runtime phaseComplete executed'],
           artifacts: ['SUMMARY.md'],
         }));
       const runner = new PhaseRunner(deps);
