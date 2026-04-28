@@ -241,14 +241,16 @@ export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
   if (field === 'currentState') {
     state.currentState = value;
   } else if (field === 'resume.status') {
-    parsedValue = parseResumeStatus(value);
-    state.resume.status = parsedValue;
+    const resumeStatus = parseResumeStatus(value);
+    parsedValue = resumeStatus;
+    state.resume.status = resumeStatus;
   } else if (field === 'autoMode.active') {
     parsedValue = parsePhaseEditActive(value);
     state.autoMode.active = parsedValue;
   } else if (field === 'autoMode.source') {
-    parsedValue = parsePhaseEditSource(value);
-    state.autoMode.source = parsedValue;
+    const source = parsePhaseEditSource(value);
+    parsedValue = source;
+    state.autoMode.source = source;
   }
   state.updatedAt = new Date().toISOString();
   await writeFsmState(projectDir, target, state);
