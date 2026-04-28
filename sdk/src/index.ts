@@ -34,9 +34,23 @@ import { GSDEventStream } from './event-stream.js';
 import { PhaseRunner } from './phase-runner.js';
 import { ContextEngine } from './context-engine.js';
 import { PromptFactory } from './phase-prompt.js';
+import { createGeneratedWorkflowRunner, type WorkflowRunner } from './advisory/workflow-runner.js';
 
 export type { AdvisoryPacket, AdvisoryExecutionConstraints, AdvisoryPacketValidationIssue } from './advisory/packet.js';
 export { CURRENT_ADVISORY_PACKET_SCHEMA_VERSION, validateAdvisoryPacket } from './advisory/packet.js';
+export {
+  WorkflowRunner,
+  WorkflowRunnerError,
+  createGeneratedWorkflowRunner,
+} from './advisory/workflow-runner.js';
+export type {
+  WorkflowPostureRecord,
+  WorkflowRunnerDispatchInput,
+  WorkflowRunnerManifests,
+  WorkflowRunnerResult,
+  WorkflowSupportDisposition,
+  WorkflowSupportMatrixEntry,
+} from './advisory/workflow-runner.js';
 
 // ─── GSD class ───────────────────────────────────────────────────────────────
 
@@ -49,6 +63,7 @@ export class GSD {
   private readonly defaultMaxTurns: number;
   private readonly autoMode: boolean;
   private readonly workstream?: string;
+  private readonly workflowRunner: WorkflowRunner;
   readonly eventStream: GSDEventStream;
 
   constructor(options: GSDOptions) {
@@ -61,6 +76,7 @@ export class GSD {
     this.defaultMaxTurns = options.maxTurns ?? 50;
     this.autoMode = options.autoMode ?? false;
     this.workstream = options.workstream;
+    this.workflowRunner = options.workflowRunner ?? createGeneratedWorkflowRunner();
     this.eventStream = new GSDEventStream();
   }
 
@@ -159,6 +175,7 @@ export class GSD {
       contextEngine,
       eventStream: this.eventStream,
       config,
+      workflowRunner: this.workflowRunner,
     });
 
     return runner.run(phaseNumber, options);

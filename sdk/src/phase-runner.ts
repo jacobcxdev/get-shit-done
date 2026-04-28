@@ -25,6 +25,7 @@ import type { GSDEventStream } from './event-stream.js';
 import type { PromptFactory } from './phase-prompt.js';
 import type { ContextEngine } from './context-engine.js';
 import type { GSDLogger } from './logger.js';
+import type { WorkflowRunner } from './advisory/workflow-runner.js';
 import { runPhaseStepSession, runPlanSession } from './session-runner.js';
 import { parsePlanFile } from './plan-parser.js';
 import { readFile } from 'node:fs/promises';
@@ -58,6 +59,7 @@ export interface PhaseRunnerDeps {
   contextEngine: ContextEngine;
   eventStream: GSDEventStream;
   config: GSDConfig;
+  workflowRunner?: WorkflowRunner;
   logger?: GSDLogger;
 }
 
@@ -70,6 +72,7 @@ export class PhaseRunner {
   private readonly contextEngine: ContextEngine;
   private readonly eventStream: GSDEventStream;
   private readonly config: GSDConfig;
+  private readonly workflowRunner?: WorkflowRunner;
   private readonly logger?: GSDLogger;
 
   constructor(deps: PhaseRunnerDeps) {
@@ -79,6 +82,7 @@ export class PhaseRunner {
     this.contextEngine = deps.contextEngine;
     this.eventStream = deps.eventStream;
     this.config = deps.config;
+    this.workflowRunner = deps.workflowRunner;
     this.logger = deps.logger;
   }
 

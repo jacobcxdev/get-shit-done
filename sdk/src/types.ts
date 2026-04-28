@@ -5,6 +5,8 @@
  * that make up a GSD plan file.
  */
 
+import type { WorkflowRunner } from './advisory/workflow-runner.js';
+
 // ─── Frontmatter types ───────────────────────────────────────────────────────
 
 export interface MustHaveArtifact {
@@ -213,6 +215,8 @@ export interface GSDOptions {
   autoMode?: boolean;
   /** Workstream name. Routes all .planning/ paths to .planning/workstreams/<name>/. */
   workstream?: string;
+  /** Manifest-driven advisory workflow runner used by default entry paths. */
+  workflowRunner?: WorkflowRunner;
 }
 
 // ─── S02: Event stream types ─────────────────────────────────────────────────

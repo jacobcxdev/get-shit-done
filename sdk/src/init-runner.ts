@@ -34,6 +34,7 @@ import { loadConfig } from './config.js';
 import { runPhaseStepSession } from './session-runner.js';
 import { sanitizePrompt } from './prompt-sanitizer.js';
 import { resolveAgentsDir } from './query/helpers.js';
+import type { WorkflowRunner } from './advisory/workflow-runner.js';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -71,6 +72,7 @@ export interface InitRunnerDeps {
   tools: GSDTools;
   eventStream: GSDEventStream;
   config?: Partial<InitConfig>;
+  workflowRunner?: WorkflowRunner;
   /** Override for SDK prompts directory. Defaults to package-relative sdk/prompts/. */
   sdkPromptsDir?: string;
 }
@@ -82,6 +84,7 @@ export class InitRunner {
   private readonly config: InitConfig;
   private readonly sessionId: string;
   private readonly sdkPromptsDir: string;
+  private readonly workflowRunner?: WorkflowRunner;
 
   constructor(deps: InitRunnerDeps) {
     this.projectDir = deps.projectDir;
@@ -93,6 +96,7 @@ export class InitRunner {
       researchModel: deps.config?.researchModel,
       orchestratorModel: deps.config?.orchestratorModel,
     };
+    this.workflowRunner = deps.workflowRunner;
     this.sessionId = `init-${Date.now()}`;
     // SDK prompts dir: explicit override → package-relative default via import.meta.url
     this.sdkPromptsDir =

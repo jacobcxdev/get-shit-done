@@ -13,6 +13,7 @@ import { resolve, join, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { validateWorkstreamName } from './workstream-utils.js';
+import { createGeneratedWorkflowRunner } from './advisory/workflow-runner.js';
 
 // ─── Parsed CLI args ─────────────────────────────────────────────────────────
 
@@ -587,6 +588,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
     }
 
     console.log(`[init] Resolved input: ${input.length} chars`);
+    const workflowRunner = createGeneratedWorkflowRunner();
 
     // Build GSD instance for tools and event stream
     const gsd = new GSD({
@@ -594,6 +596,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
       model: args.model,
       maxBudgetUsd: args.maxBudget,
       workstream: args.ws,
+      workflowRunner,
     });
 
     // Wire CLI transport
@@ -615,6 +618,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
         projectDir: args.projectDir,
         tools,
         eventStream: gsd.eventStream,
+        workflowRunner,
         config: {
           maxBudgetPerSession: args.maxBudget,
           orchestratorModel: args.model,
@@ -663,6 +667,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
     const { CLITransport } = await import('./cli-transport.js');
     const { WSTransport } = await import('./ws-transport.js');
     const { InitRunner } = await import('./init-runner.js');
+    const workflowRunner = createGeneratedWorkflowRunner();
 
     const gsd = new GSD({
       projectDir: args.projectDir,
@@ -670,6 +675,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
       maxBudgetUsd: args.maxBudget,
       autoMode: true,
       workstream: args.ws,
+      workflowRunner,
     });
 
     // Wire CLI transport (always active)
@@ -701,6 +707,7 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<void
           projectDir: args.projectDir,
           tools,
           eventStream: gsd.eventStream,
+          workflowRunner,
           config: {
             maxBudgetPerSession: args.maxBudget,
             orchestratorModel: args.model,
