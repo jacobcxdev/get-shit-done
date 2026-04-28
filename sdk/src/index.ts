@@ -160,7 +160,7 @@ export class GSD {
   }
 
   /**
-   * Run a full phase lifecycle: discuss → research → plan → execute → verify → advance.
+   * Run a full phase lifecycle: discuss -> research -> plan -> plan-check -> execute -> verify -> p4-compliance -> advance.
    *
    * Creates the necessary collaborators (GSDTools, PromptFactory, ContextEngine),
    * loads project config, instantiates a PhaseRunner, and delegates to `runner.run()`.
@@ -190,6 +190,7 @@ export class GSD {
       eventStream: this.eventStream,
       config,
       workflowRunner: this.workflowRunner,
+      workstream: this.workstream,
     });
 
     return runner.run(phaseNumber, options);

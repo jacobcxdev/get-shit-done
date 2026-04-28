@@ -1,7 +1,7 @@
 /**
  * Phase Runner — core state machine driving the full phase lifecycle.
  *
- * Orchestrates: discuss → research → plan → execute → verify → advance
+ * Orchestrates: discuss -> research -> plan -> plan-check -> execute -> verify -> p4-compliance -> advance
  * with config-driven step skipping, human gate callbacks, event emission,
  * and structured error handling per step.
  */
@@ -25,6 +25,8 @@ import type { PromptFactory } from './phase-prompt.js';
 import type { ContextEngine } from './context-engine.js';
 import type { GSDLogger } from './logger.js';
 import type { WorkflowRunner, WorkflowRunnerResult } from './advisory/workflow-runner.js';
+import { advanceFsmState, type FsmTransitionResult } from './advisory/fsm-state.js';
+import { configSnapshotHash } from './advisory/routing.js';
 import { parsePlanFile } from './plan-parser.js';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -62,6 +64,7 @@ export interface PhaseRunnerDeps {
   eventStream: GSDEventStream;
   config: GSDConfig;
   workflowRunner: WorkflowRunner;
+  workstream?: string;
   logger?: GSDLogger;
 }
 
@@ -75,6 +78,7 @@ export class PhaseRunner {
   private readonly eventStream: GSDEventStream;
   private readonly config: GSDConfig;
   private readonly workflowRunner: WorkflowRunner;
+  private readonly workstream?: string;
   private readonly logger?: GSDLogger;
 
   constructor(deps: PhaseRunnerDeps) {
@@ -85,11 +89,12 @@ export class PhaseRunner {
     this.eventStream = deps.eventStream;
     this.config = deps.config;
     this.workflowRunner = deps.workflowRunner;
+    this.workstream = deps.workstream;
     this.logger = deps.logger;
   }
 
   /**
-   * Run a full phase lifecycle: discuss → research → plan → plan-check → execute → verify → advance.
+   * Run a full phase lifecycle: discuss -> research -> plan -> plan-check -> execute -> verify -> p4-compliance -> advance.
    *
    * Each step is gated by config flags and phase state. Human gate callbacks
    * are invoked at decision points; when not provided, auto-approve is used.
@@ -100,6 +105,7 @@ export class PhaseRunner {
     const callbacks = options?.callbacks ?? {};
     const legacyModelBacked = options?.legacyModelBacked === true;
     const configSnapshot = this.config as unknown as Record<string, unknown>;
+    const workstream = options?.workstream ?? this.workstream;
 
     // ── Init: query phase state ──
     let phaseOp: PhaseOpInfo;
@@ -283,7 +289,7 @@ export class PhaseRunner {
     const verifyPassed = steps.every(s => s.step !== PhaseStepType.Verify || s.success);
     let p4Passed = true;
     if (!halted && verifyPassed) {
-      const p4Result = await this.runP4ComplianceStep(phaseNumber, configSnapshot);
+      const p4Result = await this.runP4ComplianceStep(phaseNumber, configSnapshot, workstream);
       steps.push(p4Result);
       p4Passed = p4Result.success;
     }
@@ -426,6 +432,7 @@ export class PhaseRunner {
   private async runP4ComplianceStep(
     phaseNumber: string,
     configSnapshot: Record<string, unknown>,
+    workstream: string | undefined,
   ): Promise<PhaseStepResult> {
     const stepStart = Date.now();
 
@@ -438,12 +445,14 @@ export class PhaseRunner {
     });
 
     if (this.config.workflow.nyquist_validation === false) {
+      const transition = await this.recordP4SkippedTransition(phaseNumber, configSnapshot, workstream);
       const durationMs = Date.now() - stepStart;
       const data = {
         outcome: 'skipped',
-        transition: {
+        transition: transition ?? {
           toState: P4_COMPLIANCE_STEP_ID,
           outcome: 'skipped',
+          persisted: false,
         },
       };
       this.eventStream.emitEvent({
@@ -541,6 +550,36 @@ export class PhaseRunner {
       error: message,
       ...(runnerResult.kind === 'posture' ? { posture: runnerResult.posture } : {}),
     };
+  }
+
+  private async recordP4SkippedTransition(
+    phaseNumber: string,
+    configSnapshot: Record<string, unknown>,
+    workstream: string | undefined,
+  ): Promise<FsmTransitionResult | null> {
+    try {
+      return await advanceFsmState({
+        projectDir: this.projectDir,
+        workstream,
+        toState: P4_COMPLIANCE_STEP_ID,
+        outcome: 'skipped',
+        configSnapshotHash: configSnapshotHash(configSnapshot),
+      });
+    } catch (error) {
+      if (
+        typeof error === 'object'
+        && error !== null
+        && 'code' in error
+        && (error as { code?: unknown }).code === 'init-required'
+      ) {
+        this.logger?.debug('Skipping P4 transition history write: FSM state is not initialized', {
+          phase: phaseNumber,
+          workstream,
+        });
+        return null;
+      }
+      throw error;
+    }
   }
 
   private async runLegacyPhaseStepSession(

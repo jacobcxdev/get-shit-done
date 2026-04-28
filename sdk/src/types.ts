@@ -1062,4 +1062,6 @@ export interface PhaseRunnerOptions {
   maxGapRetries?: number;
   /** Explicit compatibility mode for legacy SDK-owned model sessions. Defaults to false. */
   legacyModelBacked?: boolean;
+  /** Workstream name used for FSM path selection. Does not affect session/model behavior. */
+  workstream?: string;
 }
