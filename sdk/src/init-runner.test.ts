@@ -11,6 +11,7 @@ import type {
   GSDEvent,
   InitNewProjectInfo,
   InitStepResult,
+  InitStepName,
 } from './types.js';
 import { GSDEventType } from './types.js';
 
@@ -38,6 +39,19 @@ const originalReadFile = vi.importActual('node:fs/promises').then(m => (m as typ
 import { runPhaseStepSession } from './session-runner.js';
 
 const mockRunSession = vi.mocked(runPhaseStepSession);
+
+const INIT_ADVISORY_STEPS: InitStepName[] = [
+  'setup',
+  'config',
+  'project',
+  'research-stack',
+  'research-features',
+  'research-architecture',
+  'research-pitfalls',
+  'synthesis',
+  'requirements',
+  'roadmap',
+];
 
 // ─── Factory helpers ─────────────────────────────────────────────────────────
 
@@ -130,6 +144,35 @@ function makeEventStream() {
   } as any;
 }
 
+function makeWorkflowRunner() {
+  return {
+    dispatch: vi.fn((input: { runId: string; workflowId: string; stateId: string; stepId: string }) => ({
+      kind: 'packet',
+      packet: {
+        schemaVersion: '1.0',
+        runId: input.runId,
+        workflowId: input.workflowId,
+        stateId: input.stateId,
+        stepId: input.stepId,
+        goal: `Execute ${input.stepId}`,
+        instruction: `Execute init step ${input.stepId}.`,
+        requiredContext: [],
+        allowedTools: [],
+        agents: [],
+        expectedEvidence: [`init:${input.stepId}`],
+        allowedOutcomes: ['success', 'failure', 'skipped'],
+        reportCommand: 'gsd-sdk query fsm.transition <workstream> <onSuccess> success',
+        onSuccess: 'next',
+        onFailure: 'blocked',
+        checkpoint: false,
+        configSnapshotHash: '0'.repeat(64),
+        extensionIds: [],
+        executionConstraints: {},
+      },
+    })),
+  };
+}
+
 function makeDeps(overrides: Partial<InitRunnerDeps> & { tmpDir: string }): InitRunnerDeps & { events: GSDEvent[] } {
   const tools = makeTools();
   const eventStream = makeEventStream();
@@ -170,10 +213,81 @@ describe('InitRunner', () => {
       projectDir: tmpDir,
       tools,
       eventStream,
-      config: configOverrides as any,
+      config: { legacyModelBacked: true, ...configOverrides } as any,
+      workflowRunner: makeWorkflowRunner() as any,
     });
     return { runner, tools, eventStream, events: eventStream.events as GSDEvent[] };
   }
+
+  async function createAdvisoryRunner(options: { planningExists?: boolean } = {}) {
+    if (options.planningExists !== false) {
+      await mkdir(join(tmpDir, '.planning'), { recursive: true });
+    }
+    const tools = makeTools();
+    const eventStream = makeEventStream();
+    const workflowRunner = makeWorkflowRunner();
+    const runner = new InitRunner({
+      projectDir: tmpDir,
+      tools,
+      eventStream,
+      workflowRunner: workflowRunner as any,
+    });
+    return {
+      runner,
+      tools,
+      eventStream,
+      workflowRunner,
+      events: eventStream.events as GSDEvent[],
+    };
+  }
+
+  describe('advisory default mode', () => {
+    it('emits deterministic advisory init steps in setup-to-roadmap order', async () => {
+      const { runner, workflowRunner, tools } = await createAdvisoryRunner();
+
+      const result = await runner.run('demo');
+
+      expect(result.success).toBe(true);
+      expect(result.steps.map(step => step.step)).toEqual(INIT_ADVISORY_STEPS);
+      expect(workflowRunner.dispatch).toHaveBeenCalledTimes(INIT_ADVISORY_STEPS.length);
+      expect(workflowRunner.dispatch.mock.calls.map(([input]) => input.stepId)).toEqual(INIT_ADVISORY_STEPS);
+      expect(workflowRunner.dispatch.mock.calls.map(([input]) => input.stateId)).toEqual(INIT_ADVISORY_STEPS);
+      expect(tools.initNewProject).not.toHaveBeenCalled();
+    });
+
+    it('does not statically import session-runner or call runPhaseStepSession by default', async () => {
+      const source = await readFile(new URL('./init-runner.ts', import.meta.url), 'utf-8');
+      const { runner } = await createAdvisoryRunner();
+
+      await runner.run('demo');
+
+      expect(source).not.toContain("from './session-runner.js'");
+      expect(mockRunSession).not.toHaveBeenCalled();
+    });
+
+    it('emits init_required when .planning is missing', async () => {
+      const { runner, events, workflowRunner } = await createAdvisoryRunner({ planningExists: false });
+
+      const result = await runner.run('demo');
+
+      expect(result).toMatchObject({
+        success: false,
+        steps: [],
+        totalCostUsd: 0,
+        artifacts: [],
+      });
+      expect(workflowRunner.dispatch).not.toHaveBeenCalled();
+      const initRequiredEvents = events.filter(event => event.type === GSDEventType.InitRequired);
+      expect(initRequiredEvents).toHaveLength(1);
+      expect(initRequiredEvents[0]).toMatchObject({
+        type: GSDEventType.InitRequired,
+        projectDir: tmpDir,
+        message: '.planning directory is required before advisory init can resume',
+        recoveryHint: 'Run gsd-sdk init from a project root or create .planning/config.json first',
+      });
+      expect(initRequiredEvents[0]?.type).toBe('init_required');
+    });
+  });
 
   // ─── Core workflow tests ─────────────────────────────────────────────────
 
