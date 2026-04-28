@@ -3,9 +3,15 @@
  * No external imports - pure type declarations and runtime checks only.
  */
 
+import type { ProviderName } from './provider-availability.js';
+
 export type SemanticProvenance = 'workflow-text' | 'command-metadata' | 'config' | 'audit-inference';
 
-export type WorkflowSemanticEntry =
+type WorkflowSemanticProviderMetadata = {
+  mandatoryProviders?: ProviderName[];
+};
+
+export type WorkflowSemanticEntry = WorkflowSemanticProviderMetadata & (
   | {
     family: 'mode-dispatch';
     modes: string[];
@@ -40,7 +46,8 @@ export type WorkflowSemanticEntry =
   }
   | { family: 'completion-marker'; markers: string[]; provenance: SemanticProvenance }
   | { family: 'fallback-posture'; postures: string[]; provenance: SemanticProvenance }
-  | { family: 'evidence-requirement'; evidenceIds: string[]; provenance: SemanticProvenance };
+  | { family: 'evidence-requirement'; evidenceIds: string[]; provenance: SemanticProvenance }
+);
 
 export type WorkflowSemanticManifest = {
   workflowId: string;
@@ -73,6 +80,7 @@ export const REQUIRED_WORKFLOW_SEMANTIC_FAMILIES = [
 ] as const;
 
 const VALID_FAMILIES = new Set<string>(REQUIRED_WORKFLOW_SEMANTIC_FAMILIES);
+const VALID_PROVIDER_NAMES = new Set<ProviderName>(['claude', 'codex', 'gemini']);
 const VALID_PROVENANCE = new Set<SemanticProvenance>([
   'workflow-text',
   'command-metadata',
@@ -147,6 +155,24 @@ function validateEnumArray(
     value.some((item) => typeof item !== 'string' || !allowedValues.has(item))
   ) {
     issues.push(issue(path, `${path} must be a non-empty array of allowed values`));
+  }
+}
+
+function validateOptionalProviderArray(
+  record: Record<string, unknown>,
+  path: string,
+  issues: WorkflowSemanticValidationIssue[],
+): void {
+  if (!hasOwn(record, 'mandatoryProviders')) {
+    return;
+  }
+  const value = record.mandatoryProviders;
+  if (
+    !Array.isArray(value) ||
+    value.length === 0 ||
+    value.some((item) => typeof item !== 'string' || !VALID_PROVIDER_NAMES.has(item as ProviderName))
+  ) {
+    issues.push(issue(`${path}.mandatoryProviders`, `${path}.mandatoryProviders must be a non-empty array of provider names`));
   }
 }
 
@@ -283,6 +309,7 @@ export function validateWorkflowSemanticManifest(value: unknown): WorkflowSemant
       issues.push(issue(`${path}.family`, `${path}.family is not a known workflow semantic family`));
     }
     validateProvenance(entry, path, issues);
+    validateOptionalProviderArray(entry, path, issues);
     validateEntryFields(entry, path, issues);
   });
 

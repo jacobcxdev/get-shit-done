@@ -5,6 +5,7 @@
  */
 
 import { join } from 'node:path';
+import { readFile } from 'node:fs/promises';
 import { checkBillingBoundary } from './billing-boundary.js';
 import { checkBaselines, writeBaselines } from './baselines.js';
 import { classifyCommands } from './classification.js';
@@ -16,7 +17,7 @@ import { collectPacketDefinitionCandidates } from './inventory/packets.js';
 import { collectWorkflows } from './inventory/workflows.js';
 import { validateAdvisoryPacketDefinitions, validatePacketAtomicity } from './packet-contracts.js';
 import { compileCorpusPaths } from './paths.js';
-import { validateWorkflowSemanticManifests } from './workflow-semantics.js';
+import { emitWorkflowSemanticMetadata, validateWorkflowSemanticManifests } from './workflow-semantics.js';
 import {
   validateDuplicateIds,
   validateExtensionDeps,
@@ -55,6 +56,18 @@ type GeneratedArtifactDeclaration = {
   atomicWrite: true;
 };
 
+async function readProviderConfig(projectDir: string): Promise<Record<string, unknown>> {
+  try {
+    const raw = await readFile(join(projectDir, '.planning', 'config.json'), 'utf-8');
+    const parsed = JSON.parse(raw) as unknown;
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : {};
+  } catch {
+    return {};
+  }
+}
+
 export function buildManifestRecord(report: CompileReport): Record<string, unknown> {
   return {
     'command-coverage': report.manifests.commands,
@@ -90,6 +103,7 @@ export async function runCompiler(projectDir: string, opts: CompileOptions): Pro
   const agents = await collectAgents(projectDir, diagnostics);
   const hooks = await collectHooks(projectDir, diagnostics);
   const classification = classifyCommands(commands, diagnostics);
+  const providerConfig = await readProviderConfig(projectDir);
   const packetCandidates = collectPacketDefinitionCandidates({ explicit: opts.packetDefinitions });
 
   validateDuplicateIds(
@@ -101,8 +115,12 @@ export async function runCompiler(projectDir: string, opts: CompileOptions): Pro
   validatePacketBudgets([], diagnostics);
   validateAdvisoryPacketDefinitions(packetCandidates, agents, diagnostics);
   validatePacketAtomicity(packetCandidates, diagnostics);
-  const workflowSemantics = workflows.map((workflow) => workflow.semanticManifest);
-  validateWorkflowSemanticManifests(workflowSemantics, diagnostics);
+  const workflowSemantics = emitWorkflowSemanticMetadata(
+    workflows.map((workflow) => workflow.semanticManifest),
+    classification,
+    providerConfig,
+  );
+  validateWorkflowSemanticManifests(workflowSemantics, diagnostics, classification);
   validateExtensionDeps([], diagnostics);
 
   const billing = await checkBillingBoundary(projectDir, diagnostics);

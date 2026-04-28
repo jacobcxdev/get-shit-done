@@ -15,6 +15,165 @@
           "mode:skip-verify"
         ],
         "family": "mode-dispatch",
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "modes": [
+          "auto",
+          "gaps",
+          "prd",
+          "reviews",
+          "skip-research",
+          "skip-verify"
+        ],
+        "priority": [
+          "default",
+          "flag",
+          "mode"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "configKeys": [
+          ".planning/config.json",
+          "workflow.*"
+        ],
+        "family": "config-gate",
+        "guardName": "workflow-config-gate",
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "fallbackPaths": [
+          "filesystem fallback"
+        ],
+        "family": "filesystem-fallback",
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "completion-marker",
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "markers": [
+          "COMPLETION",
+          "PLAN COMPLETE",
+          "SUMMARY"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "context-budget-branch",
+        "inputs": [
+          "context budget",
+          "context window",
+          "token"
+        ],
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "provenance": "audit-inference",
+        "thresholds": [
+          "context-window-limit"
+        ]
+      },
+      {
+        "family": "hitl",
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "mockInputSeam": "AskUserQuestion",
+        "provenance": "audit-inference",
+        "resumableOutcomes": [
+          "failure",
+          "resume",
+          "success"
+        ],
+        "suspensionPoints": [
+          "AskUserQuestion",
+          "checkpoint",
+          "human-verify",
+          "pause"
+        ]
+      },
+      {
+        "family": "non-blocking-side-effect",
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "provenance": "audit-inference",
+        "sideEffects": [
+          "non-blocking side effect"
+        ]
+      },
+      {
+        "family": "parallel-wave",
+        "lifecycle": [
+          "collect",
+          "merge",
+          "poll",
+          "spawn"
+        ],
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "provenance": "audit-inference"
+      },
+      {
+        "family": "quantitative-gate",
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "metric": "workflow-threshold",
+        "operator": "gte",
+        "provenance": "audit-inference",
+        "threshold": 1
+      },
+      {
+        "family": "runtime-type-branch",
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "provenance": "audit-inference",
+        "runtimes": [
+          "Claude",
+          "Codex",
+          "Gemini",
+          "OpenCode"
+        ]
+      },
+      {
+        "family": "text-mode-substitution",
+        "mandatoryProviders": [
+          "codex"
+        ],
+        "provenance": "audit-inference",
+        "substitutions": [
+          "AskUserQuestion fallback",
+          "text_mode",
+          "text-mode"
+        ]
+      }
+    ],
+    "workflowId": "/workflows/plan-phase"
+  },
+  {
+    "semantics": [
+      {
+        "branchIds": [
+          "mode:auto",
+          "mode:gaps",
+          "mode:prd",
+          "mode:reviews",
+          "mode:skip-research",
+          "mode:skip-verify"
+        ],
+        "family": "mode-dispatch",
         "modes": [
           "auto",
           "gaps",
@@ -1375,132 +1534,6 @@
       }
     ],
     "workflowId": "/workflows/audit-milestone"
-  },
-  {
-    "semantics": [
-      {
-        "branchIds": [
-          "mode:auto",
-          "mode:gaps",
-          "mode:prd",
-          "mode:reviews",
-          "mode:skip-research",
-          "mode:skip-verify"
-        ],
-        "family": "mode-dispatch",
-        "modes": [
-          "auto",
-          "gaps",
-          "prd",
-          "reviews",
-          "skip-research",
-          "skip-verify"
-        ],
-        "priority": [
-          "default",
-          "flag",
-          "mode"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "configKeys": [
-          ".planning/config.json",
-          "workflow.*"
-        ],
-        "family": "config-gate",
-        "guardName": "workflow-config-gate",
-        "provenance": "audit-inference"
-      },
-      {
-        "fallbackPaths": [
-          "filesystem fallback"
-        ],
-        "family": "filesystem-fallback",
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "completion-marker",
-        "markers": [
-          "COMPLETION",
-          "PLAN COMPLETE",
-          "SUMMARY"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "context-budget-branch",
-        "inputs": [
-          "context budget",
-          "context window",
-          "token"
-        ],
-        "provenance": "audit-inference",
-        "thresholds": [
-          "context-window-limit"
-        ]
-      },
-      {
-        "family": "hitl",
-        "mockInputSeam": "AskUserQuestion",
-        "provenance": "audit-inference",
-        "resumableOutcomes": [
-          "failure",
-          "resume",
-          "success"
-        ],
-        "suspensionPoints": [
-          "AskUserQuestion",
-          "checkpoint",
-          "human-verify",
-          "pause"
-        ]
-      },
-      {
-        "family": "non-blocking-side-effect",
-        "provenance": "audit-inference",
-        "sideEffects": [
-          "non-blocking side effect"
-        ]
-      },
-      {
-        "family": "parallel-wave",
-        "lifecycle": [
-          "collect",
-          "merge",
-          "poll",
-          "spawn"
-        ],
-        "provenance": "audit-inference"
-      },
-      {
-        "family": "quantitative-gate",
-        "metric": "workflow-threshold",
-        "operator": "gte",
-        "provenance": "audit-inference",
-        "threshold": 1
-      },
-      {
-        "family": "runtime-type-branch",
-        "provenance": "audit-inference",
-        "runtimes": [
-          "Claude",
-          "Codex",
-          "Gemini",
-          "OpenCode"
-        ]
-      },
-      {
-        "family": "text-mode-substitution",
-        "provenance": "audit-inference",
-        "substitutions": [
-          "AskUserQuestion fallback",
-          "text_mode",
-          "text-mode"
-        ]
-      }
-    ],
-    "workflowId": "/workflows/plan-phase"
   },
   {
     "semantics": [

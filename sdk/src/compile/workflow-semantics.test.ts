@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { inferWorkflowSemanticManifest, validateWorkflowSemanticManifests } from './workflow-semantics.js';
-import type { CompileDiagnostic } from './types.js';
+import {
+  emitWorkflowSemanticMetadata,
+  inferWorkflowSemanticManifest,
+  validateWorkflowSemanticManifests,
+} from './workflow-semantics.js';
+import type { ClassificationEntry, CompileDiagnostic } from './types.js';
 
 const FAMILY_FIXTURES = [
   ['mode-dispatch', 'Choose mode from --auto, --reviews, and flag priority.'],
@@ -108,5 +112,75 @@ describe('validateWorkflowSemanticManifests', () => {
       path: '/workflows/demo',
       field: 'semantics[0].branchIds',
     }));
+  });
+
+  it('maps dynamic-branch workflows without branchIds to UNKNOWN_BRANCH_ID diagnostics', () => {
+    const diagnostics: CompileDiagnostic[] = [];
+
+    expect(validateWorkflowSemanticManifests([
+      {
+        workflowId: '/workflows/demo',
+        semantics: [
+          {
+            family: 'completion-marker',
+            markers: ['PLAN COMPLETE'],
+            provenance: 'audit-inference',
+          },
+        ],
+      },
+    ], diagnostics, [
+      {
+        commandId: '/gsd-check-todos',
+        workflowId: '/workflows/demo',
+        category: 'dynamic-branch',
+        determinismPosture: 'dynamic',
+        isHardOutlier: false,
+        migrationDisposition: 'dynamic-review',
+        agentTypes: [],
+      },
+    ])).toEqual({ count: 1 });
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      code: 'UNKNOWN_BRANCH_ID',
+      kind: 'workflow',
+      id: '/workflows/demo',
+      field: 'semantics.branchIds',
+    }));
+  });
+});
+
+describe('emitWorkflowSemanticMetadata', () => {
+  it('emits mandatoryProviders from config-routed command providers', () => {
+    const classifications: ClassificationEntry[] = [
+      {
+        commandId: '/gsd-plan-phase',
+        workflowId: '/workflows/plan-phase',
+        category: 'core-lifecycle',
+        determinismPosture: 'deterministic',
+        isHardOutlier: false,
+        migrationDisposition: 'standard',
+        agentTypes: ['gsd-planner'],
+      },
+    ];
+
+    const [manifest] = emitWorkflowSemanticMetadata([
+      {
+        workflowId: '/workflows/plan-phase',
+        semantics: [
+          {
+            family: 'completion-marker',
+            markers: ['PLAN COMPLETE'],
+            provenance: 'audit-inference',
+          },
+        ],
+      },
+    ], classifications, { agent_routing: { 'gsd-planner': 'codex:xhigh' } });
+
+    expect(manifest?.semantics).toEqual([
+      expect.objectContaining({
+        family: 'completion-marker',
+        mandatoryProviders: ['codex'],
+      }),
+    ]);
   });
 });

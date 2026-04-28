@@ -44,6 +44,7 @@ export type WorkflowRunnerResult =
   | {
     kind: 'error';
     code: 'startup-error' | 'dispatch-error' | 'missing-workflow';
+    diagnosticCode?: 'UNKNOWN_BRANCH_ID';
     message: string;
     workflowId?: string;
     commandId?: string;
@@ -151,6 +152,31 @@ function unavailableMandatoryProviders(
   return normalizeProviderList(mandatoryProviders).filter(provider => unavailable.has(provider));
 }
 
+function branchIdsForWorkflow(
+  workflowId: string,
+  semantics: WorkflowSemanticManifest[],
+): string[] {
+  const entry = semantics.find(semantic => semantic.workflowId === workflowId);
+  return [
+    ...new Set(
+      (entry?.semantics ?? [])
+        .flatMap(semantic => ('branchIds' in semantic ? semantic.branchIds : []))
+        .filter((branchId): branchId is string => typeof branchId === 'string' && branchId.trim() !== ''),
+    ),
+  ].sort();
+}
+
+function mandatoryProvidersForWorkflow(
+  workflowId: string,
+  semantics: WorkflowSemanticManifest[],
+): ProviderName[] {
+  const entry = semantics.find(semantic => semantic.workflowId === workflowId);
+  return normalizeProviderList(
+    (entry?.semantics ?? [])
+      .flatMap(semantic => ('mandatoryProviders' in semantic ? semantic.mandatoryProviders ?? [] : [])),
+  );
+}
+
 function reducedProviderMetadata(
   availability: ProviderAvailabilityResult | undefined,
 ): ProviderTransitionMetadata | undefined {
@@ -248,14 +274,32 @@ export class WorkflowRunner {
     }
 
     const stepId = support.disposition === 'dynamic-branch' ? input.branchId : input.stepId;
-    if (support.disposition === 'dynamic-branch' && !stepId) {
-      return {
-        kind: 'error',
-        code: 'dispatch-error',
-        message: `branchId required for dynamic workflow ${workflowId}`,
-        workflowId,
-        commandId: input.commandId,
-      };
+    if (support.disposition === 'dynamic-branch') {
+      if (!stepId || stepId.trim() === '') {
+        return {
+          kind: 'error',
+          code: 'dispatch-error',
+          diagnosticCode: 'UNKNOWN_BRANCH_ID',
+          message: `[UNKNOWN_BRANCH_ID] branchId is required for dynamic workflow '${workflowId}' but was absent or empty.`,
+          workflowId,
+          commandId: input.commandId,
+        };
+      }
+      const validBranchIds = branchIdsForWorkflow(workflowId, this.manifests.workflowSemantics);
+      if (validBranchIds.length === 0 || !validBranchIds.includes(stepId)) {
+        return {
+          kind: 'error',
+          code: 'dispatch-error',
+          diagnosticCode: 'UNKNOWN_BRANCH_ID',
+          message: `[UNKNOWN_BRANCH_ID] branchId '${stepId}' is not a valid branch for dynamic workflow '${workflowId}'.${
+            validBranchIds.length > 0
+              ? ` Valid: ${validBranchIds.join(', ')}`
+              : ' No branchIds declared in semantics manifest - compiler validation gap.'
+          }`,
+          workflowId,
+          commandId: input.commandId,
+        };
+      }
     }
     if (!stepId) {
       return {
@@ -267,7 +311,12 @@ export class WorkflowRunner {
       };
     }
 
-    const blockedProviders = unavailableMandatoryProviders(input.providerAvailability, input.mandatoryProviders);
+    const semanticMandatory = mandatoryProvidersForWorkflow(workflowId, this.manifests.workflowSemantics);
+    const effectiveMandatory = normalizeProviderList([
+      ...(input.mandatoryProviders ?? []),
+      ...semanticMandatory,
+    ]);
+    const blockedProviders = unavailableMandatoryProviders(input.providerAvailability, effectiveMandatory);
     if (blockedProviders.length > 0) {
       return {
         kind: 'error',

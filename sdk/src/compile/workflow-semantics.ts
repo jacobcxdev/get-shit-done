@@ -8,9 +8,10 @@ import {
   type WorkflowSemanticEntry,
   type WorkflowSemanticManifest,
 } from '../advisory/workflow-semantics.js';
+import type { ProviderName } from '../advisory/provider-availability.js';
 import { sortKeysDeep } from './baselines.js';
 import { mkError } from './diagnostics.js';
-import type { CompileDiagnostic } from './types.js';
+import type { ClassificationEntry, CompileDiagnostic } from './types.js';
 
 type SemanticCheck = {
   pattern: RegExp;
@@ -19,6 +20,10 @@ type SemanticCheck = {
 
 type CountResult = {
   count: number;
+};
+
+type WorkflowProviderConfig = {
+  agent_routing?: Record<string, unknown>;
 };
 
 const SEMANTIC_CHECKS: SemanticCheck[] = [
@@ -185,6 +190,67 @@ function sortSemanticEntries(entries: WorkflowSemanticEntry[]): WorkflowSemantic
   );
 }
 
+function providerNameFromRoute(value: unknown): ProviderName | null {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim().toLowerCase();
+  if (normalized.startsWith('codex')) return 'codex';
+  if (normalized.startsWith('gemini')) return 'gemini';
+  if (
+    normalized.startsWith('claude') ||
+    normalized === 'opus' ||
+    normalized === 'sonnet' ||
+    normalized === 'haiku'
+  ) {
+    return 'claude';
+  }
+  return null;
+}
+
+function mandatoryProvidersForWorkflow(
+  workflowId: string,
+  classifications: ClassificationEntry[],
+  config: WorkflowProviderConfig | undefined,
+): ProviderName[] {
+  const providers = new Set<ProviderName>();
+  const agentRouting = config?.agent_routing ?? {};
+
+  for (const classification of classifications) {
+    if (classification.workflowId !== workflowId) continue;
+    for (const agentType of classification.agentTypes) {
+      const provider = providerNameFromRoute(agentRouting[agentType]);
+      if (provider) providers.add(provider);
+    }
+  }
+
+  return ['claude', 'codex', 'gemini'].filter((provider): provider is ProviderName => providers.has(provider as ProviderName));
+}
+
+function withMandatoryProviders(
+  semantic: WorkflowSemanticEntry,
+  providers: ProviderName[],
+): WorkflowSemanticEntry {
+  if (providers.length === 0) return semantic;
+  return {
+    ...semantic,
+    mandatoryProviders: [...new Set([...(semantic.mandatoryProviders ?? []), ...providers])].sort(),
+  } as WorkflowSemanticEntry;
+}
+
+export function emitWorkflowSemanticMetadata(
+  manifests: WorkflowSemanticManifest[],
+  classifications: ClassificationEntry[],
+  config?: WorkflowProviderConfig,
+): WorkflowSemanticManifest[] {
+  return manifests.map((manifest) => {
+    const mandatoryProviders = mandatoryProvidersForWorkflow(manifest.workflowId, classifications, config);
+    if (mandatoryProviders.length === 0) return manifest;
+    return {
+      ...manifest,
+      semantics: manifest.semantics.map(semantic => withMandatoryProviders(semantic, mandatoryProviders)),
+    };
+  });
+}
+
 export function inferWorkflowSemanticManifest(workflowId: string, content: string): WorkflowSemanticManifest {
   const semantics: WorkflowSemanticEntry[] = [];
 
@@ -209,7 +275,10 @@ function manifestWorkflowId(manifest: WorkflowSemanticManifest): string {
 export function validateWorkflowSemanticManifests(
   manifests: WorkflowSemanticManifest[],
   diagnostics: CompileDiagnostic[],
+  classifications: ClassificationEntry[] = [],
 ): CountResult {
+  const manifestsByWorkflowId = new Map(manifests.map(manifest => [manifest.workflowId, manifest]));
+
   for (const manifest of manifests) {
     const workflowId = manifestWorkflowId(manifest);
     for (const issue of validateWorkflowSemanticManifest(manifest)) {
@@ -217,6 +286,26 @@ export function validateWorkflowSemanticManifests(
         mkError('WFSM-08', 'workflow', workflowId, workflowId, issue.message, {
           field: issue.field,
         }),
+      );
+    }
+  }
+
+  for (const classification of classifications) {
+    if (classification.category !== 'dynamic-branch' || !classification.workflowId) continue;
+    const manifest = manifestsByWorkflowId.get(classification.workflowId);
+    const branchIds = (manifest?.semantics ?? [])
+      .flatMap(semantic => ('branchIds' in semantic ? semantic.branchIds : []))
+      .filter((branchId): branchId is string => typeof branchId === 'string' && branchId.trim() !== '');
+    if (branchIds.length === 0) {
+      diagnostics.push(
+        mkError(
+          'UNKNOWN_BRANCH_ID',
+          'workflow',
+          classification.workflowId,
+          classification.workflowId,
+          `Dynamic-branch workflow '${classification.workflowId}' has no branchIds declared in its semantic entry. Add branchIds to the manifest.`,
+          { field: 'semantics.branchIds' },
+        ),
       );
     }
   }
