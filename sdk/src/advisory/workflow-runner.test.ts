@@ -5,6 +5,7 @@ import {
   type WorkflowRunnerDispatchInput,
   type WorkflowRunnerManifests,
 } from './workflow-runner.js';
+import { sortKeysDeep } from '../compile/baselines.js';
 
 function makeManifests(overrides: Partial<WorkflowRunnerManifests> = {}): WorkflowRunnerManifests {
   const commandClassification = [
@@ -223,6 +224,10 @@ function makeDispatchInput(overrides: Partial<WorkflowRunnerDispatchInput> = {})
   };
 }
 
+function sortedPacketJson(value: unknown): string {
+  return JSON.stringify(sortKeysDeep(value));
+}
+
 describe('WorkflowRunner', () => {
   it('fails closed at startup when required manifests are empty', () => {
     try {
@@ -338,5 +343,43 @@ describe('WorkflowRunner', () => {
     expect(result.kind).toBe('packet');
     if (result.kind !== 'packet') throw new Error(`Expected packet result, got ${result.kind}`);
     expect(result.packet.stepId).toBe('mode:auto');
+  });
+
+  it('emits deeply equal packets for equivalent configSnapshot objects with different key order', () => {
+    const runner = new WorkflowRunner(makeManifests());
+    const first = runner.dispatch(makeDispatchInput({
+      configSnapshot: {
+        agent_routing: { 'gsd-executor': 'codex:xhigh' },
+        codex_model: 'gpt-5.5',
+        workflow: { verifier: true, auto_advance: false },
+      },
+    }));
+    const second = runner.dispatch(makeDispatchInput({
+      configSnapshot: {
+        workflow: { auto_advance: false, verifier: true },
+        codex_model: 'gpt-5.5',
+        agent_routing: { 'gsd-executor': 'codex:xhigh' },
+      },
+    }));
+
+    expect(first.kind).toBe('packet');
+    expect(second.kind).toBe('packet');
+    if (first.kind !== 'packet' || second.kind !== 'packet') throw new Error('Expected packet results');
+    expect(sortedPacketJson(first.packet)).toEqual(sortedPacketJson(second.packet));
+  });
+
+  it('changes configSnapshotHash when workflow.verifier changes', () => {
+    const runner = new WorkflowRunner(makeManifests());
+    const enabled = runner.dispatch(makeDispatchInput({
+      configSnapshot: { workflow: { verifier: true } },
+    }));
+    const disabled = runner.dispatch(makeDispatchInput({
+      configSnapshot: { workflow: { verifier: false } },
+    }));
+
+    expect(enabled.kind).toBe('packet');
+    expect(disabled.kind).toBe('packet');
+    if (enabled.kind !== 'packet' || disabled.kind !== 'packet') throw new Error('Expected packet results');
+    expect(enabled.packet.configSnapshotHash).not.toBe(disabled.packet.configSnapshotHash);
   });
 });
