@@ -277,6 +277,7 @@ export enum GSDEventType {
   PhaseEdit = 'phase_edit',
   InitRequired = 'init_required',
   LockStale = 'lock_stale',
+  P4ComplianceFailed = 'p4_compliance_failed',
 }
 
 /**
@@ -820,6 +821,19 @@ export interface GSDLockStaleEvent extends GSDEventBase {
 }
 
 /**
+ * Nyquist P4 compliance failed before the phase could advance.
+ */
+export interface GSDP4ComplianceFailedEvent extends GSDEventBase {
+  type: GSDEventType.P4ComplianceFailed;
+  workflowId: string;
+  phaseNumber: string;
+  stepId: 'p4-compliance';
+  code: 'p4-compliance-failed';
+  message: string;
+  recoveryHint: string;
+}
+
+/**
  * Discriminated union of all GSD events.
  */
 export type GSDEvent =
@@ -861,7 +875,8 @@ export type GSDEvent =
   | GSDFSMTransitionRejectedEvent
   | GSDPhaseEditEvent
   | GSDInitRequiredEvent
-  | GSDLockStaleEvent;
+  | GSDLockStaleEvent
+  | GSDP4ComplianceFailedEvent;
 
 /**
  * Transport handler interface for consuming GSD events.
@@ -923,6 +938,8 @@ export enum PhaseStepType {
   PlanCheck = 'plan_check',
   Execute = 'execute',
   Verify = 'verify',
+  P4Compliance = 'p4_compliance',
+  P4GapClosure = 'p4_gap_closure',
   Advance = 'advance',
 }
 
@@ -958,6 +975,9 @@ export interface PhaseStepResult {
   durationMs: number;
   error?: string;
   planResults?: PlanResult[];
+  packet?: import('./advisory/packet.js').AdvisoryPacket;
+  posture?: string;
+  data?: Record<string, unknown>;
 }
 
 /**
@@ -992,4 +1012,6 @@ export interface PhaseRunnerOptions {
   model?: string;
   /** Maximum gap closure retries when verification finds gaps. Default: 1. */
   maxGapRetries?: number;
+  /** Explicit compatibility mode for legacy SDK-owned model sessions. Defaults to false. */
+  legacyModelBacked?: boolean;
 }
