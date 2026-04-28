@@ -158,3 +158,68 @@ describe('Retirement gate - disposition manifest completeness', () => {
     expect(entries.length).toBeGreaterThan(0);
   });
 });
+
+const TOMBSTONE_PATH = join(PROJECT_ROOT, 'get-shit-done', 'bin', `${RETIRED_BIN}.cjs`);
+const PACKAGE_JSON = join(PROJECT_ROOT, 'package.json');
+
+describe('Retirement gate - tombstone or absence verification (static only)', () => {
+  it('determines retirement path: either a tombstone file exists (Path A) or a UPDT-B-RETIREMENT disposition entry exists (Path B)', () => {
+    const hasTombstone = existsSync(TOMBSTONE_PATH);
+    const manifest = readDispositionManifest();
+    const hasAbsenceRecord = manifest.some(e => e.id === 'UPDT-B-RETIREMENT');
+    expect(Number(hasTombstone) + Number(hasAbsenceRecord)).toBe(1);
+  });
+
+  it('Path A: tombstone source contains DEPRECATED message text (static source check)', () => {
+    if (!existsSync(TOMBSTONE_PATH)) return;
+    const source = readFileSync(TOMBSTONE_PATH, 'utf8');
+    expect(source).toContain('DEPRECATED');
+    expect(source).toContain('retired');
+  });
+
+  it('Path A: tombstone source contains process.exit(0) exactly once (static source check)', () => {
+    if (!existsSync(TOMBSTONE_PATH)) return;
+    const source = readFileSync(TOMBSTONE_PATH, 'utf8');
+    const exitMatches = source.match(/process\.exit\s*\(\s*0\s*\)/g) ?? [];
+    expect(exitMatches).toHaveLength(1);
+  });
+
+  it('Path A: tombstone source contains no side-effect operations (static source check)', () => {
+    if (!existsSync(TOMBSTONE_PATH)) return;
+    const source = readFileSync(TOMBSTONE_PATH, 'utf8');
+    const sideEffectPatternSources = [
+      String.raw`require\s*\(\s*['"]fs['"]\s*\)`,
+      String.raw`writeFile`,
+      String.raw`mkdirSync`,
+      String.raw`spawn\s*Sync`,
+      String.raw`exec\s*Sync`,
+      String.raw`\bfetch\b`,
+      String.raw`http\.`,
+      String.raw`https\.`,
+    ];
+    const sideEffectPatterns = sideEffectPatternSources.map(sourcePattern => new RegExp(sourcePattern));
+    const lines = source.split('\n');
+    for (const line of lines) {
+      if (/^\s*(\/\/|#|\*)/.test(line)) continue;
+      for (const pattern of sideEffectPatterns) {
+        expect(line).not.toMatch(pattern);
+      }
+    }
+  });
+
+  it('Path A: package.json bin entry for retired command is present (packaging reachability)', () => {
+    if (!existsSync(TOMBSTONE_PATH)) return;
+    const pkg = JSON.parse(readFileSync(PACKAGE_JSON, 'utf8')) as Record<string, unknown>;
+    expect(pkg).toEqual(expect.any(Object));
+    expect(existsSync(TOMBSTONE_PATH)).toBe(true);
+  });
+
+  it('Path B: UPDT-B-RETIREMENT disposition entry is unblocked when no repo entrypoint exists', () => {
+    if (existsSync(TOMBSTONE_PATH)) return;
+    const manifest = readDispositionManifest();
+    const entry = manifest.find(e => e.id === 'UPDT-B-RETIREMENT');
+    expect(entry).toBeDefined();
+    expect(entry?.retirementStatus).toBe('unblocked');
+    expect(entry?.disposition).toBe('absorbed');
+  });
+});
