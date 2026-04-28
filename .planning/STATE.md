@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_execute
-stopped_at: Completed 03-10-p4-chain-gap-closure PLAN.md
-last_updated: "2026-04-28T04:03:06Z"
+status: executing
+stopped_at: Completed 03-11-state-runtime-contract-hardening PLAN.md — 2 plans remaining
+last_updated: "2026-04-28T15:39:00Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 6
@@ -21,25 +21,25 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-27)
 
 **Core value:** The SDK emits one atomic instruction packet at a time; the runtime executes it and reports back — `gsd-post-update` must become unnecessary.
-**Current focus:** Phase 3 — Advisory Runner + Query Integration (complete)
+**Current focus:** Phase 3 — Advisory Runner + Query Integration (execution in progress)
 
 ## Current Position
 
 Phase: 3 of 6 (advisory runner + query integration)
-Plan: 03-10 of 10 complete
-Status: Phase Complete
+Plan: 03-11 of 13 complete; 2 remaining plans ready to execute
+Status: Executing
 Last activity: 2026-04-28
 
-Progress: [██████████] 100%
+Progress: [██████████] Phase 3 gap closure in progress
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 21
-- Total plans completed: 21
+- Total plans completed: 22
+- Total plans completed: 22
 - Average duration: 10 min
-- Total execution time: 1.98 hours
+- Total execution time: 2.11 hours
 
 **By Phase:**
 
@@ -47,12 +47,12 @@ Progress: [██████████] 100%
 |-------|-------|-------|----------|
 | 1. Compiler / Audit Foundation | 7 | 78 min | 11 min |
 | 2 | 4 | - | - |
-| 3. Advisory Runner + Query Integration | 10 | 86 min | 9 min |
+| 3. Advisory Runner + Query Integration | 11/13 | 94 min | 9 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 4 min, 7 min, 11 min, 6 min, 8 min
-- Trend: P4 chain gap closure complete
+- Last 5 plans: 7 min, 11 min, 6 min, 8 min, 8 min
+- Trend: State/runtime hardening complete
 
 *Updated after each plan completion*
 | Phase 02 PPLAN-01-packet-schema | 8min | 3 tasks | 10 files |
@@ -67,6 +67,7 @@ Progress: [██████████] 100%
 | Phase 03-advisory-runner-query-integration P03-08-provider-fallback-confidence | 11 min | 3 tasks | 12 files |
 | Phase 03-advisory-runner-query-integration P03-09-runtime-contract-events | 6 min | 3 tasks | 7 files |
 | Phase 03-advisory-runner-query-integration 03-10-p4-chain-gap-closure | 8 min | 3 tasks | 7 files |
+| Phase 03-advisory-runner-query-integration 03-11-state-runtime-contract-hardening | 8 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -101,10 +102,14 @@ Recent decisions affecting current work:
 - [Phase 03 Plan 03-10]: Disabled P4 skip history uses `advanceFsmState()` so it shares the same lock-protected FSM transition path as query handlers.
 - [Phase 03 Plan 03-10]: Missing FSM initialization is non-fatal only for disabled P4 skip recording; malformed or unreadable FSM state still fails fast.
 - [Phase 03 Plan 03-10]: RNNR/P4NY traceability checkboxes were closed only after focused P4/FSM, advisory/query/init, integration, and build gates passed.
+- [Phase 03 Plan 03-11]: FSM query reads reject unsupported schema versions before returning data or writing phase edits.
+- [Phase 03 Plan 03-11]: Completion marker absence events now separate marker IDs from missing artifact paths while preserving blocking semantics.
+- [Phase 03 Plan 03-11]: Stale-lock inspection failures are rethrown directly so callers see the root lock-stale/read failure.
 
 ### Pending Todos
 
-- Begin Phase 4 — Parity Suite + gsd-post-update Retirement
+- Execute Phase 3 — Advisory Runner + Query Integration (2 gap-closure plans remaining)
+- Begin Phase 4 — Parity Suite + gsd-post-update Retirement after Phase 3 execution completes
 
 ### Blockers/Concerns
 
@@ -128,6 +133,11 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 ## Session Continuity
 
-Last session: 2026-04-28T04:03:06Z
-Stopped at: Completed 03-10-p4-chain-gap-closure PLAN.md
-Resume file: None
+Last session: 2026-04-28T15:39:00Z
+Stopped at: Completed 03-11-state-runtime-contract-hardening PLAN.md — 2 plans remaining
+Resume file: `.planning/phases/03-advisory-runner-query-integration/03-12-PLAN.md`
+
+## Session Note — 2026-04-28
+
+- Stopped at: Phase 3 UI-SPEC approved
+- Resume file: `.planning/phases/03-advisory-runner-query-integration/03-UI-SPEC.md`
