@@ -92,9 +92,9 @@
 ### Workflow-Agnostic Advisory Runner
 
 - [x] **RNNR-01**: The advisory runner supports the classified workflow patterns from the compiler manifest rather than assuming every workflow follows the existing phase chain
-- [ ] **RNNR-02**: The existing `PhaseRunner` canonical phase chain (`discuss → research → plan → plan-check → execute → verify → advance`) is preserved with identical transitions, locking behaviour, and emitted packet sequence
+- [x] **RNNR-02**: The existing `PhaseRunner` canonical phase chain (`discuss → research → plan → plan-check → execute → verify → advance`) is preserved with identical transitions, locking behaviour, and emitted packet sequence
 - [x] **RNNR-03**: The existing `InitRunner` behaviour is preserved with identical deterministic transitions while removing default model-backed orchestration from the advisory path
-- [ ] **RNNR-04**: Nyquist P4 compliance is encoded as a distinct FSM state (`p4-compliance`) after `verify` and before `advance`, not merged into `verify`
+- [x] **RNNR-04**: Nyquist P4 compliance is encoded as a distinct FSM state (`p4-compliance`) after `verify` and before `advance`, not merged into `verify`
 - [x] **RNNR-05**: The runner emits exactly one instruction packet per state transition — no batch emissions
 - [x] **RNNR-06**: The runner contains no tool-execution calls; it only emits packets and awaits outcome reports from the runtime
 - [x] **RNNR-07**: Hard outliers (`/gsd-graphify`, `/gsd-from-gsd2`, `/gsd-ultraplan-phase`, `/gsd-review`, `/gsd-fast`) are classified `hard-outlier` in the manifest and bypassed by the advisory runner
@@ -114,10 +114,10 @@
 
 ### Nyquist P4 State
 
-- [ ] **P4NY-01**: The phase-chain FSM includes a `p4-compliance` state that executes after `verify` and before `advance`
-- [ ] **P4NY-02**: Entering `p4-compliance` emits a packet that routes to a single deterministic compliance pass, not triple-spawn verification
-- [ ] **P4NY-03**: The `p4-compliance` state is skipped when no Nyquist compliance check is configured for the workflow
-- [ ] **P4NY-04**: A parity test verifies that `p4-compliance` is never included in the `verify` multi-model packet sequence
+- [x] **P4NY-01**: The phase-chain FSM includes a `p4-compliance` state that executes after `verify` and before `advance`
+- [x] **P4NY-02**: Entering `p4-compliance` emits a packet that routes to a single deterministic compliance pass, not triple-spawn verification
+- [x] **P4NY-03**: The `p4-compliance` state is skipped when no Nyquist compliance check is configured for the workflow
+- [x] **P4NY-04**: A parity test verifies that `p4-compliance` is never included in the `verify` multi-model packet sequence
 
 ### Error Handling and Observability
 
