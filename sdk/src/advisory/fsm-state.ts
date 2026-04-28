@@ -54,6 +54,7 @@ export type FsmRunState = {
   migration: { status: 'none' | 'migration-required' | 'resume-blocked' };
   resume: { status: 'new' | 'active' | 'suspended' | 'complete' };
   autoMode: { active: boolean; source: 'auto_chain' | 'auto_advance' | 'both' | 'none' };
+  thread?: { id: string; sessionId: string | null };
 };
 
 export type FsmLockStatus = {
@@ -89,9 +90,7 @@ export type FsmTransitionResult = {
   missingProviders?: string[];
 };
 
-export const MUTABLE_PHASE_FIELDS = new Set<string>([
-  'currentState',
-]);
+export const MUTABLE_PHASE_FIELDS = new Set<string>(['currentState', 'resume.status', 'autoMode.active', 'autoMode.source']);
 
 export const _heldFsmLocks = new Set<string>();
 
@@ -189,6 +188,7 @@ export function createInitialFsmRunState(input: {
     migration: { status: 'none' },
     resume: { status: 'new' },
     autoMode: input.autoMode ?? { active: false, source: 'none' },
+    thread: { id: input.runId, sessionId: null },
   };
 }
 

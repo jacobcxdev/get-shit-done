@@ -29,10 +29,8 @@ import {
   fsmTransition,
   lockStatus,
   phaseEdit,
-  threadId,
-  threadSession,
-  threadWorkstream,
 } from './fsm-state.js';
+import { threadId, threadSession, threadWorkstream } from './thread.js';
 import { stateJson, stateGet, stateSnapshot } from './state.js';
 import { stateProjectLoad } from './state-project-load.js';
 import { findPhase, phasePlanIndex } from './phase.js';
@@ -123,6 +121,7 @@ import {
   type GSDTemplateFillEvent,
   type GSDFSMTransitionEvent,
   type GSDFSMTransitionRejectedEvent,
+  type GSDPhaseEditEvent,
   type GSDInitRequiredEvent,
   type GSDLockStaleEvent,
 } from '../types.js';
@@ -297,6 +296,19 @@ function buildMutationEvent(
       ...(typeof data?.reducedConfidence === 'boolean' ? { reducedConfidence: data.reducedConfidence } : {}),
       ...(missingProviders ? { missingProviders } : {}),
     } as GSDFSMTransitionEvent;
+  }
+
+  if (cmd === 'phase.edit' || cmd === 'phase edit') {
+    const data = result.data as Record<string, unknown> | null;
+    return {
+      ...base,
+      type: GSDEventType.PhaseEdit,
+      command: cmd,
+      field: (data?.field as string) ?? args[0] ?? '',
+      value: data?.value ?? args[1] ?? '',
+      workstream: (data?.workstream as string | null | undefined) ?? null,
+      success: true,
+    } as GSDPhaseEditEvent;
   }
 
   if (cmd.startsWith('template.') || cmd.startsWith('template ')) {

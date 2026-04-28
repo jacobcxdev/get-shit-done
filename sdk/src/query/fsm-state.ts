@@ -16,6 +16,7 @@ import { GSDError, ErrorClassification } from '../errors.js';
 import type { QueryHandler } from './utils.js';
 
 type AutoModeSource = FsmRunState['autoMode']['source'];
+type ResumeStatus = FsmRunState['resume']['status'];
 
 function targetWorkstream(workstream: string | undefined, arg: string | undefined): string | undefined {
   return workstream ?? (arg && arg.length > 0 ? arg : undefined);
@@ -36,6 +37,44 @@ function parseActive(value: string | undefined): boolean {
   if (value === 'true') return true;
   if (value === 'false') return false;
   throw new GSDError('active must be true or false', ErrorClassification.Validation);
+}
+
+function parsePhaseEditActive(value: string | undefined): boolean {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  throw new GSDError('autoMode.active must be true or false', ErrorClassification.Validation);
+}
+
+function parsePhaseEditSource(value: string | undefined): AutoModeSource {
+  if (value === 'auto_chain' || value === 'auto_advance' || value === 'both' || value === 'none') {
+    return value;
+  }
+  throw new GSDError(
+    'autoMode.source must be auto_chain, auto_advance, both, or none',
+    ErrorClassification.Validation,
+  );
+}
+
+function parseResumeStatus(value: string | undefined): ResumeStatus {
+  if (value === 'new' || value === 'active' || value === 'suspended' || value === 'complete') {
+    return value;
+  }
+  throw new GSDError(
+    'resume.status must be new, active, suspended, or complete',
+    ErrorClassification.Validation,
+  );
+}
+
+function parsePhaseEditArgs(
+  args: string[],
+  workstream: string | undefined,
+): { target: string | undefined; field: string | undefined; value: string | undefined } {
+  if (args.length >= 3) {
+    const [workstreamArg, field, value] = args;
+    return { target: targetWorkstream(undefined, workstreamArg), field, value };
+  }
+  const [field, value] = args;
+  return { target: workstream, field, value };
 }
 
 function deriveConfidence(history: FsmTransitionHistoryEntry[]): string {
@@ -188,7 +227,7 @@ export const lockStatus: QueryHandler = async (args, projectDir, workstream) => 
 };
 
 export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
-  const [field, value, workstreamArg] = args;
+  const { target, field, value } = parsePhaseEditArgs(args, workstream);
   if (!field || value === undefined) {
     throw new GSDError('field and value required for phase.edit', ErrorClassification.Validation);
   }
@@ -196,27 +235,23 @@ export const phaseEdit: QueryHandler = async (args, projectDir, workstream) => {
     throw new GSDError(`field '${field}' is not an editable phase field`, ErrorClassification.Validation);
   }
 
-  const target = targetWorkstream(workstream, workstreamArg);
   const path = fsmStatePath(projectDir, target);
   const state = await readState(path);
+  let parsedValue: string | boolean = value;
   if (field === 'currentState') {
     state.currentState = value;
+  } else if (field === 'resume.status') {
+    parsedValue = parseResumeStatus(value);
+    state.resume.status = parsedValue;
+  } else if (field === 'autoMode.active') {
+    parsedValue = parsePhaseEditActive(value);
+    state.autoMode.active = parsedValue;
+  } else if (field === 'autoMode.source') {
+    parsedValue = parsePhaseEditSource(value);
+    state.autoMode.source = parsedValue;
   }
   state.updatedAt = new Date().toISOString();
   await writeFsmState(projectDir, target, state);
 
-  return { data: { field, value, workstream: target ?? null } };
-};
-
-export const threadId: QueryHandler = async (_args, _projectDir, workstream) => {
-  return { data: { threadId: null, workstream: workstream ?? null } };
-};
-
-export const threadWorkstream: QueryHandler = async (args, _projectDir, workstream) => {
-  const target = targetWorkstream(workstream, args[0]);
-  return { data: { workstream: target ?? null } };
-};
-
-export const threadSession: QueryHandler = async (_args, _projectDir, workstream) => {
-  return { data: { sessionId: process.env.GSD_SESSION_ID ?? null, workstream: workstream ?? null } };
+  return { data: { field, value: parsedValue, workstream: target ?? null } };
 };

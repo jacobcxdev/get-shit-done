@@ -274,6 +274,7 @@ export enum GSDEventType {
   TemplateFill = 'template_fill',
   FSMTransition = 'fsm_transition',
   FSMTransitionRejected = 'fsm_transition_rejected',
+  PhaseEdit = 'phase_edit',
   InitRequired = 'init_required',
   LockStale = 'lock_stale',
 }
@@ -783,6 +784,18 @@ export interface GSDFSMTransitionRejectedEvent extends GSDEventBase {
 }
 
 /**
+ * Allowlisted phase state edit completed through the query mutation surface.
+ */
+export interface GSDPhaseEditEvent extends GSDEventBase {
+  type: GSDEventType.PhaseEdit;
+  command: string;
+  field: string;
+  value: unknown;
+  workstream: string | null;
+  success: true;
+}
+
+/**
  * FSM state operation requires project initialization first.
  */
 export interface GSDInitRequiredEvent extends GSDEventBase {
@@ -846,6 +859,7 @@ export type GSDEvent =
   | GSDTemplateFillEvent
   | GSDFSMTransitionEvent
   | GSDFSMTransitionRejectedEvent
+  | GSDPhaseEditEvent
   | GSDInitRequiredEvent
   | GSDLockStaleEvent;
 
