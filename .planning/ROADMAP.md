@@ -122,7 +122,7 @@ Phase 6 (v2+) cannot begin before Phase 4 parity gates are green
 |-------|----------------|--------|-----------|
 | 1. Compiler / Audit Foundation | 7/7 | Complete | 2026-04-27 |
 | 2. Packet Schema + State Contracts | 4/4 | Complete | 2026-04-27 |
-| 3. Advisory Runner + Query Integration | 5/9 | In Progress | - |
+| 3. Advisory Runner + Query Integration | 9/9 | Complete | 2026-04-28 |
 | 4. Parity Suite + gsd-post-update Retirement | 0/TBD | Not started | - |
 | 5. Extension API + Migration Hardening (v1.x) | 0/TBD | Not started | - |
 | 6. Compatibility Cleanup + Hard Outlier Posturing (v2+) | 0/TBD | Not started | - |

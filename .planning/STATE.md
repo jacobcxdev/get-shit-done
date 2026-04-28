@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 3 plan 03-03 phase edit thread query aliases complete (backfill; 03-06 remains next)
-last_updated: "2026-04-28T01:38:55Z"
+stopped_at: Completed 03-09-runtime-contract-events PLAN.md
+last_updated: "2026-04-28T02:52:53Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 20
-  completed_plans: 16
-  percent: 43
+  completed_plans: 20
+  percent: 100
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-27)
 ## Current Position
 
 Phase: 3 of 6 (advisory runner + query integration)
-Plan: 03-05 of 9 complete
-Status: Executing
+Plan: 03-09 of 9 complete
+Status: Phase Complete
 Last activity: 2026-04-28
 
-Progress: [████░░░░░░] 43%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -63,6 +63,9 @@ Progress: [████░░░░░░] 43%
 | Phase 03-advisory-runner-query-integration 03-03-phase-edit-thread-query-aliases | 8min | 3 tasks | 8 files |
 | Phase 03-advisory-runner-query-integration P03-04-workflow-runner-core | 6min | 3 tasks | 7 files |
 | Phase 03-advisory-runner-query-integration P03-05-branchids-compile-observability | 4min | 3 tasks | 5 files |
+| Phase 03-advisory-runner-query-integration P03-07-init-runner-advisory | 7 min | 3 tasks | 4 files |
+| Phase 03-advisory-runner-query-integration P03-08-provider-fallback-confidence | 11 min | 3 tasks | 12 files |
+| Phase 03-advisory-runner-query-integration P03-09-runtime-contract-events | 6 min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -86,10 +89,18 @@ Recent decisions affecting current work:
 - [Phase 03 Plan 03-05]: Compile success logging is locked by an exact counts assertion covering commands, workflows, agents, hooks, and outliers.
 - [Phase 03 Plan 03-03]: `thread.*` query handlers read durable FSM state only and never shell out.
 - [Phase 03 Plan 03-03]: `phase.edit` remains an allowlisted FSM mutation surface for `currentState`, `resume.status`, `autoMode.active`, and `autoMode.source`.
+- [Phase Phase 03 Plan 03-07]: InitRunner default mode now requires an existing .planning directory and emits init_required when it is absent. — Preserves advisory resume semantics and avoids default SDK file writes before runtime execution owns the workflow.
+- [Phase Phase 03 Plan 03-07]: Advisory packet evidence is surfaced through InitStepResult.artifacts using packet expectedEvidence values. — Default init can report deterministic packet evidence without writing project artifacts directly.
+- [Phase Phase 03 Plan 03-07]: Legacy init file-writing and model-backed behavior is retained only behind legacyModelBacked: true. — Maintains compatibility while keeping the default billing boundary free of SDK-owned model sessions.
+- [Phase 03 Plan 03-08]: Provider fallback metadata is persisted atomically on FSM transition history entries. — Reduced-confidence transitions retain durable missing-provider history.
+- [Phase 03 Plan 03-08]: `fsm.confidence` derives from history only and does not perform live provider checks. — Confidence queries remain offline and deterministic.
+- [Phase 03 Plan 03-08]: Production provider status source remains unexported in this phase. — Tests inject ProviderStatusSource while preserving the default billing boundary.
+- [Phase 03 Plan 03-09]: Runtime contract validators split pre-emit worktree/marker structural failures from post-success absent markers/artifacts. — Phase 4 parity can observe unsafe execution and false-success failures through typed events.
+- [Phase 03 Plan 03-09]: WorkflowRunner packets include command classification agentTypes for AgentEntry contract validation. — Packet agents now provide concrete contract targets before emission.
 
 ### Pending Todos
 
-- Execute Phase 3 — Advisory Runner + Query Integration
+- Begin Phase 4 — Parity Suite + gsd-post-update Retirement
 
 ### Blockers/Concerns
 
@@ -113,6 +124,6 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 ## Session Continuity
 
-Last session: 2026-04-28T01:38:55Z
-Stopped at: Phase 3 plan 03-03 phase edit thread query aliases complete (backfill; 03-06 remains next)
-Resume file: .planning/phases/03-advisory-runner-query-integration/03-06-PLAN.md
+Last session: 2026-04-28T02:52:53Z
+Stopped at: Completed 03-09-runtime-contract-events PLAN.md
+Resume file: .planning/ROADMAP.md

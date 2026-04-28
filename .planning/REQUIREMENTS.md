@@ -86,21 +86,21 @@
 
 - [x] **AGNT-01**: The Phase 1 agent contract manifest enumerates all 33 agents with role class, allowed tools, `diskWriteMandate`, `worktreeRequired`, output artefacts, and completion marker
 - [x] **AGNT-02**: The 14 disk-write-mandate agents are marked in the manifest and used by packet validation before any runner migration
-- [ ] **AGNT-03**: Missing completion markers after an agent reports success emit typed `completion-marker-missing` events before parity testing
-- [ ] **AGNT-04**: A packet targeting a `worktreeRequired` agent when no worktree is active emits `worktree-required` before execution is requested
+- [x] **AGNT-03**: Missing completion markers after an agent reports success emit typed `completion-marker-missing` events before parity testing
+- [x] **AGNT-04**: A packet targeting a `worktreeRequired` agent when no worktree is active emits `worktree-required` before execution is requested
 
 ### Workflow-Agnostic Advisory Runner
 
 - [x] **RNNR-01**: The advisory runner supports the classified workflow patterns from the compiler manifest rather than assuming every workflow follows the existing phase chain
 - [ ] **RNNR-02**: The existing `PhaseRunner` canonical phase chain (`discuss → research → plan → plan-check → execute → verify → advance`) is preserved with identical transitions, locking behaviour, and emitted packet sequence
-- [ ] **RNNR-03**: The existing `InitRunner` behaviour is preserved with identical deterministic transitions while removing default model-backed orchestration from the advisory path
+- [x] **RNNR-03**: The existing `InitRunner` behaviour is preserved with identical deterministic transitions while removing default model-backed orchestration from the advisory path
 - [ ] **RNNR-04**: Nyquist P4 compliance is encoded as a distinct FSM state (`p4-compliance`) after `verify` and before `advance`, not merged into `verify`
 - [x] **RNNR-05**: The runner emits exactly one instruction packet per state transition — no batch emissions
 - [x] **RNNR-06**: The runner contains no tool-execution calls; it only emits packets and awaits outcome reports from the runtime
 - [x] **RNNR-07**: Hard outliers (`/gsd-graphify`, `/gsd-from-gsd2`, `/gsd-ultraplan-phase`, `/gsd-review`, `/gsd-fast`) are classified `hard-outlier` in the manifest and bypassed by the advisory runner
 - [x] **RNNR-08**: Every deterministic workflow step sequence emitted by the advisory runner is stable for a fixed config snapshot; model output affects runtime reports, not advisory packet selection
 - [x] **RNNR-09**: Dynamic-branch workflows are explicitly classified and tested through branch-specific harnesses rather than hidden model-dependent goldens
-- [ ] **RNNR-10**: Provider fallback is represented by typed runner transitions that record reduced confidence and missing providers atomically
+- [x] **RNNR-10**: Provider fallback is represented by typed runner transitions that record reduced confidence and missing providers atomically
 
 ### Query Registry FSM Integration
 
@@ -122,19 +122,19 @@
 ### Error Handling and Observability
 
 - [x] **ERRT-01**: Every failed FSM transition emits a typed error event with `code`, `message`, and `recoveryHint`
-- [ ] **ERRT-02**: Packet schema validation failure surfaces a machine-readable error naming failing field, `stepId`, and `workflowId`
+- [x] **ERRT-02**: Packet schema validation failure surfaces a machine-readable error naming failing field, `stepId`, and `workflowId`
 - [x] **ERRT-03**: A missing `.planning/` directory causes the runner to emit a typed `init-required` error event, not an unhandled exception
 - [x] **ERRT-04**: Stale lock detection surfaces a typed `lock-stale` event with lock holder identity and lock age in seconds
 - [x] **LOGG-01**: Every FSM state transition is appended to workstream transition history with ISO-8601 timestamp, `fromState`, `toState`, `runId`, and `outcome`
-- [ ] **LOGG-02**: Reduced-confidence operations append `reducedConfidence: true` and `missingProvider: <name>` to the same atomic transition history entry
+- [x] **LOGG-02**: Reduced-confidence operations append `reducedConfidence: true` and `missingProvider: <name>` to the same atomic transition history entry
 - [x] **LOGG-03**: Every successful `gsd-sdk compile` run logs command, workflow, agent, hook, and outlier counts
 
 ### Provider Fallback
 
-- [ ] **PROV-01**: When a provider is unavailable at a verification or auto-discussion step, the runner completes the transition using remaining providers and records `reducedConfidence: true`
-- [ ] **PROV-02**: Missing provider legs are recorded in transition history within the same atomic write as the transition itself — no indefinite stalls or hidden retries
-- [ ] **PROV-03**: `gsd-sdk query fsm.confidence <workstream>` returns `full` or `reduced:<missing-provider>` for the current run
-- [ ] **PROV-04**: Reduced-confidence transitions use typed FSM states and metadata, not ad hoc prose injected into packet instructions
+- [x] **PROV-01**: When a provider is unavailable at a verification or auto-discussion step, the runner completes the transition using remaining providers and records `reducedConfidence: true`
+- [x] **PROV-02**: Missing provider legs are recorded in transition history within the same atomic write as the transition itself — no indefinite stalls or hidden retries
+- [x] **PROV-03**: `gsd-sdk query fsm.confidence <workstream>` returns `full` or `reduced:<missing-provider>` for the current run
+- [x] **PROV-04**: Reduced-confidence transitions use typed FSM states and metadata, not ad hoc prose injected into packet instructions
 
 ### Hook Install / Build Path
 
