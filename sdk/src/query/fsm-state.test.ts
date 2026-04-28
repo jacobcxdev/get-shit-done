@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -51,6 +51,27 @@ describe('FSM query handlers', () => {
 
     const raw = await readFile(join(projectDir, '.planning', 'fsm-state.json'), 'utf-8');
     expect(JSON.parse(raw).autoMode).toEqual({ active: false, source: 'none' });
+  });
+
+  it('rejects unsupported FSM schema versions for read and edit queries without mutating the file', async () => {
+    const registry = createRegistry();
+    await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
+    const statePath = join(projectDir, '.planning', 'fsm-state.json');
+    const initialRaw = await readFile(statePath, 'utf-8');
+    const state = JSON.parse(initialRaw) as Record<string, unknown>;
+    state.stateSchemaVersion = 999;
+    const unsupportedRaw = `${JSON.stringify(state, null, 2)}\n`;
+    await writeFile(statePath, unsupportedRaw, 'utf-8');
+
+    for (const command of ['fsm.state', 'fsm.history', 'fsm.confidence']) {
+      await expect(registry.dispatch(command, [], projectDir))
+        .rejects.toMatchObject({ code: 'schema-version-mismatch' });
+    }
+
+    await expect(registry.dispatch('phase.edit', ['currentState', 'advance'], projectDir))
+      .rejects.toMatchObject({ code: 'schema-version-mismatch' });
+
+    await expect(readFile(statePath, 'utf-8')).resolves.toBe(unsupportedRaw);
   });
 
   it('dispatches lock.status and lock status aliases', async () => {
@@ -285,6 +306,34 @@ describe('FSM query handlers', () => {
     };
     expect(state.resume).toEqual({ status: 'active' });
     expect(state.autoMode).toEqual({ active: true, source: 'both' });
+  });
+
+  it('does not mutate the parsed phase.edit state object before a failed write', async () => {
+    const registry = createRegistry();
+    await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
+    const statePath = join(projectDir, '.planning', 'fsm-state.json');
+    const initialRaw = await readFile(statePath, 'utf-8');
+    const parsedState = JSON.parse(initialRaw) as Record<string, unknown>;
+    parsedState.stateSchemaVersion = 999;
+    const unsupportedRaw = `${JSON.stringify(parsedState, null, 2)}\n`;
+    await writeFile(statePath, unsupportedRaw, 'utf-8');
+
+    const originalParse = JSON.parse;
+    const parseSpy = vi.spyOn(JSON, 'parse').mockImplementation((text, reviver) => {
+      if (text === unsupportedRaw) {
+        return parsedState;
+      }
+      return originalParse(text, reviver);
+    });
+
+    try {
+      await expect(registry.dispatch('phase.edit', ['currentState', 'advance'], projectDir))
+        .rejects.toMatchObject({ code: 'schema-version-mismatch' });
+      expect(parsedState.currentState).toBe('verify');
+      expect(parsedState.updatedAt).toBe((originalParse(unsupportedRaw) as Record<string, unknown>).updatedAt);
+    } finally {
+      parseSpy.mockRestore();
+    }
   });
 
   it('dispatches thread metadata aliases from durable FSM state', async () => {

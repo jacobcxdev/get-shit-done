@@ -55,11 +55,13 @@ describe('runtime contract validation', () => {
 
     expect(events).toContainEqual(expect.objectContaining({
       type: GSDEventType.WorktreeRequired,
+      code: 'WORKTREE_REQUIRED',
+      message: "Packet targets agent 'gsd-executor' which requires an active git worktree",
       workflowId: '/workflows/execute-plan',
       stepId: 'execute:plan',
       agentId: 'gsd-executor',
       blocksEmission: true,
-      recoveryHint: 'Create or attach an agent worktree before executing this packet',
+      recoveryHint: 'Activate a git worktree before dispatching this packet, then retry',
     }));
   });
 
@@ -70,11 +72,15 @@ describe('runtime contract validation', () => {
 
     expect(events).toContainEqual(expect.objectContaining({
       type: GSDEventType.CompletionMarkerMissing,
+      code: 'COMPLETION_MARKER_MISSING',
+      message:
+        "Packet for workflowId='/workflows/execute-plan' stepId='execute:plan' is missing required completion marker declaration",
       workflowId: '/workflows/execute-plan',
       stepId: 'execute:plan',
       agentId: 'gsd-executor',
       expectedMarkers: ['## PLAN COMPLETE'],
       blocksEmission: true,
+      recoveryHint: 'Add expected evidence declaration to the packet definition then re-compile',
     }));
   });
 
@@ -91,11 +97,16 @@ describe('runtime contract validation', () => {
 
     expect(events).toContainEqual(expect.objectContaining({
       type: GSDEventType.CompletionMarkerAbsent,
+      code: 'COMPLETION_MARKER_ABSENT',
+      message:
+        "Required marker '## PLAN COMPLETE' was not found after runtime success for workflowId='/workflows/execute-plan' stepId='execute:plan'",
       workflowId: '/workflows/execute-plan',
       stepId: 'execute:plan',
       agentId: 'gsd-executor',
+      markerId: '## PLAN COMPLETE',
       expectedMarkers: ['## PLAN COMPLETE'],
       blocksTransition: true,
+      recoveryHint: 'Re-run the agent step or verify the required marker was written, then retry the FSM transition',
     }));
   });
 
@@ -112,11 +123,17 @@ describe('runtime contract validation', () => {
 
     expect(events).toContainEqual(expect.objectContaining({
       type: GSDEventType.CompletionMarkerAbsent,
+      code: 'COMPLETION_MARKER_ABSENT',
+      message:
+        "Required artifact 'SUMMARY.md' was not found after runtime success for workflowId='/workflows/execute-plan' stepId='execute:plan'",
       workflowId: '/workflows/execute-plan',
       stepId: 'execute:plan',
       agentId: 'gsd-executor',
-      expectedMarkers: ['SUMMARY.md'],
+      expectedMarkers: [],
+      artifactPaths: ['SUMMARY.md'],
       blocksTransition: true,
+      recoveryHint: 'Re-run the agent step or verify the required marker was written, then retry the FSM transition',
     }));
+    expect(events[0]).not.toHaveProperty('markerId');
   });
 });

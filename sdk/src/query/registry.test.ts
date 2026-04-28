@@ -3,7 +3,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { mkdir, mkdtemp, rm, utimes, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { QueryRegistry, extractField, resolveQueryArgv } from './registry.js';
@@ -172,6 +172,32 @@ describe('createRegistry', () => {
     ]) {
       expect(registry.has(command)).toBe(true);
     }
+  });
+
+  it('rejects unsupported FSM schema versions for thread metadata aliases without subprocess fallback', async () => {
+    const projectDir = await mkdtemp(join(tmpdir(), 'gsd-registry-thread-schema-'));
+    tempDirs.push(projectDir);
+    await mkdir(join(projectDir, '.planning'), { recursive: true });
+    await writeFile(join(projectDir, '.planning', 'config.json'), JSON.stringify({
+      workflow: { auto_advance: false },
+      codex_model: 'gpt-5.5',
+    }), 'utf-8');
+
+    const registry = createRegistry();
+    await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify', 'demo'], projectDir);
+    const statePath = join(projectDir, '.planning', 'workstreams', 'demo', 'fsm-state.json');
+    const raw = await readFile(statePath, 'utf-8');
+    const state = JSON.parse(raw) as Record<string, unknown>;
+    state.stateSchemaVersion = 999;
+    await writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, 'utf-8');
+
+    for (const command of ['thread.id', 'thread.workstream', 'thread.session']) {
+      await expect(registry.dispatch(command, ['demo'], projectDir))
+        .rejects.toMatchObject({ code: 'schema-version-mismatch' });
+    }
+
+    const threadSource = await readFile(new URL('./thread.ts', import.meta.url), 'utf-8');
+    expect(threadSource).not.toMatch(/child_process|execFile|spawn|GSDTools/);
   });
 
   it('emits an FSMTransition event for fsm.transition mutations', async () => {
