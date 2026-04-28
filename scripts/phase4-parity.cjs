@@ -196,6 +196,7 @@ const steps = [
         if (filePath === TOMBSTONE_PATH) return true;
         // Structured disposition manifest JSON fields only
         if (/["']?behaviour["']?\s*:/.test(lineContent)) return true;
+        if (/["']?absorptionCommand["']?\s*:/.test(lineContent)) return true;
         if (/["']?evidenceCheck["']?\s*:/.test(lineContent)) return true;
         if (/["']?targetSurface["']?\s*:/.test(lineContent)) return true;
         // Requirement ID references (e.g. UPDT-01, UPDT-B-RETIREMENT)

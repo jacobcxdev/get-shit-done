@@ -1,5 +1,14 @@
 [
   {
+    "behaviour": "gsd-post-update script invocation (user-local only - no repo-owned entrypoint)",
+    "disposition": "absorbed",
+    "evidenceCheck": "node -e \"const p=require('./package.json'); if(p.bin&&p.bin['gsd-post-update'])throw new Error('bin entry exists'); console.log('OK: no repo-owned entrypoint')\"",
+    "id": "UPDT-B-RETIREMENT",
+    "requirementId": "UPDT-04",
+    "retirementStatus": "unblocked",
+    "targetSurface": "N/A - no repo-owned entrypoint exists"
+  },
+  {
     "behaviour": "skill-file slimming",
     "disposition": "absorbed",
     "evidenceCheck": "node -e \"const c=JSON.parse(require('fs').readFileSync('sdk/src/generated/compile/command-classification.json','utf8')); if(!Array.isArray(c)||c.length!==86) throw new Error('command classification manifest missing full corpus')\"",

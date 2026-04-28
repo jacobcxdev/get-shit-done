@@ -104,6 +104,7 @@ describe('Retirement gate - disposition manifest completeness', () => {
     function isAllowedLine(lineContent: string, filePath: string): boolean {
       if (filePath === tombstonePath) return true;
       if (/["']?behaviour["']?\s*:/.test(lineContent)) return true;
+      if (/["']?absorptionCommand["']?\s*:/.test(lineContent)) return true;
       if (/["']?evidenceCheck["']?\s*:/.test(lineContent)) return true;
       if (/["']?targetSurface["']?\s*:/.test(lineContent)) return true;
       if (/\bUPDT-[A-Z0-9-]+\b/.test(lineContent) && lineContent.includes(':')) return true;

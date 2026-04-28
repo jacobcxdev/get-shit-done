@@ -190,5 +190,13 @@
     "targetSurface": "sdk/src/query/state-mutation.ts | sdk/src/query/helpers.ts",
     "absorptionCommand": "node -e \"const s=require('fs').readFileSync('sdk/src/query/state-mutation.ts','utf8'); if(!s.includes('acquireStateLock')||!s.includes('readModifyWriteStateMd')) throw new Error('atomic state mutation helpers missing')\"",
     "open": false
+  },
+  {
+    "id": "UPDT-B-RETIREMENT",
+    "behaviour": "gsd-post-update script invocation (user-local only - no repo-owned entrypoint)",
+    "requirementId": "UPDT-04",
+    "targetSurface": "N/A - no repo-owned entrypoint exists",
+    "absorptionCommand": "node -e \"const p=require('./package.json'); if(p.bin&&p.bin['gsd-post-update'])throw new Error('bin entry exists'); console.log('OK: no repo-owned entrypoint')\"",
+    "open": false
   }
 ]
