@@ -108,6 +108,25 @@ describe('runCompiler', () => {
     expect(report.counts).toEqual({ commands: 1, workflows: 1, agents: 1, hooks: 1 });
   });
 
+  it('logs compile counts for successful non-json runs', async () => {
+    const projectDir = await makeProject();
+    projects.push(projectDir);
+    await writeWorkflow(projectDir, 'demo');
+    await writeCommand(projectDir, 'add-phase', 'demo');
+    await writeFile(
+      join(projectDir, 'agents', 'gsd-demo.md'),
+      '---\nname: gsd-demo\ndescription: Demo agent\ntools: Read\n---\n\n# Demo\n',
+    );
+    await writeFile(join(projectDir, 'hooks', 'gsd-demo.js'), 'console.log("demo");\n');
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+
+    await runCompiler(projectDir, { json: false, check: false, write: false });
+
+    expect(log).toHaveBeenCalledWith(expect.stringContaining(
+      'Commands: 1 | Workflows: 1 | Agents: 1 | Hooks: 1 | Outliers: 0',
+    ));
+  });
+
   it('validates non-empty packetDefinitions through compiler integration', async () => {
     const projectDir = await makeProject();
     projects.push(projectDir);

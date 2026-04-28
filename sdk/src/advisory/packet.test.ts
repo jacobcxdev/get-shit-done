@@ -100,4 +100,16 @@ describe('validateAdvisoryPacket', () => {
       field: 'executionConstraints.run_in_background',
     }));
   });
+
+  it('includes field, workflowId, and stepId on malformed packet issues', () => {
+    expect(validateAdvisoryPacket(validPacket({
+      workflowId: 'workflow-b',
+      stepId: 'step-b',
+      configSnapshotHash: 'not-a-hash',
+    }))).toContainEqual(expect.objectContaining({
+      field: 'configSnapshotHash',
+      workflowId: 'workflow-b',
+      stepId: 'step-b',
+    }));
+  });
 });

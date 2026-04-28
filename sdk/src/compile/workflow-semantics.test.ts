@@ -48,6 +48,15 @@ describe('inferWorkflowSemanticManifest', () => {
       [...first.semantics.map((entry) => entry.family)].sort((a, b) => a.localeCompare(b)),
     );
   });
+
+  it('includes branchIds for inferred mode-dispatch semantics', () => {
+    const manifest = inferWorkflowSemanticManifest('/workflows/demo', 'Choose mode from --auto.');
+
+    expect(manifest.semantics).toContainEqual(expect.objectContaining({
+      family: 'mode-dispatch',
+      branchIds: ['mode:auto'],
+    }));
+  });
 });
 
 describe('validateWorkflowSemanticManifests', () => {
@@ -72,6 +81,32 @@ describe('validateWorkflowSemanticManifests', () => {
       id: '/workflows/demo',
       path: '/workflows/demo',
       field: 'semantics[0].family',
+    }));
+  });
+
+  it('maps missing mode-dispatch branchIds to WFSM-08 diagnostics', () => {
+    const diagnostics: CompileDiagnostic[] = [];
+
+    expect(validateWorkflowSemanticManifests([
+      {
+        workflowId: '/workflows/demo',
+        semantics: [
+          {
+            family: 'mode-dispatch',
+            modes: ['auto'],
+            priority: ['mode'],
+            provenance: 'audit-inference',
+          },
+        ],
+      } as never,
+    ], diagnostics)).toEqual({ count: 1 });
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      code: 'WFSM-08',
+      kind: 'workflow',
+      id: '/workflows/demo',
+      path: '/workflows/demo',
+      field: 'semantics[0].branchIds',
     }));
   });
 });

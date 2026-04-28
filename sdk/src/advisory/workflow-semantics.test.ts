@@ -27,7 +27,13 @@ const EXPECTED_FAMILIES = [
 ] as const;
 
 const VALID_ENTRIES: WorkflowSemanticEntry[] = [
-  { family: 'mode-dispatch', modes: ['auto'], priority: ['auto'], provenance: 'audit-inference' },
+  {
+    family: 'mode-dispatch',
+    modes: ['auto'],
+    branchIds: ['mode:auto'],
+    priority: ['auto'],
+    provenance: 'audit-inference',
+  },
   {
     family: 'hitl',
     suspensionPoints: ['checkpoint'],
@@ -105,6 +111,11 @@ describe('WorkflowSemanticManifest contract', () => {
 
   it('rejects empty required arrays', () => {
     expect(fieldsFor(manifest([{ ...VALID_ENTRIES[0], modes: [] }]))).toContain('semantics[0].modes');
+  });
+
+  it('requires branchIds for mode-dispatch semantics', () => {
+    const entry = VALID_ENTRIES.find((item) => item.family === 'mode-dispatch') as Record<string, unknown>;
+    expectFieldIssue(entry, 'branchIds', 'semantics[0].branchIds', undefined);
   });
 });
 
