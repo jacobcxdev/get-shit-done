@@ -10,8 +10,12 @@ import {
   type ProviderTransitionMetadata,
 } from './provider-availability.js';
 import { configSnapshotHash } from './routing.js';
+import {
+  validatePreEmitRuntimeContract,
+  type RuntimeWorktreeContext,
+} from './runtime-contracts.js';
 import type { WorkflowSemanticManifest } from './workflow-semantics.js';
-import type { ClassificationEntry, WorkflowEntry } from '../compile/types.js';
+import type { AgentEntry, ClassificationEntry, WorkflowEntry } from '../compile/types.js';
 
 export type WorkflowSupportDisposition =
   | 'packet-template'
@@ -63,6 +67,8 @@ export type WorkflowRunnerDispatchInput = {
   onFailure?: string;
   providerAvailability?: ProviderAvailabilityResult;
   mandatoryProviders?: ProviderName[];
+  agentContracts?: AgentEntry[];
+  worktreeContext?: RuntimeWorktreeContext;
 };
 
 export type WorkflowSupportMatrixEntry = {
@@ -271,10 +277,26 @@ export class WorkflowRunner {
       };
     }
 
+    const packet = this.packetFor(input, workflowId, stepId, command);
+    const runtimeContractEvents = validatePreEmitRuntimeContract(
+      packet,
+      input.agentContracts ?? [],
+      input.worktreeContext ?? {},
+    );
+    if (runtimeContractEvents.length > 0) {
+      return {
+        kind: 'error',
+        code: 'dispatch-error',
+        message: runtimeContractEvents[0].type,
+        workflowId,
+        commandId: input.commandId,
+      };
+    }
+
     const providerMetadata = reducedProviderMetadata(input.providerAvailability);
     return {
       kind: 'packet',
-      packet: this.packetFor(input, workflowId, stepId),
+      packet,
       ...(providerMetadata ? { providerMetadata } : {}),
     };
   }
@@ -301,7 +323,12 @@ export class WorkflowRunner {
     };
   }
 
-  private packetFor(input: WorkflowRunnerDispatchInput, workflowId: string, stepId: string): AdvisoryPacket {
+  private packetFor(
+    input: WorkflowRunnerDispatchInput,
+    workflowId: string,
+    stepId: string,
+    command: ClassificationEntry | undefined,
+  ): AdvisoryPacket {
     return {
       schemaVersion: CURRENT_ADVISORY_PACKET_SCHEMA_VERSION,
       runId: input.runId,
@@ -312,7 +339,7 @@ export class WorkflowRunner {
       instruction: `Execute workflow ${workflowId} step ${stepId} and report one allowed outcome.`,
       requiredContext: [],
       allowedTools: [],
-      agents: [],
+      agents: command?.agentTypes ?? [],
       expectedEvidence: [`workflow:${workflowId}`, `step:${stepId}`],
       allowedOutcomes: ['success', 'failure', 'skipped'],
       reportCommand: REPORT_COMMAND,

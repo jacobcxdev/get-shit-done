@@ -278,6 +278,9 @@ export enum GSDEventType {
   InitRequired = 'init_required',
   LockStale = 'lock_stale',
   P4ComplianceFailed = 'p4_compliance_failed',
+  WorktreeRequired = 'worktree_required',
+  CompletionMarkerMissing = 'completion_marker_missing',
+  CompletionMarkerAbsent = 'completion_marker_absent',
 }
 
 /**
@@ -839,6 +842,42 @@ export interface GSDP4ComplianceFailedEvent extends GSDEventBase {
 }
 
 /**
+ * Packet emission is blocked because the selected agent requires an active worktree.
+ */
+export interface GSDWorktreeRequiredEvent extends GSDEventBase {
+  type: GSDEventType.WorktreeRequired;
+  workflowId: string;
+  stepId: string;
+  agentId: string;
+  recoveryHint: string;
+  blocksEmission: true;
+}
+
+/**
+ * Packet emission is blocked because expected evidence omits a required completion marker.
+ */
+export interface GSDCompletionMarkerMissingEvent extends GSDEventBase {
+  type: GSDEventType.CompletionMarkerMissing;
+  workflowId: string;
+  stepId: string;
+  agentId: string;
+  expectedMarkers: string[];
+  blocksEmission: true;
+}
+
+/**
+ * Runtime success cannot advance because required markers or artifacts are absent.
+ */
+export interface GSDCompletionMarkerAbsentEvent extends GSDEventBase {
+  type: GSDEventType.CompletionMarkerAbsent;
+  workflowId: string;
+  stepId: string;
+  agentId: string;
+  expectedMarkers: string[];
+  blocksTransition: true;
+}
+
+/**
  * Discriminated union of all GSD events.
  */
 export type GSDEvent =
@@ -881,7 +920,10 @@ export type GSDEvent =
   | GSDPhaseEditEvent
   | GSDInitRequiredEvent
   | GSDLockStaleEvent
-  | GSDP4ComplianceFailedEvent;
+  | GSDP4ComplianceFailedEvent
+  | GSDWorktreeRequiredEvent
+  | GSDCompletionMarkerMissingEvent
+  | GSDCompletionMarkerAbsentEvent;
 
 /**
  * Transport handler interface for consuming GSD events.
