@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 03-09-runtime-contract-events PLAN.md
-last_updated: "2026-04-28T02:52:53Z"
+status: ready_to_execute
+stopped_at: Completed 03-10-p4-chain-gap-closure PLAN.md
+last_updated: "2026-04-28T04:03:06Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 6
-  completed_phases: 2
-  total_plans: 20
-  completed_plans: 20
+  completed_phases: 3
+  total_plans: 21
+  completed_plans: 21
   percent: 100
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-27)
 
 **Core value:** The SDK emits one atomic instruction packet at a time; the runtime executes it and reports back — `gsd-post-update` must become unnecessary.
-**Current focus:** Phase 3 — Advisory Runner + Query Integration (executing)
+**Current focus:** Phase 3 — Advisory Runner + Query Integration (complete)
 
 ## Current Position
 
 Phase: 3 of 6 (advisory runner + query integration)
-Plan: 03-09 of 9 complete
+Plan: 03-10 of 10 complete
 Status: Phase Complete
 Last activity: 2026-04-28
 
@@ -36,10 +36,10 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 16
-- Total plans completed: 16
+- Total plans completed: 21
+- Total plans completed: 21
 - Average duration: 10 min
-- Total execution time: 1.85 hours
+- Total execution time: 1.98 hours
 
 **By Phase:**
 
@@ -47,12 +47,12 @@ Progress: [██████████] 100%
 |-------|-------|-------|----------|
 | 1. Compiler / Audit Foundation | 7 | 78 min | 11 min |
 | 2 | 4 | - | - |
-| 3. Advisory Runner + Query Integration | 5 | 39 min | 8 min |
+| 3. Advisory Runner + Query Integration | 10 | 86 min | 9 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 11 min, 10 min, 6 min, 4 min, 8 min
-- Trend: Phase edit thread query aliases complete
+- Last 5 plans: 4 min, 7 min, 11 min, 6 min, 8 min
+- Trend: P4 chain gap closure complete
 
 *Updated after each plan completion*
 | Phase 02 PPLAN-01-packet-schema | 8min | 3 tasks | 10 files |
@@ -66,6 +66,7 @@ Progress: [██████████] 100%
 | Phase 03-advisory-runner-query-integration P03-07-init-runner-advisory | 7 min | 3 tasks | 4 files |
 | Phase 03-advisory-runner-query-integration P03-08-provider-fallback-confidence | 11 min | 3 tasks | 12 files |
 | Phase 03-advisory-runner-query-integration P03-09-runtime-contract-events | 6 min | 3 tasks | 7 files |
+| Phase 03-advisory-runner-query-integration 03-10-p4-chain-gap-closure | 8 min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,9 @@ Recent decisions affecting current work:
 - [Phase 03 Plan 03-08]: Production provider status source remains unexported in this phase. — Tests inject ProviderStatusSource while preserving the default billing boundary.
 - [Phase 03 Plan 03-09]: Runtime contract validators split pre-emit worktree/marker structural failures from post-success absent markers/artifacts. — Phase 4 parity can observe unsafe execution and false-success failures through typed events.
 - [Phase 03 Plan 03-09]: WorkflowRunner packets include command classification agentTypes for AgentEntry contract validation. — Packet agents now provide concrete contract targets before emission.
+- [Phase 03 Plan 03-10]: Disabled P4 skip history uses `advanceFsmState()` so it shares the same lock-protected FSM transition path as query handlers.
+- [Phase 03 Plan 03-10]: Missing FSM initialization is non-fatal only for disabled P4 skip recording; malformed or unreadable FSM state still fails fast.
+- [Phase 03 Plan 03-10]: RNNR/P4NY traceability checkboxes were closed only after focused P4/FSM, advisory/query/init, integration, and build gates passed.
 
 ### Pending Todos
 
@@ -124,6 +128,6 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 ## Session Continuity
 
-Last session: 2026-04-28T02:52:53Z
-Stopped at: Completed 03-09-runtime-contract-events PLAN.md
-Resume file: .planning/ROADMAP.md
+Last session: 2026-04-28T04:03:06Z
+Stopped at: Completed 03-10-p4-chain-gap-closure PLAN.md
+Resume file: None
