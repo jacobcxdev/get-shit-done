@@ -6,7 +6,13 @@
 export type SemanticProvenance = 'workflow-text' | 'command-metadata' | 'config' | 'audit-inference';
 
 export type WorkflowSemanticEntry =
-  | { family: 'mode-dispatch'; modes: string[]; priority: string[]; provenance: SemanticProvenance }
+  | {
+    family: 'mode-dispatch';
+    modes: string[];
+    priority: string[];
+    branchIds: string[];
+    provenance: SemanticProvenance;
+  }
   | {
     family: 'hitl';
     suspensionPoints: string[];
@@ -187,6 +193,7 @@ function validateEntryFields(
     case 'mode-dispatch':
       validateStringArray(entry, 'modes', `${path}.modes`, issues);
       validateStringArray(entry, 'priority', `${path}.priority`, issues);
+      validateStringArray(entry, 'branchIds', `${path}.branchIds`, issues);
       return;
     case 'hitl':
       validateStringArray(entry, 'suspensionPoints', `${path}.suspensionPoints`, issues);

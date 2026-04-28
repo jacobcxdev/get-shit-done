@@ -24,12 +24,16 @@ type CountResult = {
 const SEMANTIC_CHECKS: SemanticCheck[] = [
   {
     pattern: /--(?:auto|reviews|gaps|prd|skip-research|skip-verify)|mode|flag/i,
-    create: () => ({
-      family: 'mode-dispatch',
-      modes: ['auto', 'reviews', 'gaps', 'prd', 'skip-research', 'skip-verify'],
-      priority: ['flag', 'mode', 'default'],
-      provenance: 'audit-inference',
-    }),
+    create: () => {
+      const modes = ['auto', 'reviews', 'gaps', 'prd', 'skip-research', 'skip-verify'];
+      return {
+        family: 'mode-dispatch',
+        modes,
+        priority: ['flag', 'mode', 'default'],
+        branchIds: modes.map((mode) => `mode:${mode}`),
+        provenance: 'audit-inference',
+      };
+    },
   },
   {
     pattern: /AskUserQuestion|checkpoint|human-verify|pause/i,
