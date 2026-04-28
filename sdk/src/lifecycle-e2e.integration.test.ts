@@ -1,6 +1,6 @@
 /**
  * E2E lifecycle integration test — proves GSD.runPhase() drives
- * the full phase lifecycle: discuss → research → plan → execute → verify → advance
+ * the full phase lifecycle: discuss → research → plan → plan-check → execute → verify → p4-compliance → advance
  * after bootstrapping a real project via InitRunner.
  *
  * This is the capstone proof that `gsd-sdk auto` works end-to-end
@@ -50,7 +50,8 @@ const STEP_ORDER: Record<string, number> = {
   [PhaseStepType.PlanCheck]: 3,
   [PhaseStepType.Execute]: 4,
   [PhaseStepType.Verify]: 5,
-  [PhaseStepType.Advance]: 6,
+  [PhaseStepType.P4Compliance]: 6,
+  [PhaseStepType.Advance]: 7,
 };
 
 // ─── Test suite ──────────────────────────────────────────────────────────────

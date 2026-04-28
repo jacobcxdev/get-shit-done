@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { PhaseRunner, PhaseRunnerError } from './phase-runner.js';
 import type { PhaseRunnerDeps, VerificationOutcome } from './phase-runner.js';
+import { createInitialFsmRunState, fsmStatePath, writeFsmState } from './advisory/fsm-state.js';
 import type {
   PhaseOpInfo,
   PlanResult,
@@ -307,6 +308,9 @@ describe('PhaseRunner', () => {
       const verifyDispatches = dispatchInputs.filter(input => input.stepId === 'verify');
       const p4Dispatches = dispatchInputs.filter(input => input.stepId === 'p4-compliance');
       expect(verifyDispatches).toHaveLength(1);
+      expect(p4Dispatches).toHaveLength(1);
+      expect(JSON.stringify(verifyDispatches[0])).not.toContain('p4-compliance');
+      expect(JSON.stringify(verifyDispatches[0])).not.toContain('p4ComplianceEvidenceId');
       expect(p4Dispatches).toEqual([
         expect.objectContaining({
           stateId: 'p4-compliance',
@@ -315,9 +319,48 @@ describe('PhaseRunner', () => {
           onFailure: 'p4-gap-closure',
         }),
       ]);
+      expect(p4Step?.packet?.expectedEvidence).toEqual(['p4ComplianceEvidenceId']);
 
       const stepTypes = result.steps.map(s => s.step);
       expect(stepTypes.indexOf(PhaseStepType.Verify)).toBeLessThan(stepTypes.indexOf(PhaseStepType.P4Compliance));
+    });
+
+    it('records disabled P4 as skipped in FSM transition history when state exists', async () => {
+      const projectDir = await mkdtemp(join(tmpdir(), 'gsd-phase-runner-p4-'));
+      const config = makeConfig({ workflow: { nyquist_validation: false } as any });
+
+      try {
+        const state = createInitialFsmRunState({
+          runId: 'phase-1',
+          workflowId: '/workflows/execute-phase',
+          workstream: null,
+          currentState: 'verify',
+          config,
+          now: '2026-04-28T00:00:00.000Z',
+        });
+        await writeFsmState(projectDir, undefined, state);
+
+        const deps = makeDeps({ projectDir, config });
+        const runner = new PhaseRunner(deps);
+        const result = await runner.run('1');
+
+        const persisted = JSON.parse(await readFile(fsmStatePath(projectDir), 'utf-8'));
+        expect(persisted.currentState).toBe('p4-compliance');
+        expect(persisted.transitionHistory.at(-1)).toMatchObject({
+          fromState: 'verify',
+          toState: 'p4-compliance',
+          outcome: 'skipped',
+          runId: 'phase-1',
+        });
+
+        const p4Step = result.steps.find(s => s.step === PhaseStepType.P4Compliance);
+        expect((p4Step?.data as any)?.transition).toMatchObject({
+          toState: 'p4-compliance',
+          outcome: 'skipped',
+        });
+      } finally {
+        await rm(projectDir, { recursive: true, force: true });
+      }
     });
 
     it('records P4 disabled as a skipped outcome', async () => {
