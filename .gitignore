@@ -8,6 +8,9 @@ commands.html
 # Local test installs
 .claude/
 
+# Local tool state (OMC session files, project memory)
+.omc/
+
 # Cursor IDE — local agents/skills bundle (never commit)
 .cursor/
 
