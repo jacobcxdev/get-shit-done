@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-04-29T01:59:49.978Z"
+status: complete
+stopped_at: Completed 06-05-PLAN.md (slim eligibility pilot scan — BLOCKED — Phase 6 complete)
+last_updated: "2026-04-29T02:24:00Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 6
   total_plans: 40
   completed_plans: 40
   percent: 100
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 
 ## Current Position
 
-Phase: 06 (compatibility-cleanup-hard-outlier-posturing-v2) — EXECUTING
-Plan: 3 of 5
-Status: Ready to execute
+Phase: 06 (compatibility-cleanup-hard-outlier-posturing-v2) — COMPLETE
+Plan: 5 of 5
+Status: All plans complete — Phase 6 done
 Last activity: 2026-04-29
 
 Progress: [██████████] 100%
@@ -36,9 +36,9 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 39
+- Total plans completed: 40
 - Average duration: 10 min
-- Total execution time: 2.71 hours + Phase 5 (5 plans, ~42 min)
+- Total execution time: 2.71 hours + Phase 5 (5 plans, ~42 min) + Phase 6 (5 plans, ~23 min)
 
 **By Phase:**
 
@@ -76,6 +76,8 @@ Progress: [██████████] 100%
 | Phase 05-extension-api-migration-hardening 05-04-fsm-rollback | 7 min | 2 tasks | 2 files |
 | Phase 05-extension-api-migration-hardening 05-05-integration-hardening | 18 min | 2 tasks | 3 files |
 | Phase 06-compatibility-cleanup-hard-outlier-posturing-v2 06-02-slim-eligibility | 5 min | 2 tasks | 4 files |
+| Phase 06-compatibility-cleanup-hard-outlier-posturing-v2 06-04-slim-eligibility-gate | 1 min | 2 tasks | 1 file |
+| Phase 06-compatibility-cleanup-hard-outlier-posturing-v2 06-05-pilot-scan-blocked | 9 min | 2 tasks | 1 file |
 
 ## Accumulated Context
 
@@ -142,6 +144,9 @@ Recent decisions affecting current work:
 - [Phase 06 Plan 06-02]: typed-transitions and packet-sequencing gates always return indeterminate (fail-closed per D-02) until durable non-prose evidence surfaces exist.
 - [Phase 06 Plan 06-02]: optional parityIndexPath parameter avoids global fs mocking; production path is hardcoded (T-06-02-04 accepted).
 - [Phase 06 Plan 06-02]: parity index field is parityTier (not tier) — matched actual parity-workflow-index.json structure.
+- [Phase 06 Plan 06-04]: slim-eligibility step is a no-op when no launchers present; workflowId extracted from launcher YAML content (not filename) to prevent silent bypass via rename; gate direction is script→SDK only.
+- [Phase 06 Plan 06-05]: Pilot BLOCKED — all 10 deterministic non-outlier candidates return indeterminate on typed-transitions and packet-sequencing gates; parity-coverage and provider-routing pass. Slimming blocked until durable non-Markdown evidence sources exist for those two gates.
+- [Phase 06 Plan 06-05]: sdk/package.json copy:generated fixed to also copy parity/ JSON files to dist/ — parity-coverage gate was failing with unreadable path at runtime without this fix.
 
 ### Pending Todos
 
@@ -161,13 +166,14 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 |----------|------|--------|-------------|
 | v1.x | Extension API hardening (EXT-01–07) | Completed in Phase 5 (2026-04-29) | Phase 5 planning |
 | v1.x | In-flight migration / rollback hardening (MIGR-01–05) | Completed in Phase 5 (2026-04-29) | Phase 5 planning |
-| v2+ | Markdown Slimming (SLIM-01–03) | Pending Phase 4 parity gates and slim-eligibility check | Init |
-| v2+ | Hard Outlier Posturing (OUTL-01–02) | Pending Phase 4 parity gates | Init |
+| v2+ | Markdown Slimming (SLIM-01–03) | Machinery complete; pilot BLOCKED — needs durable typed-transitions + packet-sequencing evidence | Phase 6 Plan 05 |
+| v2+ | Hard Outlier Posturing (OUTL-01–02) | Completed in Phase 6 Plans 01–02 (2026-04-29) | Init |
+| v2+ | SDK test failures (6 pre-existing) | compiler.test, init-runner.test, decomposed-handlers.test, init-e2e, golden, read-only-parity | Phase 6 Plan 05 |
 
 ## Session Continuity
 
-Last session: 2026-04-29T03:08:00Z
-Stopped at: Completed 06-02-PLAN.md (slim eligibility evaluator — SLIM-01)
+Last session: 2026-04-29T02:24:00Z
+Stopped at: Completed 06-05-PLAN.md (slim eligibility pilot scan — BLOCKED — Phase 6 complete — SLIM-01, SLIM-02, SLIM-03)
 Resume file: None
 
 ## Session Note — 2026-04-28
