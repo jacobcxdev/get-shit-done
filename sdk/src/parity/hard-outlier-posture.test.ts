@@ -45,7 +45,7 @@ describe('Parity: hard-outlier posture (exact posture record, no packet)', () =>
       const result = runner.dispatch({
         runId: 'run-parity-outlier',
         commandId: outlier.commandId,
-        workflowId: outlier.workflowId ?? 'unknown',
+        workflowId: outlier.workflowId ?? undefined,
         stateId: 'execute',
         stepId: 'x',
         configSnapshot: {},
@@ -57,7 +57,12 @@ describe('Parity: hard-outlier posture (exact posture record, no packet)', () =>
       if (result.kind === 'posture') {
         expect(result.record.posture).toBe('hard-outlier');
         expect(result.record.emitsPacket).toBe(false);
-        expect(result.record.workflowId).toBe(outlier.workflowId);
+        // command-only outliers (workflowId: null) produce no workflowId on the posture record
+        if (outlier.workflowId !== null) {
+          expect(result.record.workflowId).toBe(outlier.workflowId);
+        } else {
+          expect(result.record.workflowId).toBeUndefined();
+        }
       }
     });
   }
