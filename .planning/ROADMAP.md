@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Packet Schema + State Contracts** - Versioned packet schema, execution constraints, config/routing validation, workstream-scoped FSM state, and workflow semantic manifests are typed and compiler-enforced (completed 2026-04-27)
 - [x] **Phase 3: Advisory Runner + Query Integration** - WorkflowRunner generalises PhaseRunner/InitRunner using deterministic packet emission, query registry FSM handlers, provider fallback, Nyquist P4, typed errors, and runtime report handoff (completed 2026-04-28)
 - [x] **Phase 4: Parity Suite + gsd-post-update Retirement** - Workflow parity, hook install fixes, and `gsd-post-update` no-op retirement gates are green without network access (completed 2026-04-28)
-- [ ] **Phase 5: Extension API + Migration Hardening (v1.x)** - Extension insertion/replacement/gates and in-flight migration/rollback are production-hardened after v1 parity is stable
+- [x] **Phase 5: Extension API + Migration Hardening (v1.x)** - Extension insertion/replacement/gates and in-flight migration/rollback are production-hardened after v1 parity is stable (completed 2026-04-29)
 - [ ] **Phase 6: Compatibility Cleanup + Hard Outlier Posturing (v2+)** - Markdown is slimmed only after machine eligibility passes; hard outliers are formally documented
 
 ## Phase Details
@@ -112,11 +112,22 @@ Plans:
 **Plans**: 5 plans across 3 waves
 
 Plans:
-- [ ] 05-01-PLAN.md — Extension slot registry: ExtensionRegistry, SealedExtensionGraph, slot types, cycle detection (EXT-01, EXT-02, EXT-06, EXT-07)
-- [ ] 05-02-PLAN.md — Gate/hook/provider-check integration, AdvisoryControlEvent schema, billing boundary extension (EXT-03, EXT-04, EXT-05)
-- [ ] 05-03-PLAN.md — FsmTransitionHistoryEntry hardening, parseFsmRunStateOrControlEvent wrapper (MIGR-01, MIGR-02, MIGR-03, MIGR-05)
-- [ ] 05-04-PLAN.md — Append-only rollback and schema migration functions: rollbackFsmState, migrateFsmState (MIGR-03, MIGR-04)
-- [ ] 05-05-PLAN.md — Integration hardening, advisory index re-exports, diagnostic alignment, phase docs (EXT-01–07, MIGR-01–05)
+
+**Wave 1**
+- [x] 05-01-PLAN.md — Extension slot registry: ExtensionRegistry, SealedExtensionGraph, slot types, cycle detection (EXT-01, EXT-02, EXT-06, EXT-07)
+- [x] 05-02-PLAN.md — Gate/hook/provider-check integration, AdvisoryControlEvent schema, billing boundary extension (EXT-03, EXT-04, EXT-05)
+
+**Wave 2 *(blocked on Wave 1 completion)***
+- [x] 05-03-PLAN.md — FsmTransitionHistoryEntry hardening, parseFsmRunStateOrControlEvent wrapper (MIGR-01, MIGR-02, MIGR-03, MIGR-05)
+- [x] 05-04-PLAN.md — Append-only rollback and schema migration functions: rollbackFsmState, migrateFsmState (MIGR-03, MIGR-04)
+
+**Wave 3 *(blocked on Wave 2 completion)***
+- [x] 05-05-PLAN.md — Integration hardening, advisory index re-exports, diagnostic alignment, phase docs (EXT-01–07, MIGR-01–05)
+
+Cross-cutting constraints:
+- Phase 4 parity gate (`node scripts/phase4-parity.cjs`) must remain green after Phase 5 additions.
+- SDK tests and TypeScript compile must pass before Phase 5 is marked complete.
+- Extension and migration diagnostics must preserve existing compiler/parity behaviour while adding new EXT/MIGR surfaces.
 
 ### Phase 6: Compatibility Cleanup + Hard Outlier Posturing (v2+)
 **Goal**: Slim Markdown workflow files to thin launchers only after eligibility checks and parity gates pass; keep hard outlier posture explicit
@@ -142,5 +153,5 @@ Phase 6 (v2+) cannot begin before Phase 4 parity gates are green
 | 2. Packet Schema + State Contracts | 4/4 | Complete | 2026-04-27 |
 | 3. Advisory Runner + Query Integration | 13/13 | Complete | 2026-04-28 |
 | 4. Parity Suite + gsd-post-update Retirement | 10/10 | Complete | 2026-04-28 |
-| 5. Extension API + Migration Hardening (v1.x) | 0/5 | In progress | - |
+| 5. Extension API + Migration Hardening (v1.x) | 5/5 | Complete | 2026-04-29 |
 | 6. Compatibility Cleanup + Hard Outlier Posturing (v2+) | 0/TBD | Not started | - |

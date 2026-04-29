@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-stopped_at: "Phase 5 Plan 04 complete — rollbackFsmState and migrateFsmState append-only FSM rollback"
-last_updated: "2026-04-29T01:22:00Z"
+status: phase_complete
+stopped_at: "Phase 5 complete — ready for /gsd-discuss-phase 6 or /gsd-plan-phase 6"
+last_updated: "2026-04-29T01:40:00Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 39
-  completed_plans: 37
-  percent: 95
+  completed_plans: 39
+  percent: 100
 ---
 
 # Project State
@@ -25,20 +25,20 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 
 ## Current Position
 
-Phase: 5 of 6 (extension API + migration hardening)
-Plan: 4/5 complete
-Status: In progress
+Phase: 6 of 6 (compatibility cleanup + hard outlier posturing)
+Plan: 0/TBD
+Status: Ready to plan
 Last activity: 2026-04-29
 
-Progress: [█████████░] Phase 5 executing — 4/5 plans done
+Progress: [██████████] Phase 5 complete — ready for Phase 6
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 34
+- Total plans completed: 39
 - Average duration: 10 min
-- Total execution time: 2.71 hours
+- Total execution time: 2.71 hours + Phase 5 (5 plans, ~42 min)
 
 **By Phase:**
 
@@ -74,6 +74,7 @@ Progress: [█████████░] Phase 5 executing — 4/5 plans done
 | Phase 05-extension-api-migration-hardening 05-02-advisory-control-events-wiring | 11 min | 3 tasks | 7 files |
 | Phase 05-extension-api-migration-hardening 05-03-fsm-history-hardening | 8 min | 2 tasks | 3 files |
 | Phase 05-extension-api-migration-hardening 05-04-fsm-rollback | 7 min | 2 tasks | 2 files |
+| Phase 05-extension-api-migration-hardening 05-05-integration-hardening | 18 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -133,10 +134,13 @@ Recent decisions affecting current work:
 - [Phase 05 Plan 05-03]: entryId is generated internally in advanceFsmState via randomUUID(); FsmTransitionInput does not accept entryId (T-05-03-01 threat mitigation).
 - [Phase 05 Plan 05-03]: detectedVersion defaults to -1 when stateSchemaVersion field is absent or non-numeric, triggering migration-required path.
 - [Phase 05 Plan 05-03]: checkpoint is omitted from history entry when FsmTransitionInput.checkpoint is falsy — no automatic checkpoint policy beyond explicit caller opt-in.
+- [Phase 05 Plan 05-05]: advisory/index.ts uses named re-exports only — no wildcard re-exports — to keep the public API surface explicit (T-05-05-01 mitigation).
+- [Phase 05 Plan 05-05]: COMP-09 preserved in validateExtensionDeps() for compile-time path; ExtensionRegistry.finalize() uses ExtensionRegistryError (EXT-06 registry path) — two diagnostic paths intentionally distinct.
+- [Phase 05 Plan 05-05]: Phase 5 complete; all EXT-01–07 and MIGR-01–05 requirements satisfied across 5 plans.
 
 ### Pending Todos
 
-- Execute Phase 5 — Extension API + Migration Hardening — Plan 05 remaining.
+- Phase 5 complete. Next: /gsd-discuss-phase 6 or /gsd-plan-phase 6 (Compatibility Cleanup + Hard Outlier Posturing).
 
 ### Blockers/Concerns
 
@@ -150,16 +154,16 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| v1.x | Extension API hardening (EXT-01–07) | Planned in Phase 5; pending execution | Phase 5 planning |
-| v1.x | In-flight migration / rollback hardening (MIGR-01–05) | Planned in Phase 5; pending execution | Phase 5 planning |
+| v1.x | Extension API hardening (EXT-01–07) | Completed in Phase 5 (2026-04-29) | Phase 5 planning |
+| v1.x | In-flight migration / rollback hardening (MIGR-01–05) | Completed in Phase 5 (2026-04-29) | Phase 5 planning |
 | v2+ | Markdown Slimming (SLIM-01–03) | Pending Phase 4 parity gates and slim-eligibility check | Init |
 | v2+ | Hard Outlier Posturing (OUTL-01–02) | Pending Phase 4 parity gates | Init |
 
 ## Session Continuity
 
-Last session: 2026-04-29T01:22:00Z
-Stopped at: Completed Phase 5 Plan 04 — rollbackFsmState and migrateFsmState append-only FSM rollback
-Resume file: .planning/phases/05-extension-api-migration-hardening/05-05-PLAN.md
+Last session: 2026-04-29T01:40:00Z
+Stopped at: Phase 5 complete — all 5 plans executed; advisory index, diagnostic alignment, and phase docs updated
+Resume file: None — begin Phase 6 with /gsd-discuss-phase 6 or /gsd-plan-phase 6
 
 ## Session Note — 2026-04-28
 
