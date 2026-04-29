@@ -40,6 +40,7 @@ metrics:
   completed: 2026-04-29
   tasks_completed: 2
   files_changed: 4
+requirements-completed: [SLIM-02]
 ---
 
 # Phase 6 Plan 03: Thin Launcher Parser and isLauncher Workflow Flag Summary
@@ -142,3 +143,11 @@ No new network endpoints, auth paths, or trust boundary changes introduced. The 
 | 17 tests passing GREEN | CONFIRMED |
 | gsd-sdk compile --check passes | CONFIRMED |
 | No workflow .md files modified | CONFIRMED |
+
+## Phase 9 Amendments
+
+SLIM-02 completion qualification (recorded 2026-04-29 by Phase 9 metadata reconciliation):
+
+Complete (machinery delivered; pilot blocked — no launcher content modified; actual slimming deferred until durable typed-transition and packet-sequencing evidence exists).
+
+Evidence: 06-05-SUMMARY.md records the bounded pilot scan as BLOCKED across all 10 deterministic non-outlier candidates because typed-transitions and packet-sequencing gates return indeterminate (fail-closed). The launcher parser/validator delivered by 06-03 is the SLIM-02 machinery; no Markdown launcher content was modified. Future broad workflow slimming remains deferred per STATE.md Deferred Items.

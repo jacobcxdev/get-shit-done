@@ -27,7 +27,7 @@ key-decisions:
   - "Pilot is BLOCKED — all 10 deterministic non-outlier candidates return status:indeterminate; typed-transitions and packet-sequencing gates have no durable non-Markdown evidence sources"
   - "sdk/package.json copy:generated fixed to also copy parity/ JSON to dist/ — parity-coverage gate was failing with unreadable path before fix"
   - "Pre-existing SDK test failures (6 tests) are out of scope — confirmed pre-existing by stash comparison; not caused by this plan"
-requirements-completed: [SLIM-01, SLIM-02, SLIM-03]
+requirements-completed: [SLIM-01, SLIM-02, SLIM-03, OUTL-01, OUTL-02]
 duration: 9min
 completed: 2026-04-29
 ---

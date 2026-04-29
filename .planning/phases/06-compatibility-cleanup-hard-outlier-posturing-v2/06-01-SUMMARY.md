@@ -50,6 +50,7 @@ metrics:
   completed: 2026-04-29
   tasks_completed: 2
   files_changed: 12
+requirements-completed: [OUTL-01, OUTL-02]
 ---
 
 # Phase 6 Plan 01: Hard-Outlier Posture Records Summary

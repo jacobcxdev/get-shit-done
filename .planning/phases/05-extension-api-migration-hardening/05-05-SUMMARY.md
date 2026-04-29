@@ -41,6 +41,7 @@ metrics:
   tasks_completed: 2
   files_created: 1
   files_modified: 2
+requirements-completed: [EXT-02, EXT-03, EXT-04, EXT-06, EXT-07, MIGR-03, MIGR-04, MIGR-05]
 ---
 
 # Phase 5 Plan 05: Integration Hardening, Advisory Index, and Phase Docs Summary
