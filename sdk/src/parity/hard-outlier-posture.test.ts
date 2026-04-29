@@ -15,12 +15,12 @@ const parityIndex: ParityWorkflowEntry[] = JSON.parse(
   readFileSync(join(import.meta.dirname, '../generated/parity/parity-workflow-index.json'), 'utf8'),
 ) as ParityWorkflowEntry[];
 
-const EXPECTED_HARD_OUTLIERS: Array<{ commandId: string; workflowId: string }> = [
-  { commandId: '/gsd-graphify', workflowId: '/workflows/graphify' },
-  { commandId: '/gsd-from-gsd2', workflowId: '/workflows/from-gsd2' },
+const EXPECTED_HARD_OUTLIERS: Array<{ commandId: string; workflowId: string | null }> = [
+  { commandId: '/gsd-graphify',        workflowId: null },
+  { commandId: '/gsd-from-gsd2',       workflowId: null },
   { commandId: '/gsd-ultraplan-phase', workflowId: '/workflows/ultraplan-phase' },
-  { commandId: '/gsd-review', workflowId: '/workflows/review' },
-  { commandId: '/gsd-fast', workflowId: '/workflows/fast' },
+  { commandId: '/gsd-review',          workflowId: '/workflows/review' },
+  { commandId: '/gsd-fast',            workflowId: '/workflows/fast' },
 ];
 
 describe('Parity: hard-outlier posture (exact posture record, no packet)', () => {
@@ -45,7 +45,7 @@ describe('Parity: hard-outlier posture (exact posture record, no packet)', () =>
       const result = runner.dispatch({
         runId: 'run-parity-outlier',
         commandId: outlier.commandId,
-        workflowId: outlier.workflowId,
+        workflowId: outlier.workflowId ?? 'unknown',
         stateId: 'execute',
         stepId: 'x',
         configSnapshot: {},
