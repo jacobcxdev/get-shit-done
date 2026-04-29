@@ -202,7 +202,9 @@ export function evaluateSlimEligibility(
 
   try {
     const raw = readFileSync(resolvedParityPath, 'utf-8');
-    parityEntries = JSON.parse(raw) as ParityWorkflowEntry[];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) throw new Error('parity index must be a JSON array');
+    parityEntries = parsed as ParityWorkflowEntry[];
   } catch {
     parityReadError = true;
   }
