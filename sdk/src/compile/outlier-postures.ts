@@ -163,6 +163,7 @@ export async function loadOutlierPostureRecords(
   sdkSrcDir: string,
   diagnostics: CompileDiagnostic[],
   projectDir?: string,
+  requiredSeedOutliers: ReadonlySet<string> = SEED_HARD_OUTLIERS,
 ): Promise<Map<string, OutlierPostureRecord>> {
   const postureDir = join(sdkSrcDir, 'advisory', 'outlier-postures');
   const repoRoot = projectDir ? resolve(projectDir) : undefined;
@@ -178,9 +179,8 @@ export async function loadOutlierPostureRecords(
   try {
     files = (await readdir(postureDir)).filter((f) => f.endsWith('.yaml'));
   } catch {
-    // Directory not present — emit OUTL-01 for each missing seed
     const records = new Map<string, OutlierPostureRecord>();
-    for (const id of SEED_HARD_OUTLIERS) {
+    for (const id of requiredSeedOutliers) {
       const seedPath = toPosturePath(join(postureDir, `${id.replace('/gsd-', 'gsd-')}.yaml`));
       diagnostics.push(
         mkError(
@@ -207,8 +207,8 @@ export async function loadOutlierPostureRecords(
     }
   }
 
-  // Check all seed outliers have a record
-  for (const id of SEED_HARD_OUTLIERS) {
+  // Check all required seed outliers have a record
+  for (const id of requiredSeedOutliers) {
     if (!records.has(id)) {
       const seedPath = toPosturePath(join(postureDir, `${id.replace('/gsd-', 'gsd-')}.yaml`));
       diagnostics.push(

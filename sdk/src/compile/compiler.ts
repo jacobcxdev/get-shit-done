@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { checkBillingBoundary } from './billing-boundary.js';
 import { checkBaselines, writeBaselines } from './baselines.js';
-import { classifyCommands } from './classification.js';
+import { classifyCommands, SEED_HARD_OUTLIERS } from './classification.js';
 import { sortDiagnostics } from './diagnostics.js';
 import { loadOutlierPostureRecords } from './outlier-postures.js';
 import { collectAgents } from './inventory/agents.js';
@@ -103,10 +103,11 @@ export async function runCompiler(projectDir: string, opts: CompileOptions): Pro
   const commands = await collectCommands(projectDir, diagnostics, knownWorkflowIds);
   const agents = await collectAgents(projectDir, diagnostics);
   const hooks = await collectHooks(projectDir, diagnostics);
-  // Load posture records before classifyCommands so they can be passed through in one call.
-  // sdkSrcDir is derived from projectDir (repo root): posture files live in sdk/src/ source tree.
+  const requiredSeedOutliers = new Set(commands
+    .map((command) => command.id)
+    .filter((commandId) => SEED_HARD_OUTLIERS.has(commandId)));
   const sdkSrcDir = join(projectDir, 'sdk', 'src');
-  const postureRecords = await loadOutlierPostureRecords(sdkSrcDir, diagnostics, projectDir);
+  const postureRecords = await loadOutlierPostureRecords(sdkSrcDir, diagnostics, projectDir, requiredSeedOutliers);
   const classification = classifyCommands(commands, diagnostics, undefined, postureRecords);
   const providerConfig = await readProviderConfig(projectDir);
   const packetCandidates = collectPacketDefinitionCandidates({ explicit: opts.packetDefinitions });
