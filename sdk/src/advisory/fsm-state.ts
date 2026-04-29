@@ -7,6 +7,7 @@ import { toPosixPath } from '../query/helpers.js';
 import { relPlanningPath, validateWorkstreamName } from '../workstream-utils.js';
 import { normalizeProviderList, type ProviderConfidenceKind } from './provider-availability.js';
 import { configSnapshotHash } from './routing.js';
+import type { AdvisoryControlEvent } from './control-events.js';
 
 export const CURRENT_FSM_STATE_SCHEMA_VERSION = 1 as const;
 
@@ -223,6 +224,50 @@ export function parseFsmRunState(
     );
   }
   return parsed;
+}
+
+export function parseFsmRunStateOrControlEvent(
+  raw: string,
+  statePath: string,
+): FsmRunState | AdvisoryControlEvent {
+  let parsed: { stateSchemaVersion?: unknown };
+  try {
+    parsed = JSON.parse(raw) as { stateSchemaVersion?: unknown };
+  } catch (error) {
+    throw new FsmStateError('read-failed', `Failed to parse FSM state file: ${String(error)}`);
+  }
+
+  const detectedVersion = typeof parsed.stateSchemaVersion === 'number'
+    ? parsed.stateSchemaVersion
+    : -1;
+
+  if (detectedVersion < CURRENT_FSM_STATE_SCHEMA_VERSION) {
+    return {
+      kind: 'control',
+      event: 'migration-required',
+      statePath,
+      detectedVersion,
+      currentVersion: CURRENT_FSM_STATE_SCHEMA_VERSION,
+      supportedRange: { min: CURRENT_FSM_STATE_SCHEMA_VERSION, max: CURRENT_FSM_STATE_SCHEMA_VERSION },
+      migrationSteps: [
+        {
+          description: `Upgrade stateSchemaVersion from ${detectedVersion} to ${CURRENT_FSM_STATE_SCHEMA_VERSION} and backfill entryId on all transitionHistory entries`,
+        },
+      ],
+    };
+  }
+
+  if (detectedVersion > CURRENT_FSM_STATE_SCHEMA_VERSION) {
+    return {
+      kind: 'control',
+      event: 'resume-blocked',
+      statePath,
+      detectedVersion,
+      currentVersion: CURRENT_FSM_STATE_SCHEMA_VERSION,
+    };
+  }
+
+  return parseFsmRunState(raw);
 }
 
 function sortFsmStateForWrite(state: FsmRunState): FsmRunState {
