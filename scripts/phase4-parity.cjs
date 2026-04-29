@@ -21,7 +21,13 @@ function run(stepName, diagCode, bin, args, opts = {}) {
 // Parse --step <name> or --wave <n> flags for targeted local runs
 const stepFlag = (() => {
   const idx = process.argv.indexOf('--step');
-  return idx !== -1 ? process.argv[idx + 1] : null;
+  if (idx === -1) return null;
+  const value = process.argv[idx + 1];
+  if (!value || value.startsWith('--')) {
+    process.stderr.write('[PRTY-08] Error: --step requires a step name argument\n');
+    process.exit(1);
+  }
+  return value;
 })();
 
 const steps = [
