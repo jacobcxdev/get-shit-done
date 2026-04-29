@@ -12,6 +12,7 @@ export interface ParsedCompileArgs {
   check: boolean;
   write: boolean;
   checkBillingBoundary: boolean;
+  checkSlimEligibility?: string;
   help: boolean;
 }
 
@@ -27,6 +28,9 @@ Options:
   --write           Regenerate committed baselines under sdk/src/generated/compile/
   --check-billing-boundary
                     Compatibility alias; billing-boundary checks always run
+  --check-slim-eligibility <workflow-id>
+                    Evaluate slim eligibility for the given workflow ID; emits
+                    structured JSON verdict and exits non-zero for fail/indeterminate
   --project-dir     Project directory (default: cwd)
   -h, --help        Show this help
 
@@ -42,6 +46,7 @@ export function parseCompileArgs(argv: string[]): ParsedCompileArgs {
       check: { type: 'boolean', default: false },
       write: { type: 'boolean', default: false },
       'check-billing-boundary': { type: 'boolean', default: true },
+      'check-slim-eligibility': { type: 'string' },
       help: { type: 'boolean', short: 'h', default: false },
     },
     allowPositionals: false,
@@ -54,6 +59,7 @@ export function parseCompileArgs(argv: string[]): ParsedCompileArgs {
     check: values.check as boolean,
     write: values.write as boolean,
     checkBillingBoundary: values['check-billing-boundary'] as boolean,
+    checkSlimEligibility: values['check-slim-eligibility'] as string | undefined,
     help: values.help as boolean,
   };
 }
@@ -102,6 +108,19 @@ export async function runCompileCommand(argv: string[], projectDir?: string): Pr
     const reportsDir = join(resolvedProjectDir, '.planning', 'compile');
     await mkdir(reportsDir, { recursive: true });
     await writeFile(join(reportsDir, 'compile-report.json'), reportJson, 'utf-8');
+  }
+
+  // --check-slim-eligibility dispatch: runs after full CompileReport is built so
+  // eligibility evaluation has access to all manifests. slim-eligibility.ts must
+  // not import session-runner.ts or any model-backed module (billing boundary).
+  if (args.checkSlimEligibility) {
+    const { evaluateSlimEligibility } = await import('./slim-eligibility.js');
+    const verdict = evaluateSlimEligibility(args.checkSlimEligibility, report);
+    console.log(JSON.stringify(verdict, null, 2));
+    if (verdict.status !== 'pass') {
+      process.exitCode = 1;
+    }
+    return;
   }
 
   if (errorCount > 0) {

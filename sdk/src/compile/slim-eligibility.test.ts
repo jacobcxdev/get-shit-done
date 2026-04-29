@@ -38,6 +38,7 @@ function makeWorkflowEntry(id: string, overrides: Partial<WorkflowEntry> = {}): 
     semanticFeatures: { values: [], inferred: false },
     semanticManifest: { workflowId: id, semantics: [] },
     isTopLevel: true,
+    isLauncher: false,
     ...overrides,
   };
 }

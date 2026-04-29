@@ -71,6 +71,14 @@ export type CommandEntry = {
   confidence: 'extracted' | 'inferred' | 'unknown';
 };
 
+export type LauncherMetadata = {
+  schemaVersion: number;
+  workflowId: string;
+  commandId: string;
+  runner: string;
+  archivePath: string;
+};
+
 export type WorkflowEntry = {
   id: string;
   path: string;
@@ -92,6 +100,7 @@ export type WorkflowEntry = {
   };
   semanticManifest: WorkflowSemanticManifest;
   isTopLevel: boolean;
+  isLauncher: boolean;
 };
 
 export type AgentEntry = {
@@ -183,5 +192,29 @@ export type CompileManifests = {
 export type CompileReport = {
   counts: CompileCounts;
   manifests: CompileManifests;
+  diagnostics: CompileDiagnostic[];
+};
+
+export type SlimEligibilityGate =
+  | 'typed-transitions'
+  | 'packet-sequencing'
+  | 'provider-routing'
+  | 'parity-coverage';
+
+export type SlimEligibilityGateResult = {
+  gate: SlimEligibilityGate;
+  status: 'pass' | 'fail' | 'indeterminate';
+  evidence: string[];
+  diagnostics: CompileDiagnostic[];
+};
+
+export type SlimEligibilityVerdict = {
+  workflowId: string;
+  commandId?: string;
+  eligible: boolean;
+  status: 'pass' | 'fail' | 'indeterminate';
+  isHardOutlier: boolean;
+  posturePath?: string;
+  gates: SlimEligibilityGateResult[];
   diagnostics: CompileDiagnostic[];
 };
