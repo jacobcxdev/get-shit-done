@@ -238,12 +238,12 @@ Deferred until v1 parity suite passes at 100% gate coverage. These clean up the 
 | HOOK-01–06 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Complete |
 | UPDT-01–05 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Complete |
 | PRTY-01–08 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Complete |
-| EXT-01, EXT-05 | Phase 7 (Extension Runtime Slot Wiring — gap closure) | Pending |
-| EXT-02–04, EXT-06–07 | Phase 9 (Milestone Audit Metadata Reconciliation — gap closure) | Pending |
-| MIGR-01–02 | Phase 8 (FSM Migration Control Event Read Path — gap closure) | Pending |
-| MIGR-03–05 | Phase 9 (Milestone Audit Metadata Reconciliation — gap closure) | Pending |
-| SLIM-01–03 | Phase 9 (Milestone Audit Metadata Reconciliation — gap closure) | Pending |
-| OUTL-01–02 | Phase 9 (Milestone Audit Metadata Reconciliation — gap closure) | Pending |
+| EXT-01, EXT-05 | Phase 7 (Extension Runtime Slot Wiring — gap closure) | Complete |
+| EXT-02–04, EXT-06–07 | Phase 5 (Extension API + Migration Hardening (v1.x)) | Complete |
+| MIGR-01–02 | Phase 8 (FSM Migration Control Event Read Path — gap closure) | Complete |
+| MIGR-03–05 | Phase 5 (Extension API + Migration Hardening (v1.x)) | Complete |
+| SLIM-01–03 | Phase 6 (Compatibility Cleanup + Hard Outlier Posturing (v2+)) | Complete |
+| OUTL-01–02 | Phase 6 (Compatibility Cleanup + Hard Outlier Posturing (v2+)) | Complete |
 
 **Coverage:**
 - v1 requirements: 114 total
@@ -253,4 +253,4 @@ Deferred until v1 parity suite passes at 100% gate coverage. These clean up the 
 
 ---
 *Requirements defined: 2026-04-27*
-*Last updated: 2026-04-29 after milestone audit gap closure phase planning*
+*Last updated: 2026-04-29 after Phase 9 milestone audit metadata reconciliation*

@@ -20,8 +20,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Parity Suite + gsd-post-update Retirement** - Workflow parity, hook install fixes, and `gsd-post-update` no-op retirement gates are green without network access (completed 2026-04-28)
 - [x] **Phase 5: Extension API + Migration Hardening (v1.x)** - Extension insertion/replacement/gates and in-flight migration/rollback are production-hardened after v1 parity is stable (completed 2026-04-29)
 - [x] **Phase 6: Compatibility Cleanup + Hard Outlier Posturing (v2+)** - Markdown is slimmed only after machine eligibility passes; hard outliers are formally documented (completed 2026-04-29)
-- [ ] **Phase 7: Extension Runtime Slot Wiring (gap closure)** - Insert-step and provider-check extension slots are consumed by runtime packet emission and provider availability paths
-- [ ] **Phase 8: FSM Migration Control Event Read Path (gap closure)** - Normal FSM query reads surface migration-required and resume-blocked recovery events for schema mismatches
+- [x] **Phase 7: Extension Runtime Slot Wiring (gap closure)** - Insert-step and provider-check extension slots are consumed by runtime packet emission and provider availability paths (completed 2026-04-29)
+- [x] **Phase 8: FSM Migration Control Event Read Path (gap closure)** - Normal FSM query reads surface migration-required and resume-blocked recovery events for schema mismatches (completed 2026-04-29)
 - [ ] **Phase 9: Milestone Audit Metadata Reconciliation (gap closure)** - Requirements traceability, SUMMARY frontmatter, validation metadata, and roadmap status are reconciled after implementation gaps close
 
 ## Phase Details
@@ -167,7 +167,12 @@ Plans:
   1. `WorkflowRunner` consumes `SealedExtensionGraph.insertedStepsFor()` when emitting packet sequences, preserving declared before/after ordering around stable step identifiers
   2. Provider availability or dispatch paths evaluate `SealedExtensionGraph.providerChecks()` so custom provider checks can affect provider metadata or fallback decisions
   3. Tests prove inserted extension steps appear in emitted packet order and provider checks influence runtime provider availability outcomes
-**Plans**: Pending
+**Plans**: 3 plans in 1 wave
+
+Plans:
+- [x] 07-01-PLAN.md — WorkflowRunner expanded sequence dispatch (EXT-01)
+- [x] 07-02-PLAN.md — Provider-check composition and ProviderName widening (EXT-05)
+- [x] 07-03-PLAN.md — PhaseRunner FSM replay, GSD plumbing, parity (EXT-01, EXT-05)
 
 ### Phase 8: FSM Migration Control Event Read Path (gap closure)
 **Goal**: Close the milestone audit gaps where typed migration/resume control events exist but normal FSM query reads bypass them
@@ -179,7 +184,11 @@ Plans:
   2. Older run-state files return `migration-required` recovery instructions instead of raw schema-version mismatch failures where migration is expected
   3. Newer run-state files return `resume-blocked` recovery instructions instead of raw schema-version mismatch failures where resume must stop
   4. Query handler tests cover old and future schema versions through the live read path
-**Plans**: Pending
+**Plans**: 2 plans in 1 wave
+
+Plans:
+- [x] 08-01-PLAN.md — Query read-path tolerant helper, four read-only handler updates, and live registry tests (MIGR-01, MIGR-02)
+- [x] 08-02-PLAN.md — Output formatter control-event guard and full-suite validation (MIGR-01, MIGR-02)
 
 ### Phase 9: Milestone Audit Metadata Reconciliation (gap closure)
 **Goal**: Reconcile planning metadata so milestone audit traceability agrees across requirements, summaries, validation files, and roadmap status after implementation blockers are fixed
@@ -189,7 +198,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. `.planning/REQUIREMENTS.md` traceability rows match the implemented gap-closure phases and no longer claim complete coverage for unsatisfied integration blockers
   2. Phase 5 and Phase 6 SUMMARY frontmatter includes accurate `requirements-completed` entries for EXT, MIGR, SLIM, and OUTL coverage
-  3. Phase 2, Phase 5, and Phase 6 validation metadata no longer report `wave_0_complete: false` when Nyquist compliance is accepted
+  3. Phase 2, Phase 5, Phase 6, Phase 7, and Phase 8 validation metadata no longer report `wave_0_complete: false` when Nyquist compliance is accepted
   4. `.planning/ROADMAP.md` phase list and progress table agree on Phase 6 and the new gap-closure phases
 **Plans**: Pending
 
@@ -209,6 +218,6 @@ Gap closure phases execute in order: 7 → 8 → 9, with Phase 9 blocked on Phas
 | 4. Parity Suite + gsd-post-update Retirement | 10/10 | Complete | 2026-04-28 |
 | 5. Extension API + Migration Hardening (v1.x) | 5/5 | Complete | 2026-04-29 |
 | 6. Compatibility Cleanup + Hard Outlier Posturing (v2+) | 5/5 | Complete | 2026-04-29 |
-| 7. Extension Runtime Slot Wiring (gap closure) | 0/0 | Pending | — |
-| 8. FSM Migration Control Event Read Path (gap closure) | 0/0 | Pending | — |
+| 7. Extension Runtime Slot Wiring (gap closure) | 3/3 | Complete | 2026-04-29 |
+| 8. FSM Migration Control Event Read Path (gap closure) | 2/2 | Complete    | 2026-04-29 |
 | 9. Milestone Audit Metadata Reconciliation (gap closure) | 0/0 | Pending | — |
