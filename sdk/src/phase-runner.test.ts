@@ -9,6 +9,7 @@ import * as fsmState from './advisory/fsm-state.js';
 import type { AdvisoryPacket } from './advisory/packet.js';
 import type { RuntimeExecutionReport } from './advisory/runtime-contracts.js';
 import { WorkflowRunner } from './advisory/workflow-runner.js';
+import { ExtensionRegistry } from './advisory/extension-registry.js';
 import type {
   PhaseOpInfo,
   PlanResult,
@@ -853,9 +854,16 @@ describe('PhaseRunner', () => {
         }
       });
 
-      it('tolerates init-required when noFsmForTesting:true is set — returns success:true', async () => {
+      it('tolerates init-required when noFsmForTesting:true is set — returns success:true without running post-hooks', async () => {
         const config = runtimeOnlyConfig();
         const workflowRunner = makeRuntimeWorkflowRunner();
+        const afterTransition = vi.fn();
+        const registry = new ExtensionRegistry();
+        registry.register({
+          kind: 'lifecycle-hook',
+          extensionId: 'hook-extension',
+          onAfterTransition: afterTransition,
+        });
         const advanceFsmState = vi
           .spyOn(fsmState, 'advanceFsmState')
           .mockRejectedValue({ code: 'init-required' });
@@ -866,6 +874,7 @@ describe('PhaseRunner', () => {
             workflowRunner: workflowRunner as any,
             agentContracts: RUNTIME_AGENT_CONTRACTS,
             noFsmForTesting: true,
+            sealedGraph: registry.finalize(),
           } as any);
           const runtimeReportHandler = vi.fn(async ({ packet }: { packet: AdvisoryPacket }) =>
             makeRuntimeReport(packet));
@@ -878,6 +887,7 @@ describe('PhaseRunner', () => {
             success: true,
           });
           expect(advanceFsmState).toHaveBeenCalled();
+          expect(afterTransition).not.toHaveBeenCalled();
         } finally {
           advanceFsmState.mockRestore();
         }
@@ -913,6 +923,277 @@ describe('PhaseRunner', () => {
           advanceFsmState.mockRestore();
         }
       });
+    });
+
+    // ─── Integration: real WorkflowRunner with sealed insert graph ─────────
+
+    function makePhaseRunnerWorkflowRunnerWithInsert(graph: import('./advisory/extension-registry.js').SealedExtensionGraph): WorkflowRunner {
+      return new WorkflowRunner({
+        commandClassification: [{
+          commandId: '/gsd-execute-phase',
+          workflowId: '/workflows/execute-phase',
+          category: 'core-lifecycle',
+          determinismPosture: 'deterministic',
+          isHardOutlier: false,
+          migrationDisposition: 'workflow-runner-supported',
+          outlierPosture: null,
+          agentTypes: ['gsd-executor'],
+        }],
+        workflowCoverage: [{
+          id: '/workflows/execute-phase',
+          isTopLevel: true,
+          path: 'get-shit-done/workflows/execute-phase.md',
+          hash: 'a'.repeat(64),
+          runnerType: { value: 'phase-chain', inferred: false },
+          determinism: { value: 'deterministic', inferred: false },
+          semanticFeatures: { values: ['state-write'], inferred: false },
+          semanticManifest: { workflowId: '/workflows/execute-phase', semantics: [] },
+          stepCount: { value: 8, inferred: false },
+        }],
+        workflowSemantics: [{
+          workflowId: '/workflows/execute-phase',
+          semantics: [],
+        }],
+      } as any, {}, graph);
+    }
+
+    it('receives one inserted packet from real WorkflowRunner and awaits runtime report', async () => {
+      const registry = new ExtensionRegistry();
+      registry.register({
+        kind: 'insert-step',
+        extensionId: 'phase-ext',
+        anchorStepId: 'plan',
+        position: 'before',
+        packet: {
+          schemaVersion: '1.0',
+          runId: '',
+          workflowId: '/workflows/execute-phase',
+          stateId: 'plan',
+          stepId: 'phase-ext/before-plan',
+          goal: 'Run extension pre-plan step.',
+          instruction: 'Run extension pre-plan step and report one allowed outcome.',
+          requiredContext: [],
+          allowedTools: [],
+          agents: ['gsd-executor'],
+          expectedEvidence: ['completion-marker:## PLAN COMPLETE', 'SUMMARY.md'],
+          allowedOutcomes: ['success', 'failure'],
+          reportCommand: 'Return RuntimeExecutionReport via runtimeReportHandler with runId, workflowId, stepId, outcome from packet.allowedOutcomes, markers, and artifacts',
+          onSuccess: 'plan',
+          onFailure: 'blocked',
+          checkpoint: false,
+          configSnapshotHash: '0'.repeat(64),
+          extensionIds: ['phase-ext'],
+          executionConstraints: {},
+        },
+      });
+      const sealedGraph = registry.finalize();
+      const workflowRunner = makePhaseRunnerWorkflowRunnerWithInsert(sealedGraph);
+
+      const deps = makeDeps({
+        config: runtimeOnlyConfig(),
+        workflowRunner,
+        runtimeReportHandler: undefined,
+        agentContracts: RUNTIME_AGENT_CONTRACTS,
+      } as any);
+      const runner = new PhaseRunner(deps);
+
+      const result = await runner.run('1', { agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+
+      expect(result.steps).toHaveLength(1);
+      expect(result.steps[0].awaitingRuntimeReport).toBe(true);
+      expect(Array.isArray(result.steps[0].packet)).toBe(false);
+      expect(result.steps[0].packet?.stepId).toBe('phase-ext/before-plan');
+      expect(result.steps[0].packet?.onSuccess).toBe('plan');
+    });
+
+    it('completes before base after inserted sequence through runtime reports one packet at a time', async () => {
+      const projectDir = await mkdtemp(join(tmpdir(), 'gsd-phase-runner-seq-'));
+      const config = runtimeOnlyConfig();
+      await initializeRuntimeFsm(projectDir, config, 'plan');
+
+      const registry = new ExtensionRegistry();
+      registry.register({
+        kind: 'insert-step',
+        extensionId: 'phase-ext-before',
+        anchorStepId: 'plan',
+        position: 'before',
+        packet: {
+          schemaVersion: '1.0',
+          runId: '',
+          workflowId: '/workflows/execute-phase',
+          stateId: 'plan',
+          stepId: 'phase-ext/before-plan',
+          goal: 'Run before-plan extension step.',
+          instruction: 'Run before-plan extension step and report one allowed outcome.',
+          requiredContext: [],
+          allowedTools: [],
+          agents: ['gsd-executor'],
+          expectedEvidence: ['completion-marker:## PLAN COMPLETE', 'SUMMARY.md'],
+          allowedOutcomes: ['success', 'failure'],
+          reportCommand: 'Return RuntimeExecutionReport via runtimeReportHandler with runId, workflowId, stepId, outcome from packet.allowedOutcomes, markers, and artifacts',
+          onSuccess: 'plan',
+          onFailure: 'blocked',
+          checkpoint: false,
+          configSnapshotHash: '0'.repeat(64),
+          extensionIds: ['phase-ext-before'],
+          executionConstraints: {},
+        },
+      });
+      registry.register({
+        kind: 'insert-step',
+        extensionId: 'phase-ext-after',
+        anchorStepId: 'plan',
+        position: 'after',
+        packet: {
+          schemaVersion: '1.0',
+          runId: '',
+          workflowId: '/workflows/execute-phase',
+          stateId: 'plan',
+          stepId: 'phase-ext/after-plan',
+          goal: 'Run after-plan extension step.',
+          instruction: 'Run after-plan extension step and report one allowed outcome.',
+          requiredContext: [],
+          allowedTools: [],
+          agents: ['gsd-executor'],
+          expectedEvidence: ['completion-marker:## PLAN COMPLETE', 'SUMMARY.md'],
+          allowedOutcomes: ['success', 'failure'],
+          reportCommand: 'Return RuntimeExecutionReport via runtimeReportHandler with runId, workflowId, stepId, outcome from packet.allowedOutcomes, markers, and artifacts',
+          onSuccess: 'execute',
+          onFailure: 'blocked',
+          checkpoint: false,
+          configSnapshotHash: '0'.repeat(64),
+          extensionIds: ['phase-ext-after'],
+          executionConstraints: {},
+        },
+      });
+      const sealedGraph = registry.finalize();
+
+      const receivedStepIds: string[] = [];
+      const dispatchInputSnapshots: Array<{ completedStepIds: string[] | undefined }> = [];
+
+      try {
+        // Each run() call issues one dispatch for the Plan step and one dispatch for the Advance
+        // step. We capture the plan-step dispatch input (stepId === 'plan') to verify
+        // completedStepIds is derived from FSM history, not a runner-local cursor.
+
+        // Run 1: no completed history → first unfinished packet is phase-ext/before-plan.
+        // Use runtimeReportHandler = undefined so PhaseRunner stops after returning the
+        // awaiting packet (plan step only; advance is not reached when awaitingRuntimeReport).
+        {
+          const workflowRunner = makePhaseRunnerWorkflowRunnerWithInsert(sealedGraph);
+          const origDispatch = workflowRunner.dispatch.bind(workflowRunner);
+          vi.spyOn(workflowRunner, 'dispatch').mockImplementation((input) => {
+            if (input.stepId === 'plan') {
+              dispatchInputSnapshots.push({ completedStepIds: input.completedStepIds ? [...input.completedStepIds] : undefined });
+            }
+            return origDispatch(input);
+          });
+          const deps = makeDeps({
+            projectDir,
+            config,
+            workflowRunner,
+            runtimeReportHandler: undefined,
+            agentContracts: RUNTIME_AGENT_CONTRACTS,
+            noFsmForTesting: undefined,
+          } as any);
+          const runner = new PhaseRunner(deps);
+          const r = await runner.run('1', { agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+          expect(r.steps[0].awaitingRuntimeReport).toBe(true);
+          expect(r.steps[0].packet?.stepId).toBe('phase-ext/before-plan');
+          expect(Array.isArray(r.steps[0].packet)).toBe(false);
+        }
+
+        // Simulate runtime completing phase-ext/before-plan: write its completedStepId into FSM.
+        // (In production PhaseRunner.resolveAdvisoryPacketResult does this after handler returns.)
+        const { advanceFsmState: advanceFsmStateReal } = await import('./advisory/fsm-state.js');
+        await advanceFsmStateReal({
+          projectDir,
+          toState: 'plan',
+          outcome: 'success',
+          completedStepId: 'phase-ext/before-plan',
+        });
+        receivedStepIds.push('phase-ext/before-plan');
+
+        // Run 2: FSM history has phase-ext/before-plan → dispatch sees completedStepIds = ['phase-ext/before-plan'],
+        // selects 'plan' as the next packet.
+        {
+          const workflowRunner = makePhaseRunnerWorkflowRunnerWithInsert(sealedGraph);
+          const origDispatch = workflowRunner.dispatch.bind(workflowRunner);
+          vi.spyOn(workflowRunner, 'dispatch').mockImplementation((input) => {
+            if (input.stepId === 'plan') {
+              dispatchInputSnapshots.push({ completedStepIds: input.completedStepIds ? [...input.completedStepIds] : undefined });
+            }
+            return origDispatch(input);
+          });
+          const deps = makeDeps({
+            projectDir,
+            config,
+            workflowRunner,
+            runtimeReportHandler: undefined,
+            agentContracts: RUNTIME_AGENT_CONTRACTS,
+            noFsmForTesting: undefined,
+          } as any);
+          const runner = new PhaseRunner(deps);
+          const r = await runner.run('1', { agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+          expect(r.steps[0].awaitingRuntimeReport).toBe(true);
+          expect(r.steps[0].packet?.stepId).toBe('plan');
+          expect(Array.isArray(r.steps[0].packet)).toBe(false);
+        }
+
+        // Simulate runtime completing plan step.
+        await advanceFsmStateReal({
+          projectDir,
+          toState: 'phase-ext/after-plan',
+          outcome: 'success',
+          completedStepId: 'plan',
+        });
+        receivedStepIds.push('plan');
+
+        // Run 3: FSM history has both phase-ext/before-plan and plan →
+        // completedStepIds = ['phase-ext/before-plan', 'plan'], selects phase-ext/after-plan.
+        {
+          const workflowRunner = makePhaseRunnerWorkflowRunnerWithInsert(sealedGraph);
+          const origDispatch = workflowRunner.dispatch.bind(workflowRunner);
+          vi.spyOn(workflowRunner, 'dispatch').mockImplementation((input) => {
+            if (input.stepId === 'plan') {
+              dispatchInputSnapshots.push({ completedStepIds: input.completedStepIds ? [...input.completedStepIds] : undefined });
+            }
+            return origDispatch(input);
+          });
+          const deps = makeDeps({
+            projectDir,
+            config,
+            workflowRunner,
+            runtimeReportHandler: undefined,
+            agentContracts: RUNTIME_AGENT_CONTRACTS,
+            noFsmForTesting: undefined,
+          } as any);
+          const runner = new PhaseRunner(deps);
+          const r = await runner.run('1', { agentContracts: RUNTIME_AGENT_CONTRACTS } as any);
+          expect(r.steps[0].awaitingRuntimeReport).toBe(true);
+          expect(r.steps[0].packet?.stepId).toBe('phase-ext/after-plan');
+          expect(Array.isArray(r.steps[0].packet)).toBe(false);
+        }
+
+        receivedStepIds.push('phase-ext/after-plan');
+        expect(receivedStepIds).toEqual(['phase-ext/before-plan', 'plan', 'phase-ext/after-plan']);
+
+        // Verify completedStepIds grows deterministically from FSM history (not a runner-local cursor).
+        expect(dispatchInputSnapshots[0]?.completedStepIds).toBeUndefined(); // first run: no history yet
+        expect(dispatchInputSnapshots[1]?.completedStepIds).toContain('phase-ext/before-plan');
+        expect(dispatchInputSnapshots[2]?.completedStepIds).toContain('phase-ext/before-plan');
+        expect(dispatchInputSnapshots[2]?.completedStepIds).toContain('plan');
+
+        // Verify persisted transition history has completedStepId fields.
+        const persisted = JSON.parse(await readFile(fsmStatePath(projectDir), 'utf-8'));
+        const completedIds = persisted.transitionHistory
+          .filter((e: { completedStepId?: string }) => e.completedStepId !== undefined)
+          .map((e: { completedStepId: string }) => e.completedStepId);
+        expect(completedIds).toContain('phase-ext/before-plan');
+        expect(completedIds).toContain('plan');
+      } finally {
+        await rm(projectDir, { recursive: true, force: true });
+      }
     });
   });
 

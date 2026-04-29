@@ -19,7 +19,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Advisory Runner + Query Integration** - WorkflowRunner generalises PhaseRunner/InitRunner using deterministic packet emission, query registry FSM handlers, provider fallback, Nyquist P4, typed errors, and runtime report handoff (completed 2026-04-28)
 - [x] **Phase 4: Parity Suite + gsd-post-update Retirement** - Workflow parity, hook install fixes, and `gsd-post-update` no-op retirement gates are green without network access (completed 2026-04-28)
 - [x] **Phase 5: Extension API + Migration Hardening (v1.x)** - Extension insertion/replacement/gates and in-flight migration/rollback are production-hardened after v1 parity is stable (completed 2026-04-29)
-- [ ] **Phase 6: Compatibility Cleanup + Hard Outlier Posturing (v2+)** - Markdown is slimmed only after machine eligibility passes; hard outliers are formally documented
+- [x] **Phase 6: Compatibility Cleanup + Hard Outlier Posturing (v2+)** - Markdown is slimmed only after machine eligibility passes; hard outliers are formally documented (completed 2026-04-29)
+- [ ] **Phase 7: Extension Runtime Slot Wiring (gap closure)** - Insert-step and provider-check extension slots are consumed by runtime packet emission and provider availability paths
+- [ ] **Phase 8: FSM Migration Control Event Read Path (gap closure)** - Normal FSM query reads surface migration-required and resume-blocked recovery events for schema mismatches
+- [ ] **Phase 9: Milestone Audit Metadata Reconciliation (gap closure)** - Requirements traceability, SUMMARY frontmatter, validation metadata, and roadmap status are reconciled after implementation gaps close
 
 ## Phase Details
 
@@ -155,12 +158,48 @@ Plans:
 **Wave 4 *(blocked on Wave 3 completion)***
 - [x] 06-05-PLAN.md — Eligibility scan, human-verify checkpoint, bounded pilot if pass verdicts exist (SLIM-01, SLIM-02, SLIM-03)
 
+### Phase 7: Extension Runtime Slot Wiring (gap closure)
+**Goal**: Close the milestone audit gaps where extension insert-step and provider-check slots are registered but not consumed by live runtime flows
+**Depends on**: Phase 5
+**Requirements**: EXT-01, EXT-05
+**Gap Closure**: Closes audit requirements EXT-01 and EXT-05, integration gaps `extension-insert-step-runner-wiring` and `extension-provider-check-runtime-wiring`, and the extension custom step/provider-check E2E flow failures
+**Success Criteria** (what must be TRUE):
+  1. `WorkflowRunner` consumes `SealedExtensionGraph.insertedStepsFor()` when emitting packet sequences, preserving declared before/after ordering around stable step identifiers
+  2. Provider availability or dispatch paths evaluate `SealedExtensionGraph.providerChecks()` so custom provider checks can affect provider metadata or fallback decisions
+  3. Tests prove inserted extension steps appear in emitted packet order and provider checks influence runtime provider availability outcomes
+**Plans**: Pending
+
+### Phase 8: FSM Migration Control Event Read Path (gap closure)
+**Goal**: Close the milestone audit gaps where typed migration/resume control events exist but normal FSM query reads bypass them
+**Depends on**: Phase 5
+**Requirements**: MIGR-01, MIGR-02
+**Gap Closure**: Closes audit requirements MIGR-01 and MIGR-02, integration gap `migration-control-events-live-read-path`, and the in-flight state migration/resume E2E flow failure
+**Success Criteria** (what must be TRUE):
+  1. Normal FSM query read paths route schema-version mismatches through `parseFsmRunStateOrControlEvent()` or an equivalent typed control-event surface
+  2. Older run-state files return `migration-required` recovery instructions instead of raw schema-version mismatch failures where migration is expected
+  3. Newer run-state files return `resume-blocked` recovery instructions instead of raw schema-version mismatch failures where resume must stop
+  4. Query handler tests cover old and future schema versions through the live read path
+**Plans**: Pending
+
+### Phase 9: Milestone Audit Metadata Reconciliation (gap closure)
+**Goal**: Reconcile planning metadata so milestone audit traceability agrees across requirements, summaries, validation files, and roadmap status after implementation blockers are fixed
+**Depends on**: Phases 7 and 8
+**Requirements**: EXT-01, EXT-02, EXT-03, EXT-04, EXT-05, EXT-06, EXT-07, MIGR-01, MIGR-02, MIGR-03, MIGR-04, MIGR-05, SLIM-01, SLIM-02, SLIM-03, OUTL-01, OUTL-02
+**Gap Closure**: Closes audit metadata gaps for EXT-01-07, MIGR-01-05, SLIM-01-03, and OUTL-01-02; reconciles Phase 6 roadmap status and stale Nyquist validation metadata for Phases 2, 5, and 6
+**Success Criteria** (what must be TRUE):
+  1. `.planning/REQUIREMENTS.md` traceability rows match the implemented gap-closure phases and no longer claim complete coverage for unsatisfied integration blockers
+  2. Phase 5 and Phase 6 SUMMARY frontmatter includes accurate `requirements-completed` entries for EXT, MIGR, SLIM, and OUTL coverage
+  3. Phase 2, Phase 5, and Phase 6 validation metadata no longer report `wave_0_complete: false` when Nyquist compliance is accepted
+  4. `.planning/ROADMAP.md` phase list and progress table agree on Phase 6 and the new gap-closure phases
+**Plans**: Pending
+
 ## Progress
 
 **Execution Order:**
 v1 phases execute in order: 1 → 2 → 3 → 4
 Phase 5 (v1.x) begins after Phase 4 parity gates pass
 Phase 6 (v2+) cannot begin before Phase 4 parity gates are green
+Gap closure phases execute in order: 7 → 8 → 9, with Phase 9 blocked on Phases 7 and 8.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -170,3 +209,6 @@ Phase 6 (v2+) cannot begin before Phase 4 parity gates are green
 | 4. Parity Suite + gsd-post-update Retirement | 10/10 | Complete | 2026-04-28 |
 | 5. Extension API + Migration Hardening (v1.x) | 5/5 | Complete | 2026-04-29 |
 | 6. Compatibility Cleanup + Hard Outlier Posturing (v2+) | 5/5 | Complete | 2026-04-29 |
+| 7. Extension Runtime Slot Wiring (gap closure) | 0/0 | Pending | — |
+| 8. FSM Migration Control Event Read Path (gap closure) | 0/0 | Pending | — |
+| 9. Milestone Audit Metadata Reconciliation (gap closure) | 0/0 | Pending | — |

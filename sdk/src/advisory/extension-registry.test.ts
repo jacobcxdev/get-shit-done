@@ -373,6 +373,37 @@ describe('ExtensionRegistry.finalize', () => {
 // SealedExtensionGraph surfaces
 // ============================================================
 
+describe('SealedExtensionGraph.insertedStepForStepId', () => {
+  it('returns the registration whose packet.stepId matches', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-a',
+      anchorStepId: 'step-1',
+      position: 'before',
+      packet: makePacket({ stepId: 'ext-a/before-plan', extensionIds: ['ext-a'] }),
+    });
+    const graph = registry.finalize();
+    const result = graph.insertedStepForStepId('ext-a/before-plan');
+    expect(result).toBeDefined();
+    expect(result?.packet.stepId).toBe('ext-a/before-plan');
+    expect(result?.extensionId).toBe('ext-a');
+  });
+
+  it('returns undefined for a step ID not in any inserted packet', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-a',
+      anchorStepId: 'step-1',
+      position: 'before',
+      packet: makePacket({ stepId: 'ext-a/before-plan', extensionIds: ['ext-a'] }),
+    });
+    const graph = registry.finalize();
+    expect(graph.insertedStepForStepId('missing-step')).toBeUndefined();
+  });
+});
+
 describe('SealedExtensionGraph.insertedStepsFor', () => {
   it('returns steps inserted before the anchor in order', () => {
     const registry = new ExtensionRegistry();

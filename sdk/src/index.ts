@@ -35,6 +35,7 @@ import { PhaseRunner } from './phase-runner.js';
 import { ContextEngine } from './context-engine.js';
 import { PromptFactory } from './phase-prompt.js';
 import { createGeneratedWorkflowRunner, type WorkflowRunner } from './advisory/workflow-runner.js';
+import type { SealedExtensionGraph } from './advisory/extension-registry.js';
 
 export type { AdvisoryPacket, AdvisoryExecutionConstraints, AdvisoryPacketValidationIssue } from './advisory/packet.js';
 export type { RuntimeExecutionReport, RuntimeWorktreeContext } from './advisory/runtime-contracts.js';
@@ -79,6 +80,7 @@ export class GSD {
   private readonly autoMode: boolean;
   private readonly workstream?: string;
   private readonly workflowRunner: WorkflowRunner;
+  private readonly sealedGraph?: SealedExtensionGraph;
   readonly eventStream: GSDEventStream;
 
   constructor(options: GSDOptions) {
@@ -91,7 +93,8 @@ export class GSD {
     this.defaultMaxTurns = options.maxTurns ?? 50;
     this.autoMode = options.autoMode ?? false;
     this.workstream = options.workstream;
-    this.workflowRunner = options.workflowRunner ?? createGeneratedWorkflowRunner();
+    this.sealedGraph = options.sealedGraph;
+    this.workflowRunner = options.workflowRunner ?? createGeneratedWorkflowRunner({}, options.sealedGraph);
     this.eventStream = new GSDEventStream();
   }
 
@@ -193,6 +196,7 @@ export class GSD {
       config,
       workflowRunner: this.workflowRunner,
       workstream: this.workstream,
+      ...(this.sealedGraph !== undefined ? { sealedGraph: this.sealedGraph } : {}),
     });
 
     return runner.run(phaseNumber, options);

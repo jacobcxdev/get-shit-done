@@ -20,7 +20,6 @@ const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 const { runGsdTools, createTempProject, cleanup } = require('./helpers.cjs');
 
 // --- Test Environment Setup ---
@@ -29,8 +28,8 @@ const AGENTS_DIR = path.join(__dirname, '..', 'agents');
 const COMMANDS_DIR = path.join(__dirname, '..', 'commands', 'gsd');
 const WORKFLOWS_DIR = path.join(__dirname, '..', 'get-shit-done', 'workflows');
 
-// Plugin directory resolution (cross-platform safe)
-const PLUGIN_WORKFLOWS_DIR = process.env.GSD_PLUGIN_ROOT || path.join(os.homedir(), '.claude', 'get-shit-done', 'workflows');
+// Workflow directory resolution (cross-platform safe)
+const PLUGIN_WORKFLOWS_DIR = process.env.GSD_PLUGIN_ROOT || WORKFLOWS_DIR;
 const PLUGIN_AVAILABLE = fs.existsSync(PLUGIN_WORKFLOWS_DIR);
 
 // --- CR-AGENT: code review agent frontmatter ---

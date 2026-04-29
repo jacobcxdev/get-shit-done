@@ -63,4 +63,23 @@ describe('provider confidence derivation', () => {
   it('does not export a production provider source from the default advisory path', () => {
     expect(providerAvailability).not.toHaveProperty('cqProviderStatusSource');
   });
+
+  it('preserves custom provider names after built-ins in lexical order', () => {
+    expect(normalizeProviderList(['zeta-ai', 'gemini', 'my-cloud', 'claude', 'my-cloud', '', 'alpha-ai'])).toEqual(
+      ['claude', 'gemini', 'alpha-ai', 'my-cloud', 'zeta-ai'],
+    );
+  });
+
+  it('renders reduced and blocked confidence for custom providers', () => {
+    expect(deriveConfidenceFromHistory([{ reducedConfidence: true, missingProviders: ['my-cloud'] }])).toBe('reduced:my-cloud');
+    expect(deriveConfidenceFromHistory([{ blockedProviders: ['my-cloud', 'gemini'] }])).toBe('blocked:gemini,my-cloud');
+  });
+
+  it('checks custom provider availability through injected source', async () => {
+    const source = vi.fn().mockResolvedValue({ available: ['my-cloud'], unavailable: ['zeta-ai'] });
+    const result = await checkProviderAvailability(['my-cloud', 'zeta-ai'], source);
+    expect(source).toHaveBeenCalledWith(['my-cloud', 'zeta-ai']);
+    expect(result.available).toContain('my-cloud');
+    expect(result.unavailable).toContain('zeta-ai');
+  });
 });

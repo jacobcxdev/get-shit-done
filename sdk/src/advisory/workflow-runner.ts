@@ -4,6 +4,7 @@ import {
   type AdvisoryPacket,
 } from './packet.js';
 import {
+  composeProviderAvailability,
   normalizeProviderList,
   type ProviderAvailabilityResult,
   type ProviderName,
@@ -41,6 +42,7 @@ export type WorkflowPostureRecord = {
   reason: string;
   emitsPacket: false;
   suspensionPoint?: string;
+  resumeInput?: Record<string, unknown>;
 };
 
 export type WorkflowRunnerResult =
@@ -81,6 +83,7 @@ export type WorkflowRunnerDispatchInput = {
   mandatoryProviders?: ProviderName[];
   agentContracts?: AgentEntry[];
   worktreeContext?: RuntimeWorktreeContext;
+  completedStepIds?: string[];
 };
 
 export type HitlOutcome = 'resumed-success' | 'resumed-failure' | 'suspended';
@@ -362,12 +365,16 @@ export class WorkflowRunner {
       };
     }
 
+    const providerAvailability = composeProviderAvailability(
+      input.providerAvailability,
+      this.sealedGraph?.providerChecks() ?? [],
+    );
     const semanticMandatory = mandatoryProvidersForWorkflow(workflowId, this.manifests.workflowSemantics);
     const effectiveMandatory = normalizeProviderList([
       ...(input.mandatoryProviders ?? []),
       ...semanticMandatory,
     ]);
-    const blockedProviders = unavailableMandatoryProviders(input.providerAvailability, effectiveMandatory);
+    const blockedProviders = unavailableMandatoryProviders(providerAvailability, effectiveMandatory);
     if (blockedProviders.length > 0) {
       return {
         kind: 'error',
@@ -378,9 +385,15 @@ export class WorkflowRunner {
       };
     }
 
-    const packet = this.packetFor(input, workflowId, stepId, command);
+    const anchorStepId = this.sealedGraph?.insertedStepForStepId(stepId)?.anchorStepId ?? stepId;
+    const sequence = this.expandedPacketSequenceFor(input, workflowId, anchorStepId, command);
+    const linked = this.linkExpandedSequence(sequence, input);
+    const completed = new Set(input.completedStepIds ?? []);
+    const selected = linked.find((p) => !completed.has(p.stepId))
+      ?? this.basePacketFor(input, workflowId, anchorStepId, command);
+
     const runtimeContractEvents = validatePreEmitRuntimeContract(
-      packet,
+      selected,
       input.agentContracts ?? [],
       input.worktreeContext ?? {},
     );
@@ -394,10 +407,10 @@ export class WorkflowRunner {
       };
     }
 
-    const providerMetadata = reducedProviderMetadata(input.providerAvailability);
+    const providerMetadata = reducedProviderMetadata(providerAvailability);
     return {
       kind: 'packet',
-      packet,
+      packet: selected,
       ...(providerMetadata ? { providerMetadata } : {}),
     };
   }
@@ -440,9 +453,9 @@ export class WorkflowRunner {
     }
 
     const outcome = provider.getSuspensionOutcome(workflowId, input.stepId);
-    if (outcome !== 'suspended') {
-      provider.getResumeInput(workflowId);
-    }
+    const resumeInput = outcome !== 'suspended'
+      ? provider.getResumeInput(workflowId)
+      : undefined;
 
     const reason =
       outcome === 'suspended'
@@ -458,13 +471,14 @@ export class WorkflowRunner {
         reason,
         emitsPacket: false,
         suspensionPoint: input.stepId,
+        ...(resumeInput !== undefined ? { resumeInput } : {}),
       },
       workflowId,
       posture: outcome,
     };
   }
 
-  private packetFor(
+  private basePacketFor(
     input: WorkflowRunnerDispatchInput,
     workflowId: string,
     stepId: string,
@@ -505,12 +519,97 @@ export class WorkflowRunner {
 
     return packet;
   }
+
+  private expandedPacketSequenceFor(
+    input: WorkflowRunnerDispatchInput,
+    workflowId: string,
+    anchorStepId: string,
+    command: ClassificationEntry | undefined,
+  ): AdvisoryPacket[] {
+    if (this.sealedGraph === undefined) {
+      return [this.basePacketFor(input, workflowId, anchorStepId, command)];
+    }
+
+    const beforeRegistrations = this.sealedGraph.insertedStepsFor(anchorStepId, 'before');
+    const afterRegistrations = this.sealedGraph.insertedStepsFor(anchorStepId, 'after');
+    const basePacket = this.basePacketFor(input, workflowId, anchorStepId, command);
+
+    const beforePackets = beforeRegistrations.map((reg) =>
+      this.normalizeInsertedPacketTemplate(reg, input, workflowId),
+    );
+    const afterPackets = afterRegistrations.map((reg) =>
+      this.normalizeInsertedPacketTemplate(reg, input, workflowId),
+    );
+
+    return [...beforePackets, basePacket, ...afterPackets];
+  }
+
+  private normalizeInsertedPacketTemplate(
+    registration: import('./extension-registry.js').InsertStepRegistration,
+    input: WorkflowRunnerDispatchInput,
+    workflowId: string,
+  ): AdvisoryPacket {
+    const tmpl = registration.packet;
+    const extensionIds = tmpl.extensionIds.includes(registration.extensionId)
+      ? tmpl.extensionIds
+      : [...tmpl.extensionIds, registration.extensionId];
+
+    return {
+      schemaVersion: tmpl.schemaVersion,
+      stepId: tmpl.stepId,
+      goal: tmpl.goal,
+      instruction: tmpl.instruction,
+      requiredContext: tmpl.requiredContext,
+      allowedTools: tmpl.allowedTools,
+      agents: tmpl.agents,
+      expectedEvidence: tmpl.expectedEvidence,
+      allowedOutcomes: tmpl.allowedOutcomes,
+      checkpoint: tmpl.checkpoint,
+      executionConstraints: tmpl.executionConstraints,
+      extensionIds,
+      runId: input.runId,
+      workflowId,
+      stateId: input.stateId,
+      configSnapshotHash: configSnapshotHash(input.configSnapshot),
+      reportCommand: REPORT_COMMAND,
+      onSuccess: tmpl.onSuccess,
+      onFailure: tmpl.onFailure,
+    };
+  }
+
+  private linkExpandedSequence(
+    sequence: AdvisoryPacket[],
+    input: WorkflowRunnerDispatchInput,
+  ): AdvisoryPacket[] {
+    const sequenceStepIds = new Set(sequence.map((p) => p.stepId));
+
+    return sequence.map((packet, i) => {
+      const nextPacket = sequence[i + 1];
+      const onSuccess = nextPacket
+        ? nextPacket.stepId
+        : (input.onSuccess ?? packet.onSuccess ?? 'next');
+
+      let onFailure: string;
+      if (packet.extensionIds.length > 0) {
+        const candidate = packet.onFailure?.trim() ?? '';
+        const isValid = candidate.length > 0 && sequenceStepIds.has(candidate);
+        onFailure = isValid ? candidate : (input.onFailure ?? 'blocked');
+      } else {
+        onFailure = packet.onFailure;
+      }
+
+      return { ...packet, onSuccess, onFailure };
+    });
+  }
 }
 
-export function createGeneratedWorkflowRunner(deps: WorkflowRunnerDeps = {}): WorkflowRunner {
+export function createGeneratedWorkflowRunner(
+  deps: WorkflowRunnerDeps = {},
+  sealedGraph?: SealedExtensionGraph,
+): WorkflowRunner {
   return new WorkflowRunner({
     commandClassification: GENERATED_MANIFEST_REQUIRE('../generated/compile/command-classification.json') as ClassificationEntry[],
     workflowCoverage: GENERATED_MANIFEST_REQUIRE('../generated/compile/workflow-coverage.json') as WorkflowEntry[],
     workflowSemantics: GENERATED_MANIFEST_REQUIRE('../generated/compile/workflow-semantics.json') as WorkflowSemanticManifest[],
-  }, deps);
+  }, deps, sealedGraph);
 }

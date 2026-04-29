@@ -588,6 +588,7 @@ export class PhaseRunner {
       };
     }
 
+    let transitionAdvanced = false;
     try {
       await advanceFsmState({
         projectDir: this.projectDir,
@@ -595,8 +596,10 @@ export class PhaseRunner {
         toState: runtimeReport.outcome === 'success' ? packet.onSuccess : packet.onFailure,
         outcome: runtimeReport.outcome,
         configSnapshotHash: packet.configSnapshotHash,
+        completedStepId: packet.stepId,
         ...(providerMetadata ? { providerMetadata } : {}),
       });
+      transitionAdvanced = true;
     } catch (error) {
       if (
         typeof error === 'object' &&
@@ -656,7 +659,7 @@ export class PhaseRunner {
     }
 
     // Lifecycle post-hooks: run after advanceFsmState() completes.
-    if (this.sealedGraph !== undefined) {
+    if (transitionAdvanced && this.sealedGraph !== undefined) {
       for (const hook of this.sealedGraph.lifecycleHooks()) {
         if (hook.onAfterTransition !== undefined) {
           let postHookSnapshot: Readonly<FsmRunState> | undefined;
@@ -695,6 +698,19 @@ export class PhaseRunner {
     };
   }
 
+  private async deriveCompletedStepIds(): Promise<string[]> {
+    try {
+      const statePath = fsmStatePath(this.projectDir, this.activeWorkstream);
+      const raw = await readFile(statePath, 'utf-8');
+      const state = parseFsmRunState(raw);
+      return state.transitionHistory
+        .filter(entry => entry.completedStepId !== undefined)
+        .map(entry => entry.completedStepId as string);
+    } catch {
+      return [];
+    }
+  }
+
   private async runAdvisoryStep(
     step: PhaseStepType,
     phaseNumber: string,
@@ -713,6 +729,8 @@ export class PhaseRunner {
       step,
     });
 
+    const completedStepIds = await this.deriveCompletedStepIds();
+
     let runnerResult: WorkflowRunnerResult;
     try {
       runnerResult = this.workflowRunner.dispatch({
@@ -722,6 +740,7 @@ export class PhaseRunner {
         stepId,
         configSnapshot,
         agentContracts: this.activeAgentContracts,
+        ...(completedStepIds.length > 0 ? { completedStepIds } : {}),
       });
     } catch (err) {
       const durationMs = Date.now() - stepStart;

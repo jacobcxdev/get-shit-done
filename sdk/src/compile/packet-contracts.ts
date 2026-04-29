@@ -48,11 +48,11 @@ function pushPacketContractError(
 }
 
 function includesExpectedEvidence(packet: PacketDefinitionCandidate, evidence: string): boolean {
-  return packet.expectedEvidence.includes(evidence);
+  return Array.isArray(packet.expectedEvidence) && packet.expectedEvidence.includes(evidence);
 }
 
 function hasDiskWriteTool(packet: PacketDefinitionCandidate, agent: AgentEntry): boolean {
-  return packet.allowedTools.some((tool) => DISK_WRITE_ALLOWED_TOOLS.has(tool) && agent.allowedTools.includes(tool));
+  return Array.isArray(packet.allowedTools) && packet.allowedTools.some((tool) => DISK_WRITE_ALLOWED_TOOLS.has(tool) && agent.allowedTools.includes(tool));
 }
 
 export function validateAdvisoryPacketDefinitions(
@@ -77,6 +77,10 @@ export function validateAdvisoryPacketDefinitions(
           },
         ),
       );
+    }
+
+    if (!Array.isArray(packet.agents) || !Array.isArray(packet.allowedTools) || !Array.isArray(packet.expectedEvidence)) {
+      continue;
     }
 
     const targetedAgents: AgentEntry[] = [];

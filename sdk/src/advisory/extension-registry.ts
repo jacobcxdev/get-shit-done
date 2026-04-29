@@ -185,6 +185,10 @@ export class SealedExtensionGraph {
     );
   }
 
+  insertedStepForStepId(stepId: string): InsertStepRegistration | undefined {
+    return this.orderedInserts.find((s) => s.packet.stepId === stepId);
+  }
+
   instructionReplacementFor(stepId: string): ReplaceInstructionRegistration | undefined {
     return this.replacements.get(stepId);
   }

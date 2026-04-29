@@ -50,6 +50,8 @@ export type FsmTransitionHistoryEntry = {
   missingProvider?: string;
   missingProviders?: string[];
   providerConfidence?: 'full' | 'reduced' | 'blocked';
+  /** Packet step ID that was successfully validated and completed via RuntimeExecutionReport. */
+  completedStepId?: string;
 };
 
 export type FsmRunState = {
@@ -88,6 +90,8 @@ export type FsmTransitionInput = {
     reducedConfidence?: boolean;
     missingProvider?: string;
   };
+  /** Packet step ID successfully validated via RuntimeExecutionReport, for completedStepIds replay. */
+  completedStepId?: string;
 };
 
 export type FsmTransitionResult = {
@@ -453,6 +457,7 @@ export async function advanceFsmState(input: FsmTransitionInput): Promise<FsmTra
       outcome: input.outcome,
       configSnapshotHash: configHash,
       ...(input.checkpoint === true ? { checkpoint: true } : {}),
+      ...(input.completedStepId !== undefined ? { completedStepId: input.completedStepId } : {}),
     };
 
     if ((providerConfidence === 'reduced' || providerConfidence === 'blocked') && missingProviders.length > 0) {

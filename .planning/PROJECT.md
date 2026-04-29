@@ -15,14 +15,12 @@ The SDK emits one atomic instruction packet at a time; the runtime executes it a
 - [x] Compiler/audit foundation: `gsd-sdk compile` generates command, workflow, agent, hook, classification, billing-boundary, and summary manifests from the live corpus; Phase 1 verification passed after billing-boundary parser/resolver hardening.
 - [x] Packet schema and state contracts: versioned advisory packets, foreground execution constraints, `agent_routing` validation, workstream-scoped FSM state, lock-status queries, and structured workflow semantic manifests are typed and compiler-enforced. Validated in Phase 2: Packet Schema + State Contracts.
 - [x] Advisory runner and query integration: WorkflowRunner/PhaseRunner/InitRunner advisory packet emission, FSM query handlers, provider fallback confidence, Nyquist P4 sequencing, typed runtime events, CLI output contracts, and runtime report handoff are implemented and verified. Validated in Phase 3: Advisory Runner + Query Integration.
+- [x] Parity suite and `gsd-post-update` retirement: deterministic, dynamic-branch, HITL, hard-outlier, provider fallback, filesystem fallback, state-lock, hook install, and retirement gates are implemented and verified. Validated in Phase 4: Parity Suite + gsd-post-update Retirement.
 
 ### Active
 
 - [ ] Extension API: insert custom steps, replace instructions, add gates, add lifecycle hooks, add provider availability checks, add config schema fields, declare ordering dependencies
-- [ ] Absorb all `gsd-post-update` behaviours into supported SDK surfaces (see disposition table in spec)
 - [ ] In-flight run migration and rollback contract: `migration-required`/`resume-blocked` states, typed recovery instructions, and forward-compatible transition-history migrations
-- [ ] Parity test suite: round-trip flows, golden inputs derived from live inventories, deterministic fallback and filesystem-fallback tests, lock staleness tests, `STATE.md` mirror lock-protection tests
-- [ ] Installer/runtime integration: absorb hook re-fetch into supported build path, preserve `hooks/dist/` pre-build requirement, preserve minimal-install semantics, address tracked bugs in `.plans/1755-install-audit-fix.md`
 - [ ] Compatibility cleanup and Markdown slimming (only after all parity coverage gates pass)
 
 ### Out of Scope
@@ -80,8 +78,8 @@ Hard outliers that remain separate postures: `/gsd-graphify`, `/gsd-from-gsd2`, 
 | Per-step/per-transition provider routing hooks (not per-agent defaults) | Codex routing today is injected at multiple step-specific sites for the same agent type in different contexts | Validated by Phase 2 |
 | Nyquist P4 as explicit post-verify packet/state, separate from triple-spawn verification | P4 is a deterministic single-model compliance check, not part of the multi-model verification policy | Validated by Phase 3 |
 | `workflow._auto_chain_active` treated as a data-model problem, not a missing feature | The flat/shared flag is architecturally wrong; workstream scoping requires a proper state concept | Validated by Phase 2 |
-| Hook installation via supported build path, not runtime fetches | Hook sources already exist in `hooks/`; defensive re-fetching is a workaround for an absent install path, not a feature | — Pending |
+| Hook installation via supported build path, not runtime fetches | Hook sources already exist in `hooks/`; defensive re-fetching is a workaround for an absent install path, not a feature | Validated by Phase 4 |
 | Reduced-confidence operation allowed when one provider is unavailable | Gemini quota exhaustion observed in practice; stalling indefinitely is worse than proceeding with explicit missing-leg recording | Validated by Phase 3 |
 
 ---
-*Last updated: 2026-04-28 after Phase 3 advisory runner and query integration verification*
+*Last updated: 2026-04-28 after Phase 4 parity suite and gsd-post-update retirement verification*

@@ -138,31 +138,31 @@
 
 ### Hook Install / Build Path
 
-- [ ] **HOOK-01**: Running the supported install/build path copies all hooks from `hooks/` or `hooks/dist/` to expected install locations with executable permissions and without network fetches
-- [ ] **HOOK-02**: `scripts/build-hooks.js` compiles hook source files into `hooks/dist/` without network access
-- [ ] **HOOK-03**: The Codex hook is installed at the exact path and filename expected by the Codex CLI
-- [ ] **HOOK-04**: The uninstall manifest covers every installed hook, including `.sh` hooks
-- [ ] **HOOK-05**: Stale hook cache detection refreshes from source rather than skipping already-present files
-- [ ] **HOOK-06**: Hook install fixes are complete before `gsd-post-update` retirement is declared
+- [x] **HOOK-01**: Running the supported install/build path copies all hooks from `hooks/` or `hooks/dist/` to expected install locations with executable permissions and without network fetches
+- [x] **HOOK-02**: `scripts/build-hooks.js` compiles hook source files into `hooks/dist/` without network access
+- [x] **HOOK-03**: The Codex hook is installed at the exact path and filename expected by the Codex CLI
+- [x] **HOOK-04**: The uninstall manifest covers every installed hook, including `.sh` hooks
+- [x] **HOOK-05**: Stale hook cache detection refreshes from source rather than skipping already-present files
+- [x] **HOOK-06**: Hook install fixes are complete before `gsd-post-update` retirement is declared
 
 ### gsd-post-update Absorption
 
-- [ ] **UPDT-01**: Each audited `gsd-post-update` behaviour has a disposition record in the project requirements or generated manifest, not only in the seed spec
-- [ ] **UPDT-02**: Behaviours mapped to SDK/runtime dispositions are implemented as query handlers, FSM transitions, lifecycle hooks, packet fields, compiler checks, or provider capability transitions
-- [ ] **UPDT-03**: Behaviours mapped to installer dispositions are absorbed into `bin/install.js`, `scripts/build-hooks.js`, or hook manifest validation before retirement
-- [ ] **UPDT-04**: Running `gsd-post-update` against a migrated project produces no observable side effects — all patches it would apply are already present through supported surfaces
-- [ ] **UPDT-05**: No parity test invokes `gsd-post-update`; all parity tests pass without it
+- [x] **UPDT-01**: Each audited `gsd-post-update` behaviour has a disposition record in the project requirements or generated manifest, not only in the seed spec
+- [x] **UPDT-02**: Behaviours mapped to SDK/runtime dispositions are implemented as query handlers, FSM transitions, lifecycle hooks, packet fields, compiler checks, or provider capability transitions
+- [x] **UPDT-03**: Behaviours mapped to installer dispositions are absorbed into `bin/install.js`, `scripts/build-hooks.js`, or hook manifest validation before retirement
+- [x] **UPDT-04**: Running `gsd-post-update` against a migrated project produces no observable side effects — all patches it would apply are already present through supported surfaces
+- [x] **UPDT-05**: No parity test invokes `gsd-post-update`; all parity tests pass without it
 
 ### Parity Test Suite
 
-- [ ] **PRTY-01**: The parity suite includes round-trip tests for every workflow classified deterministic, branch-specific tests for every workflow classified `dynamic-branch`, and explicit posture tests for every `hard-outlier`
-- [ ] **PRTY-02**: Every golden is generated from live `gsd-sdk compile` output or `gsd-sdk query` responses — no golden is hand-authored from Markdown prose
-- [ ] **PRTY-03**: Provider-fallback, filesystem-fallback, lock-staleness, and concurrent `STATE.md` write tests all run deterministically without network access
-- [ ] **PRTY-04**: HITL workflows use explicit mocked input seams to test suspension/resume paths without pretending user interaction is deterministic
-- [ ] **PRTY-05**: `STATE.md` mirror lock-protection tests prove concurrent write attempts return `lock-conflict`, not silent overwrite
-- [ ] **PRTY-06**: Golden staleness detection fails CI when live compile manifests diverge from committed parity fixtures without an intentional refresh
-- [ ] **PRTY-07**: All parity tests run in CI without external hosts, including no fetches to `raw.githubusercontent.com`
-- [ ] **PRTY-08**: Parity gate failures cause CI to exit non-zero; no assertion may be weakened to make the migration easier
+- [x] **PRTY-01**: The parity suite includes round-trip tests for every workflow classified deterministic, branch-specific tests for every workflow classified `dynamic-branch`, and explicit posture tests for every `hard-outlier`
+- [x] **PRTY-02**: Every golden is generated from live `gsd-sdk compile` output or `gsd-sdk query` responses — no golden is hand-authored from Markdown prose
+- [x] **PRTY-03**: Provider-fallback, filesystem-fallback, lock-staleness, and concurrent `STATE.md` write tests all run deterministically without network access
+- [x] **PRTY-04**: HITL workflows use explicit mocked input seams to test suspension/resume paths without pretending user interaction is deterministic
+- [x] **PRTY-05**: `STATE.md` mirror lock-protection tests prove concurrent write attempts return `lock-conflict`, not silent overwrite
+- [x] **PRTY-06**: Golden staleness detection fails CI when live compile manifests diverge from committed parity fixtures without an intentional refresh
+- [x] **PRTY-07**: All parity tests run in CI without external hosts, including no fetches to `raw.githubusercontent.com`
+- [x] **PRTY-08**: Parity gate failures cause CI to exit non-zero; no assertion may be weakened to make the migration easier
 
 ## v1.x Requirements
 
@@ -235,13 +235,15 @@ Deferred until v1 parity suite passes at 100% gate coverage. These clean up the 
 | LOGG-01–03 | Phase 3 (Advisory Runner + Query Integration) | Complete |
 | PROV-01–04 | Phase 3 (Advisory Runner + Query Integration) | Complete |
 | AGNT-03–04 | Phase 3 (Advisory Runner + Query Integration) | Complete |
-| HOOK-01–06 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Pending |
-| UPDT-01–05 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Pending |
-| PRTY-01–08 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Pending |
-| EXT-01–07 | Phase 5 (Extension API Hardening — v1.x) | Pending |
-| MIGR-01–05 | Phase 5 (Migration/Rollback Hardening — v1.x) | Pending |
-| SLIM-01–03 | Phase 6 (Compatibility Cleanup — v2+) | Pending |
-| OUTL-01–02 | Phase 6 (Hard Outlier Posturing — v2+) | Pending |
+| HOOK-01–06 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Complete |
+| UPDT-01–05 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Complete |
+| PRTY-01–08 | Phase 4 (Parity Suite + gsd-post-update Retirement) | Complete |
+| EXT-01, EXT-05 | Phase 7 (Extension Runtime Slot Wiring — gap closure) | Pending |
+| EXT-02–04, EXT-06–07 | Phase 9 (Milestone Audit Metadata Reconciliation — gap closure) | Pending |
+| MIGR-01–02 | Phase 8 (FSM Migration Control Event Read Path — gap closure) | Pending |
+| MIGR-03–05 | Phase 9 (Milestone Audit Metadata Reconciliation — gap closure) | Pending |
+| SLIM-01–03 | Phase 9 (Milestone Audit Metadata Reconciliation — gap closure) | Pending |
+| OUTL-01–02 | Phase 9 (Milestone Audit Metadata Reconciliation — gap closure) | Pending |
 
 **Coverage:**
 - v1 requirements: 114 total
@@ -251,4 +253,4 @@ Deferred until v1 parity suite passes at 100% gate coverage. These clean up the 
 
 ---
 *Requirements defined: 2026-04-27*
-*Last updated: 2026-04-28 after Phase 3 runtime report handoff completion*
+*Last updated: 2026-04-29 after milestone audit gap closure phase planning*

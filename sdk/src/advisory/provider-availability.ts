@@ -1,4 +1,5 @@
-export type ProviderName = 'claude' | 'codex' | 'gemini';
+export type BuiltInProviderName = 'claude' | 'codex' | 'gemini';
+export type ProviderName = BuiltInProviderName | (string & {});
 
 export type ProviderAvailabilityResult = {
   available: ProviderName[];
@@ -26,20 +27,26 @@ export type ProviderConfidenceHistoryEntry = {
   providerConfidence?: ProviderConfidenceKind;
 };
 
-const PROVIDER_ORDER: ProviderName[] = ['claude', 'codex', 'gemini'];
+export type ProviderAvailabilityCheck = {
+  providerName: string;
+  check: () => ProviderAvailabilityResult;
+};
 
-function isProviderName(value: unknown): value is ProviderName {
-  return value === 'claude' || value === 'codex' || value === 'gemini';
-}
+const PROVIDER_ORDER: BuiltInProviderName[] = ['claude', 'codex', 'gemini'];
+const BUILT_IN_PROVIDER_NAMES = new Set<string>(PROVIDER_ORDER);
 
 export function normalizeProviderList(providers: readonly unknown[]): ProviderName[] {
-  const seen = new Set<ProviderName>();
+  const seen = new Set<string>();
   for (const provider of providers) {
-    if (isProviderName(provider)) {
-      seen.add(provider);
+    if (typeof provider === 'string' && provider.trim() !== '') {
+      seen.add(provider.trim());
     }
   }
-  return PROVIDER_ORDER.filter(provider => seen.has(provider));
+  const builtIns = PROVIDER_ORDER.filter(p => seen.has(p));
+  const customs = [...seen]
+    .filter(name => !BUILT_IN_PROVIDER_NAMES.has(name))
+    .sort();
+  return [...builtIns, ...customs];
 }
 
 export function renderConfidence(
@@ -97,5 +104,51 @@ export async function checkProviderAvailability(
   return {
     available: normalizeProviderList(result.available),
     unavailable: normalizeProviderList(result.unavailable),
+  };
+}
+
+export function composeProviderAvailability(
+  base: ProviderAvailabilityResult | undefined,
+  checks: readonly ProviderAvailabilityCheck[],
+): ProviderAvailabilityResult | undefined {
+  if (base === undefined && checks.length === 0) {
+    return undefined;
+  }
+
+  const unavailableSet = new Set<string>();
+  const availableSet = new Set<string>();
+
+  if (base !== undefined) {
+    for (const p of normalizeProviderList(base.unavailable)) {
+      unavailableSet.add(p);
+    }
+    for (const p of normalizeProviderList(base.available)) {
+      availableSet.add(p);
+    }
+  }
+
+  for (const checkEntry of checks) {
+    let result: ProviderAvailabilityResult;
+    try {
+      result = checkEntry.check();
+    } catch {
+      unavailableSet.add(checkEntry.providerName);
+      availableSet.delete(checkEntry.providerName);
+      continue;
+    }
+    for (const p of normalizeProviderList(result.unavailable)) {
+      unavailableSet.add(p);
+      availableSet.delete(p);
+    }
+    for (const p of normalizeProviderList(result.available)) {
+      if (!unavailableSet.has(p)) {
+        availableSet.add(p);
+      }
+    }
+  }
+
+  return {
+    available: normalizeProviderList([...availableSet].filter(p => !unavailableSet.has(p))),
+    unavailable: normalizeProviderList([...unavailableSet]),
   };
 }

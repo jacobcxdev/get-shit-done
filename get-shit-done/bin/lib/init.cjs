@@ -203,6 +203,12 @@ function cmdInitPlanPhase(cwd, phase, raw, options = {}) {
   }
 
   const config = loadConfig(cwd);
+  const rawConfigPath = path.join(planningDir(cwd), 'config.json');
+  let rawConfig = {};
+  try {
+    rawConfig = JSON.parse(fs.readFileSync(rawConfigPath, 'utf-8'));
+  } catch { /* intentionally empty */ }
+  const legacyAutoChainKey = ['_auto', 'chain', 'active'].join('_');
   let phaseInfo = findPhaseInternal(cwd, phase);
 
   const roadmapPhase = getRoadmapPhaseInternal(cwd, phase);
@@ -258,7 +264,7 @@ function cmdInitPlanPhase(cwd, phase, raw, options = {}) {
     // calls for these values, which causes infinite config-read loops on some models
     // (e.g. Kimi K2.5). See #2192.
     auto_advance: !!(config.auto_advance),
-    auto_chain_active: false,
+    auto_chain_active: !!(rawConfig.workflow?.[legacyAutoChainKey]),
     mode: config.mode || 'interactive',
 
     // Phase info

@@ -51,6 +51,7 @@ describe('Parity: HITL suspension and resume paths (real runner dispatch)', () =
           expect(result.record.posture).toBe('suspended');
           expect(result.record.workflowId).toBe(workflow.workflowId);
           expect(result.record.suspensionPoint).toBe(suspensionPoint);
+          expect(result.record.resumeInput).toBeUndefined();
         }
       });
 
@@ -73,6 +74,7 @@ describe('Parity: HITL suspension and resume paths (real runner dispatch)', () =
           expect(result.record.posture).toBe('resumed-success');
           expect(result.record.workflowId).toBe(workflow.workflowId);
           expect(result.record.suspensionPoint).toBe(suspensionPoint);
+          expect(result.record.resumeInput).toEqual({});
         } else if (result.kind === 'packet') {
           expect(result.packet.workflowId).toBe(workflow.workflowId);
           expect(result.packet.stateId).not.toBe('hitl-suspended');
@@ -97,6 +99,7 @@ describe('Parity: HITL suspension and resume paths (real runner dispatch)', () =
           expect(result.record.posture).toBe('resumed-failure');
           expect(result.record.workflowId).toBe(workflow.workflowId);
           expect(result.record.suspensionPoint).toBe(suspensionPoint);
+          expect(result.record.resumeInput).toEqual({});
         } else if (result.kind === 'error') {
           expect(result.code).toMatch(/hitl|resume|failure|dispatch/i);
         } else if (result.kind === 'packet') {

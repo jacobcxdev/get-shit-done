@@ -35,12 +35,11 @@ describe('plan-phase chain flag preservation (#1620)', () => {
     );
   });
 
-  test('plan-phase persists chain flag to config before auto-advancing', () => {
+  test('plan-phase enables FSM auto-chain mode before auto-advancing', () => {
     const content = fs.readFileSync(planPath, 'utf8');
-    // Plan-phase must persist the chain flag (config-set workflow._auto_chain_active true)
     assert.ok(
-      content.includes('config-set workflow._auto_chain_active true'),
-      'plan-phase should persist chain flag via config-set workflow._auto_chain_active true'
+      content.includes('fsm.auto-mode.set true auto_chain'),
+      'plan-phase should enable FSM auto-chain mode before auto-advancing'
     );
   });
 

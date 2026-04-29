@@ -77,6 +77,57 @@ describe('validateAdvisoryPacketDefinitions', () => {
     }));
   });
 
+  it('emits PCKT-02 diagnostics instead of throwing for missing packet arrays', () => {
+    const missingAgents = packet() as Record<string, unknown>;
+    const missingAllowedTools = packet() as Record<string, unknown>;
+    const diagnostics: CompileDiagnostic[] = [];
+    delete missingAgents.agents;
+    delete missingAllowedTools.allowedTools;
+
+    expect(() => validateAdvisoryPacketDefinitions([
+      missingAgents as PacketDefinitionCandidate,
+      missingAllowedTools as PacketDefinitionCandidate,
+    ], [agent()], diagnostics)).not.toThrow();
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      code: 'PCKT-02',
+      field: 'agents',
+    }));
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      code: 'PCKT-02',
+      field: 'allowedTools',
+    }));
+  });
+
+  it('emits PCKT-02 diagnostics instead of throwing for wrong-typed packet arrays', () => {
+    const wrongTypedAgents = packet() as Record<string, unknown>;
+    const wrongTypedAllowedTools = packet() as Record<string, unknown>;
+    const wrongTypedExpectedEvidence = packet() as Record<string, unknown>;
+    const diagnostics: CompileDiagnostic[] = [];
+    wrongTypedAgents.agents = 'gsd-demo';
+    wrongTypedAllowedTools.allowedTools = 'Read';
+    wrongTypedExpectedEvidence.expectedEvidence = 'packet checked';
+
+    expect(() => validateAdvisoryPacketDefinitions([
+      wrongTypedAgents as PacketDefinitionCandidate,
+      wrongTypedAllowedTools as PacketDefinitionCandidate,
+      wrongTypedExpectedEvidence as PacketDefinitionCandidate,
+    ], [agent()], diagnostics)).not.toThrow();
+
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      code: 'PCKT-02',
+      field: 'agents',
+    }));
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      code: 'PCKT-02',
+      field: 'allowedTools',
+    }));
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      code: 'PCKT-02',
+      field: 'expectedEvidence',
+    }));
+  });
+
   it('emits PCKT-08 for allowedTools outside the targeted agent contract', () => {
     const diagnostics: CompileDiagnostic[] = [];
 

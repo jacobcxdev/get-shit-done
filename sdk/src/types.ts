@@ -9,6 +9,7 @@ import type { AdvisoryPacket } from './advisory/packet.js';
 import type { ProviderTransitionMetadata } from './advisory/provider-availability.js';
 import type { RuntimeExecutionReport } from './advisory/runtime-contracts.js';
 import type { WorkflowRunner } from './advisory/workflow-runner.js';
+import type { SealedExtensionGraph } from './advisory/extension-registry.js';
 import type { AgentEntry } from './compile/types.js';
 
 // ─── Frontmatter types ───────────────────────────────────────────────────────
@@ -221,6 +222,12 @@ export interface GSDOptions {
   workstream?: string;
   /** Manifest-driven advisory workflow runner used by default entry paths. */
   workflowRunner?: WorkflowRunner;
+  /**
+   * Optional sealed extension graph for runtime slot wiring (insert-step, gates, lifecycle hooks, provider checks).
+   * Passed to the generated WorkflowRunner when no explicit workflowRunner is supplied, and to PhaseRunner for gate/hook evaluation.
+   * When workflowRunner is supplied by the caller, sealedGraph is passed to PhaseRunner only (the caller-owned runner remains authoritative).
+   */
+  sealedGraph?: SealedExtensionGraph;
 }
 
 // ─── S02: Event stream types ─────────────────────────────────────────────────

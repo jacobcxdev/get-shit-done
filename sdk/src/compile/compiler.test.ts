@@ -147,6 +147,53 @@ describe('runCompiler', () => {
     }));
   });
 
+  it('emits PCKT-02 for malformed packetDefinitions through compiler integration', async () => {
+    const projectDir = await makeProject();
+    projects.push(projectDir);
+    await writeFile(
+      join(projectDir, 'agents', 'gsd-demo.md'),
+      '---\nname: gsd-demo\ndescription: Demo agent\ntools: Read\n---\n\n# Demo\n',
+    );
+    const [basePacket] = await loadPacketDefinitions();
+    const missingAgents = {
+      ...basePacket,
+      stepId: 'missing-agents',
+      sourcePath: 'fixtures/missing-agents.json',
+    } as Record<string, unknown>;
+    const missingAllowedTools = {
+      ...basePacket,
+      stepId: 'missing-allowed-tools',
+      sourcePath: 'fixtures/missing-allowed-tools.json',
+    } as Record<string, unknown>;
+    const wrongTypedArrays = {
+      ...basePacket,
+      stepId: 'wrong-typed-arrays',
+      sourcePath: 'fixtures/wrong-typed-arrays.json',
+      agents: 'gsd-demo',
+      allowedTools: 'Read',
+    } as Record<string, unknown>;
+    delete missingAgents.agents;
+    delete missingAllowedTools.allowedTools;
+
+    const report = await runCompiler(projectDir, {
+      json: false,
+      check: false,
+      write: false,
+      packetDefinitions: [
+        missingAgents as PacketDefinitionCandidate,
+        missingAllowedTools as PacketDefinitionCandidate,
+        wrongTypedArrays as PacketDefinitionCandidate,
+      ],
+    });
+
+    expect(report.diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'PCKT-02', field: 'agents', path: 'workflow-a#missing-agents' }),
+      expect.objectContaining({ code: 'PCKT-02', field: 'allowedTools', path: 'workflow-a#missing-allowed-tools' }),
+      expect.objectContaining({ code: 'PCKT-02', field: 'agents', path: 'workflow-a#wrong-typed-arrays' }),
+      expect.objectContaining({ code: 'PCKT-02', field: 'allowedTools', path: 'workflow-a#wrong-typed-arrays' }),
+    ]));
+  });
+
   it('includes workflow-semantics in manifest records', async () => {
     const projectDir = await makeProject();
     projects.push(projectDir);

@@ -5,6 +5,9 @@ import {
   type WorkflowRunnerDispatchInput,
   type WorkflowRunnerManifests,
 } from './workflow-runner.js';
+import { ExtensionRegistry } from './extension-registry.js';
+import type { ProviderAvailabilityResult } from './provider-availability.js';
+import { CURRENT_ADVISORY_PACKET_SCHEMA_VERSION, type AdvisoryPacket } from './packet.js';
 import { sortKeysDeep } from '../compile/baselines.js';
 import { GSDEventType } from '../types.js';
 
@@ -607,5 +610,303 @@ describe('WorkflowRunner.dispatch() - Wave 0 branch/provider hardening', () => {
     }));
 
     expect(result.kind).toBe('packet');
+  });
+});
+
+// ============================================================
+// WorkflowRunner.dispatch() - inserted-step runtime sequencing (EXT-01)
+// ============================================================
+
+function makeInsertedPacket(overrides: Partial<AdvisoryPacket> = {}): AdvisoryPacket {
+  return {
+    schemaVersion: CURRENT_ADVISORY_PACKET_SCHEMA_VERSION,
+    runId: 'stale-run',
+    workflowId: '/workflows/stale',
+    stateId: 'stale-state',
+    stepId: 'ext/step',
+    goal: 'Extension goal',
+    instruction: 'Extension instruction',
+    requiredContext: [],
+    allowedTools: [],
+    agents: [],
+    expectedEvidence: [],
+    allowedOutcomes: ['success', 'failure'],
+    reportCommand: 'stale-report-command',
+    onSuccess: 'stale-success',
+    onFailure: 'stale-failure',
+    checkpoint: false,
+    configSnapshotHash: 'f'.repeat(64),
+    extensionIds: [],
+    executionConstraints: {},
+    ...overrides,
+  };
+}
+
+describe('WorkflowRunner.dispatch() - inserted-step sequencing', () => {
+  it('emits inserted before step before anchor and links success to anchor', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-before',
+      anchorStepId: 'step-1',
+      position: 'before',
+      packet: makeInsertedPacket({ stepId: 'ext-before/step', extensionIds: ['ext-before'] }),
+    });
+
+    const runner = new WorkflowRunner(makeManifests(), {}, registry.finalize());
+    const result = runner.dispatch(makeDispatchInput({ stepId: 'step-1', onSuccess: 'original-success' }));
+
+    expect(result.kind).toBe('packet');
+    if (result.kind !== 'packet') throw new Error(`Expected packet, got ${result.kind}`);
+    expect(Array.isArray(result.packet)).toBe(false);
+    expect(result.packet.stepId).toBe('ext-before/step');
+    expect(result.packet.extensionIds).toContain('ext-before');
+    expect(result.packet.onSuccess).toBe('step-1');
+  });
+
+  it('walks before base after sequence with explicit completed step ids', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-before-a',
+      anchorStepId: 'step-1',
+      position: 'before',
+      packet: makeInsertedPacket({ stepId: 'ext-before-a/step', extensionIds: ['ext-before-a'] }),
+      before: ['ext-before-b'],
+    });
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-before-b',
+      anchorStepId: 'step-1',
+      position: 'before',
+      packet: makeInsertedPacket({ stepId: 'ext-before-b/step', extensionIds: ['ext-before-b'] }),
+      after: ['ext-before-a'],
+    });
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-after-a',
+      anchorStepId: 'step-1',
+      position: 'after',
+      packet: makeInsertedPacket({ stepId: 'ext-after-a/step', extensionIds: ['ext-after-a'] }),
+      before: ['ext-after-b'],
+    });
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-after-b',
+      anchorStepId: 'step-1',
+      position: 'after',
+      packet: makeInsertedPacket({ stepId: 'ext-after-b/step', extensionIds: ['ext-after-b'] }),
+      after: ['ext-after-a'],
+    });
+
+    const graph = registry.finalize();
+    const runner = new WorkflowRunner(makeManifests(), {}, graph);
+    const base = makeDispatchInput({ stepId: 'step-1', onSuccess: 'original-success' });
+
+    const dispatch1 = runner.dispatch({ ...base, completedStepIds: [] });
+    expect(dispatch1.kind).toBe('packet');
+    if (dispatch1.kind !== 'packet') throw new Error('Expected packet');
+    expect(dispatch1.packet.stepId).toBe('ext-before-a/step');
+    expect(dispatch1.packet.onSuccess).toBe('ext-before-b/step');
+
+    const dispatch2 = runner.dispatch({ ...base, completedStepIds: ['ext-before-a/step'] });
+    expect(dispatch2.kind).toBe('packet');
+    if (dispatch2.kind !== 'packet') throw new Error('Expected packet');
+    expect(dispatch2.packet.stepId).toBe('ext-before-b/step');
+    expect(dispatch2.packet.onSuccess).toBe('step-1');
+
+    const dispatch3 = runner.dispatch({ ...base, completedStepIds: ['ext-before-a/step', 'ext-before-b/step'] });
+    expect(dispatch3.kind).toBe('packet');
+    if (dispatch3.kind !== 'packet') throw new Error('Expected packet');
+    expect(dispatch3.packet.stepId).toBe('step-1');
+    expect(dispatch3.packet.onSuccess).toBe('ext-after-a/step');
+
+    const dispatch4 = runner.dispatch({ ...base, completedStepIds: ['ext-before-a/step', 'ext-before-b/step', 'step-1'] });
+    expect(dispatch4.kind).toBe('packet');
+    if (dispatch4.kind !== 'packet') throw new Error('Expected packet');
+    expect(dispatch4.packet.stepId).toBe('ext-after-a/step');
+    expect(dispatch4.packet.onSuccess).toBe('ext-after-b/step');
+
+    const dispatch5 = runner.dispatch({ ...base, completedStepIds: ['ext-before-a/step', 'ext-before-b/step', 'step-1', 'ext-after-a/step'] });
+    expect(dispatch5.kind).toBe('packet');
+    if (dispatch5.kind !== 'packet') throw new Error('Expected packet');
+    expect(dispatch5.packet.stepId).toBe('ext-after-b/step');
+    expect(dispatch5.packet.onSuccess).toBe('original-success');
+  });
+
+  it('normalises inserted packet runtime identity and preserves extension owned fields', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-before',
+      anchorStepId: 'step-1',
+      position: 'before',
+      packet: makeInsertedPacket({
+        stepId: 'ext-before/normalised',
+        goal: 'Extension goal',
+        instruction: 'Extension instruction',
+        allowedTools: ['Read'],
+        agents: ['gsd-executor'],
+        expectedEvidence: ['extension:evidence'],
+        allowedOutcomes: ['success', 'failure'],
+        checkpoint: true,
+        executionConstraints: { foregroundOnly: true },
+        extensionIds: ['ext-before'],
+      }),
+    });
+
+    const runner = new WorkflowRunner(makeManifests(), {}, registry.finalize());
+    const result = runner.dispatch(makeDispatchInput({
+      runId: 'run-active',
+      workflowId: '/workflows/add-phase',
+      stateId: 'ready',
+      stepId: 'step-1',
+      configSnapshot: { workflow: { verifier: true } },
+    }));
+
+    expect(result.kind).toBe('packet');
+    if (result.kind !== 'packet') throw new Error(`Expected packet, got ${result.kind}`);
+    const p = result.packet;
+
+    expect(p.runId).toBe('run-active');
+    expect(p.workflowId).toBe('/workflows/add-phase');
+    expect(p.stateId).toBe('ready');
+    expect(p.configSnapshotHash).not.toBe('f'.repeat(64));
+    expect(p.configSnapshotHash).toMatch(/^[a-f0-9]{64}$/);
+    expect(p.reportCommand).not.toBe('stale-report-command');
+
+    expect(p.stepId).toBe('ext-before/normalised');
+    expect(p.goal).toBe('Extension goal');
+    expect(p.instruction).toBe('Extension instruction');
+    expect(p.allowedTools).toEqual(['Read']);
+    expect(p.agents).toEqual(['gsd-executor']);
+    expect(p.expectedEvidence).toEqual(['extension:evidence']);
+    expect(p.allowedOutcomes).toEqual(['success', 'failure']);
+    expect(p.checkpoint).toBe(true);
+    expect(p.executionConstraints).toEqual({ foregroundOnly: true });
+    expect(p.extensionIds).toContain('ext-before');
+  });
+
+  it('defaults invalid inserted onFailure to blocked', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-before',
+      anchorStepId: 'step-1',
+      position: 'before',
+      packet: makeInsertedPacket({
+        stepId: 'ext-before/step',
+        extensionIds: ['ext-before'],
+        onFailure: 'stale-failure',
+      }),
+    });
+
+    const runner = new WorkflowRunner(makeManifests(), {}, registry.finalize());
+    const result = runner.dispatch(makeDispatchInput({ stepId: 'step-1' }));
+
+    expect(result.kind).toBe('packet');
+    if (result.kind !== 'packet') throw new Error(`Expected packet, got ${result.kind}`);
+    expect(result.packet.stepId).toBe('ext-before/step');
+    expect(result.packet.onFailure).toBe('blocked');
+  });
+
+  it('retains valid inserted onFailure target inside active workflow', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'insert-step',
+      extensionId: 'ext-before',
+      anchorStepId: 'step-1',
+      position: 'before',
+      packet: makeInsertedPacket({
+        stepId: 'ext-before/step',
+        extensionIds: ['ext-before'],
+        onFailure: 'step-1',
+      }),
+    });
+
+    const runner = new WorkflowRunner(makeManifests(), {}, registry.finalize());
+    const result = runner.dispatch(makeDispatchInput({ stepId: 'step-1', onSuccess: 'original-success' }));
+
+    expect(result.kind).toBe('packet');
+    if (result.kind !== 'packet') throw new Error(`Expected packet, got ${result.kind}`);
+    expect(result.packet.stepId).toBe('ext-before/step');
+    expect(result.packet.onFailure).toBe('step-1');
+    expect(result.packet.onSuccess).toBe('step-1');
+  });
+});
+
+// ============================================================
+// WorkflowRunner.dispatch() - provider check composition (EXT-05)
+// ============================================================
+
+describe('WorkflowRunner.dispatch() - provider check composition', () => {
+  it('provider check unavailable blocks mandatory custom provider', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'provider-check',
+      extensionId: 'custom-provider-ext',
+      providerName: 'my-cloud',
+      check: (): ProviderAvailabilityResult => ({ available: [], unavailable: ['my-cloud'] }),
+    });
+
+    const runner = new WorkflowRunner(makeManifests(), {}, registry.finalize());
+    const result = runner.dispatch(makeDispatchInput({ mandatoryProviders: ['my-cloud'] }));
+
+    expect(result.kind).toBe('error');
+    if (result.kind !== 'error') throw new Error(`Expected error, got ${result.kind}`);
+    expect(result.message).toBe('Mandatory providers unavailable: my-cloud');
+  });
+
+  it('provider check unavailable creates reduced metadata for optional custom provider', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'provider-check',
+      extensionId: 'custom-provider-ext',
+      providerName: 'my-cloud',
+      check: (): ProviderAvailabilityResult => ({ available: [], unavailable: ['my-cloud'] }),
+    });
+
+    const runner = new WorkflowRunner(makeManifests(), {}, registry.finalize());
+    const result = runner.dispatch(makeDispatchInput());
+
+    expect(result.kind).toBe('packet');
+    if (result.kind !== 'packet') throw new Error(`Expected packet, got ${result.kind}`);
+    expect(result.providerMetadata).toEqual({
+      providerConfidence: 'reduced',
+      missingProviders: ['my-cloud'],
+    });
+  });
+
+  it('provider checks fail closed and unavailable wins over available', () => {
+    const registry = new ExtensionRegistry();
+    registry.register({
+      kind: 'provider-check',
+      extensionId: 'my-cloud-check',
+      providerName: 'my-cloud',
+      check: (): ProviderAvailabilityResult => ({ available: ['my-cloud'], unavailable: ['my-cloud'] }),
+    });
+    registry.register({
+      kind: 'provider-check',
+      extensionId: 'zeta-ai-check',
+      providerName: 'zeta-ai',
+      check: (): ProviderAvailabilityResult => { throw new Error('boom'); },
+    });
+
+    const baseAvailability: ProviderAvailabilityResult = { available: ['my-cloud'], unavailable: [] };
+    const runner = new WorkflowRunner(makeManifests(), {}, registry.finalize());
+
+    const blocked = runner.dispatch(makeDispatchInput({
+      providerAvailability: baseAvailability,
+      mandatoryProviders: ['zeta-ai'],
+    }));
+    expect(blocked.kind).toBe('error');
+    if (blocked.kind !== 'error') throw new Error(`Expected error, got ${blocked.kind}`);
+    expect(blocked.message).toContain('zeta-ai');
+
+    const reduced = runner.dispatch(makeDispatchInput({ providerAvailability: baseAvailability }));
+    expect(reduced.kind).toBe('packet');
+    if (reduced.kind !== 'packet') throw new Error(`Expected packet, got ${reduced.kind}`);
+    expect(reduced.providerMetadata?.missingProviders).toContain('my-cloud');
+    expect(reduced.providerMetadata?.missingProviders).toContain('zeta-ai');
   });
 });
