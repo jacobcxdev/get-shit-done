@@ -194,17 +194,23 @@ describe('loadOutlierPostureRecords', () => {
 
   it('returns empty Map when posture directory is absent (no OUTL-01 from loader for missing dir)', async () => {
     tempDir = await mkdtemp(join(tmpdir(), 'outlier-postures-test-'));
-    // No advisory/outlier-postures directory created
 
     const diagnostics: CompileDiagnostic[] = [];
     const records = await loadOutlierPostureRecords(tempDir, diagnostics);
 
-    // Loader returns empty Map when directory is absent
-    // OUTL-01 per missing seed is emitted for missing seeds
     expect(records.size).toBe(0);
-    // Missing seeds produce OUTL-01 from the loader's seed check loop
     const outl01Diags = diagnostics.filter(d => d.code === 'OUTL-01');
     expect(outl01Diags.length).toBe(5);
+  });
+
+  it('does not emit OUTL-01 for a missing posture directory when no seed outliers are required', async () => {
+    tempDir = await mkdtemp(join(tmpdir(), 'outlier-postures-test-'));
+
+    const diagnostics: CompileDiagnostic[] = [];
+    const records = await loadOutlierPostureRecords(tempDir, diagnostics, undefined, new Set());
+
+    expect(records.size).toBe(0);
+    expect(diagnostics.filter(d => d.code === 'OUTL-01')).toEqual([]);
   });
 
   it('emits OUTL-01 when a seed outlier YAML is missing from the directory', async () => {
