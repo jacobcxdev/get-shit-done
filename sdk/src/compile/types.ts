@@ -17,7 +17,9 @@ export type DiagnosticKind =
   | 'baseline'
   | 'extension'
   | 'packet'
-  | 'state';
+  | 'state'
+  | 'slim'
+  | 'outlier';
 
 /** Per-CONTEXT D-09: stable diagnostic shape emitted by every compiler module. */
 export type CompileDiagnostic = {
@@ -134,6 +136,18 @@ export type CommandCategory = 'core-lifecycle'
   | 'dynamic-branch'
   | 'hard-outlier';
 
+export type OutlierPostureRecord = {
+  commandId: string;
+  classifiedAs: 'hard-outlier';
+  migrationDisposition: string;
+  rationale: string;
+  emitsPacket: false;
+  reviewedAt: string;
+  owner: string;
+  workflowId: string | null;
+  posturePath: string;
+};
+
 export type ClassificationEntry = {
   commandId: string;
   category: CommandCategory;
@@ -143,6 +157,7 @@ export type ClassificationEntry = {
   migrationDisposition: string;
   isHardOutlier: boolean;
   outlierPosture?: string;
+  outlierPostureRecord?: OutlierPostureRecord;
 };
 
 export type BillingBoundaryReport = {

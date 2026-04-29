@@ -9,7 +9,7 @@
 
 import { mkError } from './diagnostics.js';
 import { DISK_WRITE_MANDATE_AGENTS } from './inventory/agents.js';
-import type { ClassificationEntry, CommandCategory, CommandEntry, CompileDiagnostic } from './types.js';
+import type { ClassificationEntry, CommandCategory, CommandEntry, CompileDiagnostic, OutlierPostureRecord } from './types.js';
 
 export const CATEGORIES = [
   'core-lifecycle',
@@ -180,6 +180,7 @@ export function classifyCommands(
   commands: CommandEntry[],
   diagnostics: CompileDiagnostic[],
   rules: Array<{ category: CommandCategory; ids: ReadonlySet<string> }> = CATEGORY_RULES,
+  postureRecords?: Map<string, OutlierPostureRecord>,
 ): ClassificationEntry[] {
   const entries = commands.map((command): ClassificationEntry => {
     const matches = matchingCategoriesForCommand(command.id, rules);
@@ -225,6 +226,20 @@ export function classifyCommands(
       );
     }
 
+    const postureRecord = postureRecords?.get(command.id);
+    if (isHardOutlier && SEED_HARD_OUTLIERS.has(command.id) && postureRecords !== undefined && !postureRecord) {
+      diagnostics.push(
+        mkError(
+          'OUTL-01',
+          'outlier',
+          command.id,
+          command.path,
+          `hard-outlier ${command.id} is missing a posture record`,
+          { hint: 'add sdk/src/advisory/outlier-postures/<command-id>.yaml' },
+        ),
+      );
+    }
+
     return {
       commandId: command.id,
       category,
@@ -234,6 +249,7 @@ export function classifyCommands(
       migrationDisposition: MIGRATION_DISPOSITION_BY_CATEGORY[category],
       isHardOutlier,
       ...(SEED_HARD_OUTLIERS.has(command.id) ? { outlierPosture: 'seed-outlier' } : {}),
+      ...(postureRecord ? { outlierPostureRecord: postureRecord } : {}),
     };
   });
 

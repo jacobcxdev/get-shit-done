@@ -1,0 +1,9 @@
+commandId: /gsd-ultraplan-phase
+classifiedAs: hard-outlier
+migrationDisposition: manual-posture-required
+rationale: >
+  Ultra-planning workflow spawns dynamic multi-agent subgraphs whose branching cannot be deterministically encoded as a typed packet sequence without a dedicated nested-FSM reclassification.
+emitsPacket: false
+reviewedAt: 2026-04-29
+owner: jacob
+workflowId: /workflows/ultraplan-phase

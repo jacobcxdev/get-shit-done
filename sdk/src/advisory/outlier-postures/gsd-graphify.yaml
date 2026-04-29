@@ -1,0 +1,9 @@
+commandId: /gsd-graphify
+classifiedAs: hard-outlier
+migrationDisposition: manual-posture-required
+rationale: >
+  Graph rendering workflow uses external graphify tooling and non-FSM bespoke execution paths that cannot be represented as typed advisory packets without a dedicated reclassification phase.
+emitsPacket: false
+reviewedAt: 2026-04-29
+owner: jacob
+workflowId: null

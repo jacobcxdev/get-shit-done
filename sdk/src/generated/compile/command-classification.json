@@ -495,6 +495,17 @@
     "isHardOutlier": true,
     "migrationDisposition": "manual-posture-required",
     "outlierPosture": "seed-outlier",
+    "outlierPostureRecord": {
+      "classifiedAs": "hard-outlier",
+      "commandId": "/gsd-fast",
+      "emitsPacket": false,
+      "migrationDisposition": "manual-posture-required",
+      "owner": "jacob",
+      "posturePath": "sdk/src/advisory/outlier-postures/gsd-fast.yaml",
+      "rationale": "Fast-mode workflow bypasses the standard phase lifecycle using model-selected shortcuts that are inherently non-deterministic and cannot be represented as a fixed advisory packet sequence.",
+      "reviewedAt": "2026-04-29",
+      "workflowId": "/workflows/fast"
+    },
     "workflowId": "/workflows/fast"
   },
   {
@@ -505,6 +516,17 @@
     "isHardOutlier": true,
     "migrationDisposition": "manual-posture-required",
     "outlierPosture": "seed-outlier",
+    "outlierPostureRecord": {
+      "classifiedAs": "hard-outlier",
+      "commandId": "/gsd-from-gsd2",
+      "emitsPacket": false,
+      "migrationDisposition": "manual-posture-required",
+      "owner": "jacob",
+      "posturePath": "sdk/src/advisory/outlier-postures/gsd-from-gsd2.yaml",
+      "rationale": "Cross-version project migration workflow requires direct file system manipulation and cannot be represented as a deterministic advisory packet sequence without bespoke migration tooling.",
+      "reviewedAt": "2026-04-29",
+      "workflowId": null
+    },
     "workflowId": null
   },
   {
@@ -515,6 +537,17 @@
     "isHardOutlier": true,
     "migrationDisposition": "manual-posture-required",
     "outlierPosture": "seed-outlier",
+    "outlierPostureRecord": {
+      "classifiedAs": "hard-outlier",
+      "commandId": "/gsd-graphify",
+      "emitsPacket": false,
+      "migrationDisposition": "manual-posture-required",
+      "owner": "jacob",
+      "posturePath": "sdk/src/advisory/outlier-postures/gsd-graphify.yaml",
+      "rationale": "Graph rendering workflow uses external graphify tooling and non-FSM bespoke execution paths that cannot be represented as typed advisory packets without a dedicated reclassification phase.",
+      "reviewedAt": "2026-04-29",
+      "workflowId": null
+    },
     "workflowId": null
   },
   {
@@ -525,6 +558,17 @@
     "isHardOutlier": true,
     "migrationDisposition": "manual-posture-required",
     "outlierPosture": "seed-outlier",
+    "outlierPostureRecord": {
+      "classifiedAs": "hard-outlier",
+      "commandId": "/gsd-review",
+      "emitsPacket": false,
+      "migrationDisposition": "manual-posture-required",
+      "owner": "jacob",
+      "posturePath": "sdk/src/advisory/outlier-postures/gsd-review.yaml",
+      "rationale": "Review workflow drives ad-hoc multi-model review sessions with runtime-determined scope and cannot be encoded as a deterministic advisory packet sequence without a dedicated review-FSM design.",
+      "reviewedAt": "2026-04-29",
+      "workflowId": "/workflows/review"
+    },
     "workflowId": "/workflows/review"
   },
   {
@@ -535,6 +579,17 @@
     "isHardOutlier": true,
     "migrationDisposition": "manual-posture-required",
     "outlierPosture": "seed-outlier",
+    "outlierPostureRecord": {
+      "classifiedAs": "hard-outlier",
+      "commandId": "/gsd-ultraplan-phase",
+      "emitsPacket": false,
+      "migrationDisposition": "manual-posture-required",
+      "owner": "jacob",
+      "posturePath": "sdk/src/advisory/outlier-postures/gsd-ultraplan-phase.yaml",
+      "rationale": "Ultra-planning workflow spawns dynamic multi-agent subgraphs whose branching cannot be deterministically encoded as a typed packet sequence without a dedicated nested-FSM reclassification.",
+      "reviewedAt": "2026-04-29",
+      "workflowId": "/workflows/ultraplan-phase"
+    },
     "workflowId": "/workflows/ultraplan-phase"
   },
   {

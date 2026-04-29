@@ -10,6 +10,7 @@ import { checkBillingBoundary } from './billing-boundary.js';
 import { checkBaselines, writeBaselines } from './baselines.js';
 import { classifyCommands } from './classification.js';
 import { sortDiagnostics } from './diagnostics.js';
+import { loadOutlierPostureRecords } from './outlier-postures.js';
 import { collectAgents } from './inventory/agents.js';
 import { collectCommands } from './inventory/commands.js';
 import { collectHooks } from './inventory/hooks.js';
@@ -102,7 +103,11 @@ export async function runCompiler(projectDir: string, opts: CompileOptions): Pro
   const commands = await collectCommands(projectDir, diagnostics, knownWorkflowIds);
   const agents = await collectAgents(projectDir, diagnostics);
   const hooks = await collectHooks(projectDir, diagnostics);
-  const classification = classifyCommands(commands, diagnostics);
+  // Load posture records before classifyCommands so they can be passed through in one call.
+  // sdkSrcDir is derived from projectDir (repo root): posture files live in sdk/src/ source tree.
+  const sdkSrcDir = join(projectDir, 'sdk', 'src');
+  const postureRecords = await loadOutlierPostureRecords(sdkSrcDir, diagnostics, projectDir);
+  const classification = classifyCommands(commands, diagnostics, undefined, postureRecords);
   const providerConfig = await readProviderConfig(projectDir);
   const packetCandidates = collectPacketDefinitionCandidates({ explicit: opts.packetDefinitions });
 

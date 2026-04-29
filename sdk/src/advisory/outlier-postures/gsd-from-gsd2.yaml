@@ -1,0 +1,9 @@
+commandId: /gsd-from-gsd2
+classifiedAs: hard-outlier
+migrationDisposition: manual-posture-required
+rationale: >
+  Cross-version project migration workflow requires direct file system manipulation and cannot be represented as a deterministic advisory packet sequence without bespoke migration tooling.
+emitsPacket: false
+reviewedAt: 2026-04-29
+owner: jacob
+workflowId: null

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createGeneratedWorkflowRunner } from '../advisory/workflow-runner.js';
+import type { ClassificationEntry } from '../compile/types.js';
 
 type ParityWorkflowEntry = {
   workflowId: string | null;
@@ -60,4 +61,31 @@ describe('Parity: hard-outlier posture (exact posture record, no packet)', () =>
       }
     });
   }
+
+  it('parity index hard-outlier entries have outlierPostureRecord populated', () => {
+    const classification: ClassificationEntry[] = JSON.parse(
+      readFileSync(join(import.meta.dirname, '../generated/compile/command-classification.json'), 'utf8'),
+    ) as ClassificationEntry[];
+
+    for (const expected of EXPECTED_HARD_OUTLIERS) {
+      const entry = classification.find((e) => e.commandId === expected.commandId);
+      expect(entry, `${expected.commandId} missing from classification`).toBeDefined();
+      expect(entry?.outlierPostureRecord, `${expected.commandId} missing posture record`).toMatchObject({
+        commandId: expected.commandId,
+        classifiedAs: 'hard-outlier',
+        emitsPacket: false,
+      });
+    }
+
+    // Reconcile workflowId: graphify and from-gsd2 have workflowId: null in posture YAML
+    // (command-only outliers with no workflow-backed runner)
+    const commandOnlyOutliers = ['/gsd-graphify', '/gsd-from-gsd2'];
+    for (const commandId of commandOnlyOutliers) {
+      const entry = classification.find((e) => e.commandId === commandId);
+      expect(
+        entry?.outlierPostureRecord?.workflowId,
+        `${commandId} posture YAML workflowId should be null`,
+      ).toBeNull();
+    }
+  });
 });

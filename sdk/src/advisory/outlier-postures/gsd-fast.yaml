@@ -1,0 +1,9 @@
+commandId: /gsd-fast
+classifiedAs: hard-outlier
+migrationDisposition: manual-posture-required
+rationale: >
+  Fast-mode workflow bypasses the standard phase lifecycle using model-selected shortcuts that are inherently non-deterministic and cannot be represented as a fixed advisory packet sequence.
+emitsPacket: false
+reviewedAt: 2026-04-29
+owner: jacob
+workflowId: /workflows/fast
