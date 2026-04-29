@@ -66,6 +66,60 @@ const steps = [
     ]),
   },
   {
+    name: 'slim-eligibility',
+    diag: 'SLIM-03',
+    run: () => {
+      const { readdirSync, readFileSync } = require('fs');
+      process.stdout.write('\n[SLIM-03] Running step: slim-eligibility\n');
+
+      // Detect thin launchers: top-level workflow .md files whose entire trimmed
+      // content is a single ```gsd-advisory ... ``` fenced block.
+      const workflowsDir = join(ROOT, 'get-shit-done', 'workflows');
+      let files;
+      try {
+        files = readdirSync(workflowsDir);
+      } catch {
+        files = [];
+      }
+
+      // Collect workflowIds from launcher metadata (not filename alone).
+      const launcherWorkflowIds = [];
+      for (const file of files) {
+        if (!file.endsWith('.md')) continue;
+        let content;
+        try {
+          content = readFileSync(join(workflowsDir, file), 'utf8');
+        } catch {
+          continue;
+        }
+        const trimmed = content.trim();
+        // Must be exactly one fenced gsd-advisory block — same rule as extractLauncherBlock
+        const m = trimmed.match(/^```gsd-advisory\r?\n([\s\S]+?)\r?\n```$/);
+        if (!m || trimmed !== m[0]) continue;
+        // Extract workflowId from the block's YAML content
+        const idMatch = m[1].match(/^workflowId:\s*(\S+)/m);
+        if (idMatch) {
+          launcherWorkflowIds.push(idMatch[1].trim());
+        }
+      }
+
+      if (launcherWorkflowIds.length === 0) {
+        process.stdout.write('[SLIM-03] PASS: slim-eligibility (no thin launchers detected — no-op)\n');
+        return;
+      }
+
+      process.stdout.write(`[SLIM-03] Found ${launcherWorkflowIds.length} thin launcher(s): ${launcherWorkflowIds.join(', ')}\n`);
+      for (const workflowId of launcherWorkflowIds) {
+        run(
+          `slim-eligibility:${workflowId}`,
+          'SLIM-03',
+          node,
+          [join(ROOT, 'bin', 'gsd-sdk.js'), 'compile', '--check-slim-eligibility', workflowId],
+        );
+      }
+    },
+  },
+  {
     name: 'parity-suite',
     diag: 'PRTY-01',
     run: () => run('parity-suite', 'PRTY-01', node, [
