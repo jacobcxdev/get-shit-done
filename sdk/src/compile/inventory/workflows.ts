@@ -10,6 +10,8 @@ import { basename, join } from 'node:path';
 import { mkWarning } from '../diagnostics.js';
 import { fileContentHash } from '../hash.js';
 import { toRepoRelative } from '../paths.js';
+import { extractLauncherBlock, validateLauncherMetadata } from '../slim-launcher.js';
+import { parsePostureYaml } from '../outlier-postures.js';
 import { inferWorkflowSemanticManifest } from '../workflow-semantics.js';
 import type { CompileDiagnostic, WorkflowEntry } from '../types.js';
 
@@ -186,6 +188,18 @@ export async function collectWorkflows(projectDir: string, diagnostics: CompileD
     const content = await readFile(absPath, 'utf-8');
     const stepCount = countSteps(content);
     const workflowId = `/workflows/${basename(file, '.md')}`;
+
+    // Determine if this file is a thin launcher (SLIM-02).
+    const launcherBlock = extractLauncherBlock(content);
+    const isLauncher = launcherBlock !== null;
+    if (isLauncher) {
+      // Validate launcher metadata and emit SLIM-02 diagnostics for invalid launchers.
+      // isLauncher remains true even when metadata is invalid — the compiler will report
+      // SLIM-02 but still process the workflow entry for other checks.
+      const raw = parsePostureYaml(launcherBlock);
+      validateLauncherMetadata(raw, absPath, diagnostics);
+    }
+
     entries.push({
       id: workflowId,
       path: toRepoRelative(projectDir, absPath),
@@ -196,6 +210,7 @@ export async function collectWorkflows(projectDir: string, diagnostics: CompileD
       semanticFeatures: { values: inferSemanticFeatures(content), inferred: true },
       semanticManifest: inferWorkflowSemanticManifest(workflowId, content),
       isTopLevel: true,
+      isLauncher,
     });
   }
 

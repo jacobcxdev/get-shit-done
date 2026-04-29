@@ -6,6 +6,7 @@
     },
     "hash": "5cfa8a76a3e104cd1db4f2f651d5450c6aed1feb74253187abf0b9ce57d3874c",
     "id": "/workflows/add-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/add-phase.md",
     "runnerType": {
@@ -44,6 +45,7 @@
     },
     "hash": "c30dad24a96bff68adce9fdfeec4db607e8da5dbd46a1a160dcbd8ecd6d5bd2b",
     "id": "/workflows/add-tests",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/add-tests.md",
     "runnerType": {
@@ -153,6 +155,7 @@
     },
     "hash": "8e5098bff4dfe864eb254fa24a057a119e17b00bb4f9588e98fb7e70007235c3",
     "id": "/workflows/add-todo",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/add-todo.md",
     "runnerType": {
@@ -272,6 +275,7 @@
     },
     "hash": "c88fa35c1b83c08219a215994899fbe52498de2cc58f60e77aaaed24d08fbef3",
     "id": "/workflows/ai-integration-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/ai-integration-phase.md",
     "runnerType": {
@@ -388,6 +392,7 @@
     },
     "hash": "77aff48f97fa6f1c8a8bbe58e1c193c3947432221a0804de5d654753143129e4",
     "id": "/workflows/analyze-dependencies",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/analyze-dependencies.md",
     "runnerType": {
@@ -452,6 +457,7 @@
     },
     "hash": "8df723fe496d3d22e236fc5b6af39ca4d724585dc21da3533f0f596eef396732",
     "id": "/workflows/audit-fix",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/audit-fix.md",
     "runnerType": {
@@ -552,6 +558,7 @@
     },
     "hash": "1ad2cae461c5585dbbc8e0c9c4b1c9dc18ab2e26578d27d22e68cfdafce7a95a",
     "id": "/workflows/audit-milestone",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/audit-milestone.md",
     "runnerType": {
@@ -662,6 +669,7 @@
     },
     "hash": "8b3c04d95ce3a2554ab2e8d9c98512d0f16e60dc7623137fa67157a906e0ec75",
     "id": "/workflows/audit-uat",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/audit-uat.md",
     "runnerType": {
@@ -707,6 +715,7 @@
     },
     "hash": "1b16beac78081c3761084ee220ba0cff1d3d64e4fe86dafd48b11b7b212d0787",
     "id": "/workflows/autonomous",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/autonomous.md",
     "runnerType": {
@@ -845,6 +854,7 @@
     },
     "hash": "6dc2687a151c6c4c68d856592311c361b5000900f7ddbbcf84fa564d573928d7",
     "id": "/workflows/check-todos",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/check-todos.md",
     "runnerType": {
@@ -964,6 +974,7 @@
     },
     "hash": "1ee5ebb91abb9765ca301f6d41109dbb556d7c16c0991d54281898ebb768f505",
     "id": "/workflows/cleanup",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/cleanup.md",
     "runnerType": {
@@ -1072,6 +1083,7 @@
     },
     "hash": "1a071779108bd3cdcd6e8f47fd5579bbb9787c5e892569c598854bd216c8943d",
     "id": "/workflows/code-review",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/code-review.md",
     "runnerType": {
@@ -1181,6 +1193,7 @@
     },
     "hash": "65ca760aafbee99af0c39c0169c9f80f5cd077a9a69c27d390cac31f1edf372f",
     "id": "/workflows/code-review-fix",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/code-review-fix.md",
     "runnerType": {
@@ -1282,6 +1295,7 @@
     },
     "hash": "7c88e192ef563dc556dd159f0272813d1b65105ffdc01bfaec5fd4fbc75a30c4",
     "id": "/workflows/complete-milestone",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/complete-milestone.md",
     "runnerType": {
@@ -1399,6 +1413,7 @@
     },
     "hash": "a8831d36e25d6ed6e05f2b1fdb1c4444d96207dbbd7131a9dace9183b1444e5f",
     "id": "/workflows/diagnose-issues",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/diagnose-issues.md",
     "runnerType": {
@@ -1516,6 +1531,7 @@
     },
     "hash": "9fd4318db4d022eab5437b9df1b4b1507f36ca96b9d0ff24e423ebc7b6034641",
     "id": "/workflows/discovery-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/discovery-phase.md",
     "runnerType": {
@@ -1624,6 +1640,7 @@
     },
     "hash": "d788a63c515103bd6bd7ed7ad6c2ed6b466ff0955ffc3b84a5d178439d526491",
     "id": "/workflows/discuss-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/discuss-phase.md",
     "runnerType": {
@@ -1747,6 +1764,7 @@
     },
     "hash": "933fb5ee04b1bc4a3484e4214693fe17023cf5dff3f5b31471a2803f6d81d5b4",
     "id": "/workflows/discuss-phase-assumptions",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/discuss-phase-assumptions.md",
     "runnerType": {
@@ -1902,6 +1920,7 @@
     },
     "hash": "290c0d83d783f9f68dbf4cf2829e9cce6a651e451272b73d29257c857fe3cb92",
     "id": "/workflows/discuss-phase-power",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/discuss-phase-power.md",
     "runnerType": {
@@ -1982,6 +2001,7 @@
     },
     "hash": "eff490675ff8516ce582a84a59a227f320588fdc9d84427127cae5927437bb55",
     "id": "/workflows/do",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/do.md",
     "runnerType": {
@@ -2081,6 +2101,7 @@
     },
     "hash": "6367cd984721020393abecc026384c6d0655dd898f8e83dc0991206ccbd5a91e",
     "id": "/workflows/docs-update",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/docs-update.md",
     "runnerType": {
@@ -2226,6 +2247,7 @@
     },
     "hash": "a4b2ffb82335127277a56704ec81e02942f51f9d0f4bfb3cd69dccf0e63ef8a4",
     "id": "/workflows/edit-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/edit-phase.md",
     "runnerType": {
@@ -2289,6 +2311,7 @@
     },
     "hash": "c7518749346505dba4ce66b81e4250b276be93934541d2dc06a96c30cfdc17b0",
     "id": "/workflows/eval-review",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/eval-review.md",
     "runnerType": {
@@ -2411,6 +2434,7 @@
     },
     "hash": "a9e7899c7a95b1fb0dfd4a9489b6d85538244a38adf5ecb0ee884c44560d6594",
     "id": "/workflows/execute-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/execute-phase.md",
     "runnerType": {
@@ -2588,6 +2612,7 @@
     },
     "hash": "0f55ee17df9a49907bd3c4fe8d755bf37cafbfde106ca9b0bfdec0a647cc3c45",
     "id": "/workflows/execute-plan",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/execute-plan.md",
     "runnerType": {
@@ -2734,6 +2759,7 @@
     },
     "hash": "73f71131549086a0d25e883f48995576303087ae222c6732600528accf7360a8",
     "id": "/workflows/explore",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/explore.md",
     "runnerType": {
@@ -2822,6 +2848,7 @@
     },
     "hash": "cf1ba7b9be3d1e3c6d52b2042665a1e5f3f3719d69cb93bc4bd2cb82cdeb655a",
     "id": "/workflows/extract_learnings",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/extract_learnings.md",
     "runnerType": {
@@ -2886,6 +2913,7 @@
     },
     "hash": "0f5240366bb835a913d7711e68eedb68dea3bc5e20e632c14d81f6db2dc75da5",
     "id": "/workflows/fast",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/fast.md",
     "runnerType": {
@@ -2924,6 +2952,7 @@
     },
     "hash": "256c31ee4a5cb58935f3e99a746f435d39eb7082a076dbf21a9385759f2b37f5",
     "id": "/workflows/forensics",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/forensics.md",
     "runnerType": {
@@ -3026,6 +3055,7 @@
     },
     "hash": "0b7c6e8b77556d491336fc9cc855146e3f40ce856839829cb769e6d438a68e8f",
     "id": "/workflows/graduation",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/graduation.md",
     "runnerType": {
@@ -3155,6 +3185,7 @@
     },
     "hash": "9caa888652e5b40cf61259d907ca562592c3158f646392c514f558eea4f1cf56",
     "id": "/workflows/health",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/health.md",
     "runnerType": {
@@ -3244,6 +3275,7 @@
     },
     "hash": "2fd984ca322c5a71ea31999447201ce78a8e323d1635f7ec1b4bcdc0eb6c2293",
     "id": "/workflows/help",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/help.md",
     "runnerType": {
@@ -3373,6 +3405,7 @@
     },
     "hash": "cd0cf42d4a33725ec11b7b67988a08bb8b4813473bb2b515ee7489f12d30ecdc",
     "id": "/workflows/import",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/import.md",
     "runnerType": {
@@ -3519,6 +3552,7 @@
     },
     "hash": "fcf6d0cfd77eff355289e33c7aadf22a9cbc5161454a361667a6ca905b819f18",
     "id": "/workflows/inbox",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/inbox.md",
     "runnerType": {
@@ -3634,6 +3668,7 @@
     },
     "hash": "5bbc50a9cf0f2d801a81361fbe4e619d0e4b0f4b33d6c0e171fd117f3d94f2ea",
     "id": "/workflows/ingest-docs",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/ingest-docs.md",
     "runnerType": {
@@ -3764,6 +3799,7 @@
     },
     "hash": "bf5b79ccdbae57787291f15d03f550b906cb581bca4663f73a95f5879631247a",
     "id": "/workflows/insert-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/insert-phase.md",
     "runnerType": {
@@ -3802,6 +3838,7 @@
     },
     "hash": "01948ced1d711b19ae794a09a901f1156f6efa4c826961caa535d1d40ecf98cb",
     "id": "/workflows/list-phase-assumptions",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/list-phase-assumptions.md",
     "runnerType": {
@@ -3848,6 +3885,7 @@
     },
     "hash": "382fb6aed159a6a886665ef602479998e3a53da0ef03b2c5d5c783b97cd02adf",
     "id": "/workflows/list-workspaces",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/list-workspaces.md",
     "runnerType": {
@@ -3882,6 +3920,7 @@
     },
     "hash": "6b3dc29d69b0786cbf011611683e77dce3b9ce61ce1203559329f180abc3fd87",
     "id": "/workflows/manager",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/manager.md",
     "runnerType": {
@@ -4009,6 +4048,7 @@
     },
     "hash": "76674689b3bdf84cf5e6d986354b6bf7692556163c09335582925decd966ea70",
     "id": "/workflows/map-codebase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/map-codebase.md",
     "runnerType": {
@@ -4122,6 +4162,7 @@
     },
     "hash": "da065b269d091987a58a12e5a4272d2c2afccf2958ed2a30392f7b508e60d750",
     "id": "/workflows/milestone-summary",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/milestone-summary.md",
     "runnerType": {
@@ -4210,6 +4251,7 @@
     },
     "hash": "21667420e82fd785d685742714951a0e10f7fc33d5b390110d8e426b5c43ddcb",
     "id": "/workflows/new-milestone",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/new-milestone.md",
     "runnerType": {
@@ -4338,6 +4380,7 @@
     },
     "hash": "ac652d675f7181d01e4175918207692ac20e5901ec28a8a391546b8c0f9886c4",
     "id": "/workflows/new-project",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/new-project.md",
     "runnerType": {
@@ -4485,6 +4528,7 @@
     },
     "hash": "30ee30bdb11e032a2430810aeba07cbc1b04e108751002422eafa40ad9c1c946",
     "id": "/workflows/new-workspace",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/new-workspace.md",
     "runnerType": {
@@ -4591,6 +4635,7 @@
     },
     "hash": "f3d7bb249e87a6cbc467dc655aa8cf710b72b26b19eb285269a1af5f49b0627f",
     "id": "/workflows/next",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/next.md",
     "runnerType": {
@@ -4679,6 +4724,7 @@
     },
     "hash": "07a1628e5a1ff96bf8a90b49a9d9c3a0ef0b843aff79ffc0162c7b7026f6a61b",
     "id": "/workflows/node-repair",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/node-repair.md",
     "runnerType": {
@@ -4737,6 +4783,7 @@
     },
     "hash": "93c44f71eac62615e0fdf2edcc827a65b399e7592b88b2b04a0a06d3ff242c75",
     "id": "/workflows/note",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/note.md",
     "runnerType": {
@@ -4850,6 +4897,7 @@
     },
     "hash": "6cc22cecd10206af77aa9ae366a4ec78ed9e3c0b45090856c6444d2631a7ea6a",
     "id": "/workflows/pause-work",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/pause-work.md",
     "runnerType": {
@@ -4921,6 +4969,7 @@
     },
     "hash": "28a825dd12ef04a273e8482a9a837d912c8152b9c64b09354b259c3e3a75cd9e",
     "id": "/workflows/plan-milestone-gaps",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/plan-milestone-gaps.md",
     "runnerType": {
@@ -4974,6 +5023,7 @@
     },
     "hash": "0d313f2c09f0e33e9a326811c690193412fdafaedb01b0174d35e57a07fd03fe",
     "id": "/workflows/plan-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/plan-phase.md",
     "runnerType": {
@@ -5128,6 +5178,7 @@
     },
     "hash": "f04acded30b7514637f4c26a6e202528ef36d195ef86fd1ffb5adab556c8fb66",
     "id": "/workflows/plan-review-convergence",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/plan-review-convergence.md",
     "runnerType": {
@@ -5252,6 +5303,7 @@
     },
     "hash": "77166c2470fa8033c9c54c62391c1a717eba1833e9b1acb794f4a6c30712b04c",
     "id": "/workflows/plant-seed",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/plant-seed.md",
     "runnerType": {
@@ -5367,6 +5419,7 @@
     },
     "hash": "0b564ee7db2b49649e7a937e4238119b2c1779fb7fe2231c73ef76992461b198",
     "id": "/workflows/pr-branch",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/pr-branch.md",
     "runnerType": {
@@ -5412,6 +5465,7 @@
     },
     "hash": "ca52f9603c9998531babc278cec06d67ef197ff6209784e267b93b3443057680",
     "id": "/workflows/profile-user",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/profile-user.md",
     "runnerType": {
@@ -5543,6 +5597,7 @@
     },
     "hash": "b532b923728ea1762dfeb40efa897c4ae7f9b54d1b3ab41996b746c257dd2928",
     "id": "/workflows/progress",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/progress.md",
     "runnerType": {
@@ -5666,6 +5721,7 @@
     },
     "hash": "caa0f1bfe523a0986f4f28451b97c712f7fcec7175a8c6bd7cd9375b437dd023",
     "id": "/workflows/quick",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/quick.md",
     "runnerType": {
@@ -5808,6 +5864,7 @@
     },
     "hash": "8c3875982a9bcbaf86421a94900ef9cfd71f6ee226c8075526d3491eb931df0b",
     "id": "/workflows/remove-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/remove-phase.md",
     "runnerType": {
@@ -5869,6 +5926,7 @@
     },
     "hash": "c9ef3be084045ed499b300b5840c61543f0677192ab64c2e5612f616bc954ecc",
     "id": "/workflows/remove-workspace",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/remove-workspace.md",
     "runnerType": {
@@ -5975,6 +6033,7 @@
     },
     "hash": "eb4ee155340d2c3a201bbc60d984e6a085f5ab2c37d02931b9bfa83eb2e27554",
     "id": "/workflows/research-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/research-phase.md",
     "runnerType": {
@@ -6076,6 +6135,7 @@
     },
     "hash": "04b97239d24fef7f5c6e4f088ae158fb611d060696b8b9f96dc00042b751efbe",
     "id": "/workflows/resume-project",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/resume-project.md",
     "runnerType": {
@@ -6181,6 +6241,7 @@
     },
     "hash": "8983875df5b490a2b12353f870d8b9a19d7167cc2def149602d22d8e2d1f7cb7",
     "id": "/workflows/review",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/review.md",
     "runnerType": {
@@ -6271,6 +6332,7 @@
     },
     "hash": "8ba7dcab565f0980fcb956a1c688dc16cb35257ae567038bef7f738508c205c4",
     "id": "/workflows/scan",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/scan.md",
     "runnerType": {
@@ -6352,6 +6414,7 @@
     },
     "hash": "fbb5aceda3a5f7e983e8a31551c93bbbbd25674ff562167b9f0389b955dbf973",
     "id": "/workflows/secure-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/secure-phase.md",
     "runnerType": {
@@ -6488,6 +6551,7 @@
     },
     "hash": "2e5b1205324ddefa5d6a580d6782436d21b6fb6589b695feae93970103b6df25",
     "id": "/workflows/session-report",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/session-report.md",
     "runnerType": {
@@ -6545,6 +6609,7 @@
     },
     "hash": "71019c8429d1261efdaacfc2faefaf27695f95ce2018a51ea499ba02a58de19c",
     "id": "/workflows/settings",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/settings.md",
     "runnerType": {
@@ -6685,6 +6750,7 @@
     },
     "hash": "36b695c3247ebfbecb1dd9fe2f372a2bf7e4eb0c8e84995f91d2e7022c40c211",
     "id": "/workflows/settings-advanced",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/settings-advanced.md",
     "runnerType": {
@@ -6827,6 +6893,7 @@
     },
     "hash": "8838ed5f7fcf7530e281196ed990a1b1982b74bfecd5c256a0f61bd4456d0052",
     "id": "/workflows/settings-integrations",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/settings-integrations.md",
     "runnerType": {
@@ -6935,6 +7002,7 @@
     },
     "hash": "4cf2990bf49b25b16931b0b81ca2e9be5e4656c8721eca179b65159e01a18ef6",
     "id": "/workflows/ship",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/ship.md",
     "runnerType": {
@@ -7052,6 +7120,7 @@
     },
     "hash": "3cd4dac03df478af1f7c6fdace39ede4d1617683f35e05897b66bc304e3bb398",
     "id": "/workflows/sketch",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/sketch.md",
     "runnerType": {
@@ -7174,6 +7243,7 @@
     },
     "hash": "b325ff4070dd6dc0c5b4f6d8b50fe89f55ec6c1b41b062695cbd5aad9bb66a6a",
     "id": "/workflows/sketch-wrap-up",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/sketch-wrap-up.md",
     "runnerType": {
@@ -7281,6 +7351,7 @@
     },
     "hash": "e5c01e7ed2cb97d8b5f748f0870449a301c990f30671d9013edc6809b7f5e47f",
     "id": "/workflows/spec-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/spec-phase.md",
     "runnerType": {
@@ -7397,6 +7468,7 @@
     },
     "hash": "d10e6dbdb55841187fa2b3c2e8360d059e35fc87cb8c8bbafcce59cd5c2f7915",
     "id": "/workflows/spike",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/spike.md",
     "runnerType": {
@@ -7534,6 +7606,7 @@
     },
     "hash": "c293dc0fb537469e1b2605685cc007553a39d5afd950fd6f61660254e48ac7d8",
     "id": "/workflows/spike-wrap-up",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/spike-wrap-up.md",
     "runnerType": {
@@ -7626,6 +7699,7 @@
     },
     "hash": "5597fe19be3bd9483fed27657d2cba72c1f70460015c8a1eb861615eda35af45",
     "id": "/workflows/stats",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/stats.md",
     "runnerType": {
@@ -7652,6 +7726,7 @@
     },
     "hash": "7df57cca302fba2eba300be1b80c8a0a573244945c66de893f870b952f3f2e42",
     "id": "/workflows/sync-skills",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/sync-skills.md",
     "runnerType": {
@@ -7716,6 +7791,7 @@
     },
     "hash": "024770f50d15ba427d7872413381c7c3618b6312e687c90a06f01725e9fdd841",
     "id": "/workflows/transition",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/transition.md",
     "runnerType": {
@@ -7822,6 +7898,7 @@
     },
     "hash": "0613664913966cff825646f22c8d8ef9eeb6280a32d2680b066678bed85c80a6",
     "id": "/workflows/ui-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/ui-phase.md",
     "runnerType": {
@@ -7947,6 +8024,7 @@
     },
     "hash": "40bc1e4849e1c3a12fb838ad25828792d6e5f75d22ac852a7d5446c3b74e2056",
     "id": "/workflows/ui-review",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/ui-review.md",
     "runnerType": {
@@ -8073,6 +8151,7 @@
     },
     "hash": "8d152c1a06153d3df5575655cf6b903869149c73fedfd8622510b8b21e4ce5eb",
     "id": "/workflows/ultraplan-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/ultraplan-phase.md",
     "runnerType": {
@@ -8119,6 +8198,7 @@
     },
     "hash": "c59a36ba8690776fbf8bdf04dd3f1f0a453ce67c1b8459658caeb687b014fc35",
     "id": "/workflows/undo",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/undo.md",
     "runnerType": {
@@ -8241,6 +8321,7 @@
     },
     "hash": "9604ce513da5ac464737db082e94a5e226699a2044b5a16e55884ebd12526fdb",
     "id": "/workflows/update",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/update.md",
     "runnerType": {
@@ -8363,6 +8444,7 @@
     },
     "hash": "bb4fd3da33b0c461741602be901702fc637403adbf633b7a0f3d6e280f92a277",
     "id": "/workflows/validate-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/validate-phase.md",
     "runnerType": {
@@ -8497,6 +8579,7 @@
     },
     "hash": "7043758b66cf0b15a20f2e180e23a7d91876096f2fd3684518472edaf5708f41",
     "id": "/workflows/verify-phase",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/verify-phase.md",
     "runnerType": {
@@ -8611,6 +8694,7 @@
     },
     "hash": "60b843d1ddadb9f825045ba8ad0faa3f4f2ba169e0b294062307a32d9486fd52",
     "id": "/workflows/verify-work",
+    "isLauncher": false,
     "isTopLevel": true,
     "path": "get-shit-done/workflows/verify-work.md",
     "runnerType": {
