@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: "Phase 5 Plan 01 complete — extension slot registry (ExtensionRegistry, SealedExtensionGraph)"
-last_updated: "2026-04-29T00:47:38Z"
+stopped_at: "Phase 5 Plan 02 complete — AdvisoryControlEvent union, gate/hook wiring, billing boundary extension"
+last_updated: "2026-04-29T00:02:10Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 39
-  completed_plans: 35
-  percent: 90
+  completed_plans: 36
+  percent: 92
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 5 of 6 (extension API + migration hardening)
-Plan: 1/5 complete
+Plan: 2/5 complete
 Status: In progress
 Last activity: 2026-04-29
 
-Progress: [█████████░] Phase 5 executing — 1/5 plans done
+Progress: [█████████░] Phase 5 executing — 2/5 plans done
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ Progress: [█████████░] Phase 5 executing — 1/5 plans done
 | Phase 03-advisory-runner-query-integration 03-13-runtime-report-handoff | 18 min | 3 tasks | 10 files |
 | Phase 04-parity-suite-gsd-post-update-retirement 04-05-generated-parity-fixtures | 8 min | 2 tasks | 5 files |
 | Phase 05-extension-api-migration-hardening 05-01-extension-slot-registry | 9 min | 2 tasks | 2 files |
+| Phase 05-extension-api-migration-hardening 05-02-advisory-control-events-wiring | 11 min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -118,10 +119,14 @@ Recent decisions affecting current work:
 - [Phase 05 Plan 05-01]: finalize() is an explicit public call on ExtensionRegistry returning SealedExtensionGraph; cycle-detected and unknown-dependency errors are thrown (hard) from finalize() rather than returned as diagnostics.
 - [Phase 05 Plan 05-01]: co-anchor warnings use CompileDiagnostic shape with code EXT-01 stored on SealedExtensionGraph.warnings; no mkWarning import to preserve pure advisory layer boundary.
 - [Phase 05 Plan 05-01]: duplicate-id check is per extensionId+kind pair — same extension can register multiple slot kinds without conflict.
+- [Phase 05 Plan 05-02]: gate pre-check lives in PhaseRunner.resolveAdvisoryPacketResult() not WorkflowRunner.dispatch() because dispatch input lacks a full FsmRunState.
+- [Phase 05 Plan 05-02]: gate-failed PhaseStepResult uses error='gate-failed' with data.controlEvent carrying the typed event.
+- [Phase 05 Plan 05-02]: lifecycle hooks silently skip when FSM state is unavailable (no throw on missing FSM for hook path).
+- [Phase 05 Plan 05-02]: WorkflowRunnerResult control variant requires narrowing fixes in all callers that switch on posture/error kinds.
 
 ### Pending Todos
 
-- Execute Phase 5 — Extension API + Migration Hardening — Plans 02–05 remaining.
+- Execute Phase 5 — Extension API + Migration Hardening — Plans 03–05 remaining.
 
 ### Blockers/Concerns
 
@@ -142,9 +147,9 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 ## Session Continuity
 
-Last session: 2026-04-29T00:47:38Z
-Stopped at: Completed Phase 5 Plan 01 — extension slot registry
-Resume file: .planning/phases/05-extension-api-migration-hardening/05-02-PLAN.md
+Last session: 2026-04-29T00:02:10Z
+Stopped at: Completed Phase 5 Plan 02 — advisory control events, gate/hook wiring, billing boundary extension
+Resume file: .planning/phases/05-extension-api-migration-hardening/05-03-PLAN.md
 
 ## Session Note — 2026-04-28
 
