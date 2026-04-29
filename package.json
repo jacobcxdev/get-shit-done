@@ -1,7 +1,7 @@
 {
   "name": "get-shit-done-cc",
   "version": "1.38.5",
-  "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini and Codex by TÂCHES.",
+  "description": "Jacob Clayden's fork of upstream GSD — a meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini and Codex. Upstream: https://github.com/gsd-build/get-shit-done",
   "bin": {
     "get-shit-done-cc": "bin/install.js",
     "gsd-sdk": "bin/gsd-sdk.js"
@@ -32,15 +32,15 @@
     "codex",
     "codex-cli"
   ],
-  "author": "TÂCHES",
+  "author": "Jacob Clayden",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gsd-build/get-shit-done.git"
+    "url": "git+https://github.com/jacobcxdev/get-shit-done.git"
   },
-  "homepage": "https://github.com/gsd-build/get-shit-done",
+  "homepage": "https://github.com/jacobcxdev/get-shit-done",
   "bugs": {
-    "url": "https://github.com/gsd-build/get-shit-done/issues"
+    "url": "https://github.com/jacobcxdev/get-shit-done/issues"
   },
   "engines": {
     "node": ">=22.0.0"

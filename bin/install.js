@@ -439,7 +439,8 @@ const banner = '\n' +
   '\n' +
   '  Get Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
   '  A meta-prompting, context engineering and spec-driven\n' +
-  '  development system for Claude Code, OpenCode, Gemini, Kilo, Codex, Copilot, Antigravity, Cursor, Windsurf, Augment, Trae, Qwen Code, Cline and CodeBuddy by TÂCHES.\n';
+  '  development system for Claude Code, OpenCode, Gemini, Kilo, Codex, Copilot, Antigravity, Cursor, Windsurf, Augment, Trae, Qwen Code, Cline and CodeBuddy.\n' +
+  '  Jacob Clayden\'s fork of upstream GSD by TÂCHES.\n';
 
 // Parse --config-dir argument
 function parseConfigDirArg() {
@@ -7399,7 +7400,7 @@ function installSdkIfNeeded(opts) {
       console.error(`  Or, if you prefer a one-shot run, clear the npx cache first:`);
       console.error(`    ${cyan}npx --yes get-shit-done-cc@latest${reset}`);
       console.error(`  Or build from source (git clone):`);
-      console.error(`    ${cyan}git clone https://github.com/gsd-build/get-shit-done && cd get-shit-done/sdk && npm install && npm run build${reset}`);
+      console.error(`    ${cyan}git clone https://github.com/jacobcxdev/get-shit-done && cd get-shit-done/sdk && npm install && npm run build${reset}`);
     } else {
       // Dev clone: keep the existing build-from-source hint.
       console.error(`  Running from a git clone — build the SDK first:`);

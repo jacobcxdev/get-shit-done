@@ -1,5 +1,7 @@
 # @gsd-build/sdk
 
+> **Fork notice:** This is Jacob Clayden's fork of upstream GSD. The package name `@gsd-build/sdk` is preserved for compatibility (D-02); upstream source: https://github.com/gsd-build/get-shit-done
+
 TypeScript SDK for **Get Shit Done**: deterministic query/mutation handlers, plan execution, and event-stream telemetry so agents focus on judgment, not shell plumbing.
 
 ## Install

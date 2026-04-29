@@ -1,7 +1,7 @@
 {
   "name": "@gsd-build/sdk",
   "version": "0.1.0",
-  "description": "GSD SDK — programmatic interface for running GSD plans via the Agent SDK",
+  "description": "GSD SDK — programmatic interface for running GSD plans via the Agent SDK. Jacob Clayden's fork of upstream GSD; upstream package: @gsd-build/sdk by TÂCHES.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,14 +20,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gsd-build/get-shit-done.git",
+    "url": "git+https://github.com/jacobcxdev/get-shit-done.git",
     "directory": "sdk"
   },
-  "homepage": "https://github.com/gsd-build/get-shit-done/tree/main/sdk",
+  "homepage": "https://github.com/jacobcxdev/get-shit-done/tree/main/sdk",
   "bugs": {
-    "url": "https://github.com/gsd-build/get-shit-done/issues"
+    "url": "https://github.com/jacobcxdev/get-shit-done/issues"
   },
-  "author": "TÂCHES",
+  "author": "Jacob Clayden",
   "license": "MIT",
   "engines": {
     "node": ">=22.0.0"
