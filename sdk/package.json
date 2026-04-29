@@ -34,7 +34,7 @@
   },
   "scripts": {
     "build": "tsc && npm run copy:generated",
-    "copy:generated": "node -e \"const fs=require('node:fs'); const path=require('node:path'); const src=path.join('src','generated','compile'); const dst=path.join('dist','generated','compile'); if (fs.existsSync(src)) { fs.mkdirSync(dst,{recursive:true}); for (const f of fs.readdirSync(src)) if (f.endsWith('.json')) fs.copyFileSync(path.join(src,f), path.join(dst,f)); }\"",
+    "copy:generated": "node -e \"const fs=require('node:fs'); const path=require('node:path'); function copyDir(src,dst){if(!fs.existsSync(src))return;fs.mkdirSync(dst,{recursive:true});for(const f of fs.readdirSync(src))if(f.endsWith('.json'))fs.copyFileSync(path.join(src,f),path.join(dst,f));} copyDir(path.join('src','generated','compile'),path.join('dist','generated','compile')); copyDir(path.join('src','generated','parity'),path.join('dist','generated','parity'));\"",
     "prepublishOnly": "rm -rf dist && tsc && npm run copy:generated && chmod +x dist/cli.js",
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
