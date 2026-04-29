@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Compatibility Cleanup + Hard Outlier Posturing (v2+)** - Markdown is slimmed only after machine eligibility passes; hard outliers are formally documented (completed 2026-04-29)
 - [x] **Phase 7: Extension Runtime Slot Wiring (gap closure)** - Insert-step and provider-check extension slots are consumed by runtime packet emission and provider availability paths (completed 2026-04-29)
 - [x] **Phase 8: FSM Migration Control Event Read Path (gap closure)** - Normal FSM query reads surface migration-required and resume-blocked recovery events for schema mismatches (completed 2026-04-29)
-- [ ] **Phase 9: Milestone Audit Metadata Reconciliation (gap closure)** - Requirements traceability, SUMMARY frontmatter, validation metadata, and roadmap status are reconciled after implementation gaps close
+- [x] **Phase 9: Milestone Audit Metadata Reconciliation (gap closure)** - Requirements traceability, SUMMARY frontmatter, validation metadata, and roadmap status are reconciled after implementation gaps close (completed 2026-04-29)
 
 ## Phase Details
 
@@ -200,7 +200,10 @@ Plans:
   2. Phase 5 and Phase 6 SUMMARY frontmatter includes accurate `requirements-completed` entries for EXT, MIGR, SLIM, and OUTL coverage
   3. Phase 2, Phase 5, Phase 6, Phase 7, and Phase 8 validation metadata no longer report `wave_0_complete: false` when Nyquist compliance is accepted
   4. `.planning/ROADMAP.md` phase list and progress table agree on Phase 6 and the new gap-closure phases
-**Plans**: Pending
+**Plans**: 1 plan in 1 wave
+
+Plans:
+- [x] 09-PLAN.md — Milestone audit metadata reconciliation (REQUIREMENTS/ROADMAP/SUMMARY/VALIDATION/STATE)
 
 ## Progress
 
@@ -220,4 +223,4 @@ Gap closure phases execute in order: 7 → 8 → 9, with Phase 9 blocked on Phas
 | 6. Compatibility Cleanup + Hard Outlier Posturing (v2+) | 5/5 | Complete | 2026-04-29 |
 | 7. Extension Runtime Slot Wiring (gap closure) | 3/3 | Complete | 2026-04-29 |
 | 8. FSM Migration Control Event Read Path (gap closure) | 2/2 | Complete    | 2026-04-29 |
-| 9. Milestone Audit Metadata Reconciliation (gap closure) | 0/0 | Pending | — |
+| 9. Milestone Audit Metadata Reconciliation (gap closure) | 1/1 | Complete | 2026-04-29 |
