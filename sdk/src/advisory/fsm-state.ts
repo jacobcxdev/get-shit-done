@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { constants, unlinkSync } from 'node:fs';
 import { open, readFile, writeFile, rename, unlink, mkdir, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -31,12 +32,19 @@ export class FsmStateError extends Error {
 }
 
 export type FsmTransitionHistoryEntry = {
+  entryId: string;
   timestamp: string;
   fromState: string;
   toState: string;
   runId: string;
   outcome: string;
   configSnapshotHash: string;
+  checkpoint?: boolean;
+  extensionIds?: string[];
+  rollbackEntry?: {
+    rollbackToEntryId: string;
+    rolledBackEntryIds: string[];
+  };
   reducedConfidence?: boolean;
   missingProvider?: string;
   missingProviders?: string[];
@@ -72,6 +80,7 @@ export type FsmTransitionInput = {
   toState: string;
   outcome: string;
   configSnapshotHash?: string;
+  checkpoint?: boolean;
   providerMetadata?: {
     providerConfidence?: ProviderConfidenceKind;
     missingProviders?: string[];
@@ -391,12 +400,14 @@ export async function advanceFsmState(input: FsmTransitionInput): Promise<FsmTra
       ...(input.providerMetadata?.missingProvider ? [input.providerMetadata.missingProvider] : []),
     ]);
     const entry: FsmTransitionHistoryEntry = {
+      entryId: randomUUID(),
       timestamp,
       fromState,
       toState: input.toState,
       runId: state.runId,
       outcome: input.outcome,
       configSnapshotHash: configHash,
+      ...(input.checkpoint === true ? { checkpoint: true } : {}),
     };
 
     if ((providerConfidence === 'reduced' || providerConfidence === 'blocked') && missingProviders.length > 0) {

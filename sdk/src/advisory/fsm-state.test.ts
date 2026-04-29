@@ -1,18 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import {
   CURRENT_FSM_STATE_SCHEMA_VERSION,
   FsmStateError,
   acquireFsmLock,
+  advanceFsmState,
   createInitialFsmRunState,
   fsmStatePath,
   readFsmLockStatus,
   releaseFsmLock,
   writeFsmState,
   type FsmRunState,
+  type FsmTransitionHistoryEntry,
 } from './fsm-state.js';
 
 describe('FSM state paths', () => {
@@ -162,6 +164,73 @@ describe('FSM locks', () => {
     releaseSync();
     await firstWrite;
   }, 7000);
+});
+
+describe('FsmTransitionHistoryEntry entryId and checkpoint fields', () => {
+  let projectDir: string;
+
+  beforeEach(async () => {
+    projectDir = await mkdtemp(join(tmpdir(), 'gsd-fsm-entry-'));
+    // Write initial FSM state so advanceFsmState can proceed
+    const state = makeState({ workstream: null });
+    await writeFsmState(projectDir, undefined, state);
+  });
+
+  afterEach(async () => {
+    await rm(projectDir, { recursive: true, force: true });
+  });
+
+  it('history entry produced by advanceFsmState has a non-empty entryId string', async () => {
+    const result = await advanceFsmState({
+      projectDir,
+      toState: 'research',
+      outcome: 'started',
+    });
+
+    const raw = await readFile(fsmStatePath(projectDir), 'utf-8');
+    const parsed = JSON.parse(raw) as FsmRunState;
+    const entry = parsed.transitionHistory[0];
+
+    expect(entry).toBeDefined();
+    expect(typeof entry.entryId).toBe('string');
+    expect(entry.entryId.trim()).not.toBe('');
+    // entryId must be a UUID-format string (8-4-4-4-12)
+    expect(entry.entryId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+    void result;
+  });
+
+  it('entryId is unique across multiple transitions', async () => {
+    await advanceFsmState({ projectDir, toState: 'research', outcome: 'started' });
+    await advanceFsmState({ projectDir, toState: 'plan', outcome: 'completed' });
+
+    const raw = await readFile(fsmStatePath(projectDir), 'utf-8');
+    const parsed = JSON.parse(raw) as FsmRunState;
+    const ids = parsed.transitionHistory.map((e: FsmTransitionHistoryEntry) => e.entryId);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('history entry has checkpoint: true when FsmTransitionInput.checkpoint is true', async () => {
+    await advanceFsmState({
+      projectDir,
+      toState: 'research',
+      outcome: 'started',
+      checkpoint: true,
+    });
+
+    const raw = await readFile(fsmStatePath(projectDir), 'utf-8');
+    const parsed = JSON.parse(raw) as FsmRunState;
+    const entry = parsed.transitionHistory[0];
+    expect(entry.checkpoint).toBe(true);
+  });
+
+  it('history entry has no checkpoint field when FsmTransitionInput omits checkpoint', async () => {
+    await advanceFsmState({ projectDir, toState: 'research', outcome: 'started' });
+
+    const raw = await readFile(fsmStatePath(projectDir), 'utf-8');
+    const parsed = JSON.parse(raw) as FsmRunState;
+    const entry = parsed.transitionHistory[0];
+    expect(entry.checkpoint).toBeUndefined();
+  });
 });
 
 function makeState(input: { workstream: string | null }): FsmRunState {
