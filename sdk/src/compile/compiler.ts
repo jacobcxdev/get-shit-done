@@ -164,9 +164,5 @@ export async function runCompiler(projectDir: string, opts: CompileOptions): Pro
     report.diagnostics = sortDiagnostics(report.diagnostics);
   }
 
-  if (report.diagnostics.some((diagnostic) => diagnostic.severity === 'error')) {
-    process.exitCode = 1;
-  }
-
   return report;
 }
