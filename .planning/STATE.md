@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: phase_complete
-stopped_at: "Phase 5 complete — ready for /gsd-discuss-phase 6 or /gsd-plan-phase 6"
-last_updated: "2026-04-29T01:40:00Z"
+status: executing
+stopped_at: Phase 6 context gathered
+last_updated: "2026-04-29T01:59:49.978Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 39
-  completed_plans: 39
+  completed_phases: 4
+  total_plans: 40
+  completed_plans: 40
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-28)
 
 **Core value:** The SDK emits one atomic instruction packet at a time; the runtime executes it and reports back — `gsd-post-update` must become unnecessary.
-**Current focus:** Phase 5 — Extension API + Migration Hardening (planned; ready to execute)
+**Current focus:** Phase 06 — compatibility-cleanup-hard-outlier-posturing-v2
 
 ## Current Position
 
-Phase: 6 of 6 (compatibility cleanup + hard outlier posturing)
-Plan: 0/TBD
-Status: Ready to plan
+Phase: 06 (compatibility-cleanup-hard-outlier-posturing-v2) — EXECUTING
+Plan: 3 of 5
+Status: Ready to execute
 Last activity: 2026-04-29
 
-Progress: [██████████] Phase 5 complete — ready for Phase 6
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -51,7 +51,7 @@ Progress: [██████████] Phase 5 complete — ready for Phase 
 **Recent Trend:**
 
 - Last 5 plans: 8 min, 18 min, 18 min, 8 min, 9 min
-- Trend: Phase 5 executing
+- Trend: Phase 5 complete; Phase 6 ready to discuss
 
 *Updated after each plan completion*
 | Phase 02 PPLAN-01-packet-schema | 8min | 3 tasks | 10 files |
@@ -75,6 +75,7 @@ Progress: [██████████] Phase 5 complete — ready for Phase 
 | Phase 05-extension-api-migration-hardening 05-03-fsm-history-hardening | 8 min | 2 tasks | 3 files |
 | Phase 05-extension-api-migration-hardening 05-04-fsm-rollback | 7 min | 2 tasks | 2 files |
 | Phase 05-extension-api-migration-hardening 05-05-integration-hardening | 18 min | 2 tasks | 3 files |
+| Phase 06-compatibility-cleanup-hard-outlier-posturing-v2 06-02-slim-eligibility | 5 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -137,6 +138,10 @@ Recent decisions affecting current work:
 - [Phase 05 Plan 05-05]: advisory/index.ts uses named re-exports only — no wildcard re-exports — to keep the public API surface explicit (T-05-05-01 mitigation).
 - [Phase 05 Plan 05-05]: COMP-09 preserved in validateExtensionDeps() for compile-time path; ExtensionRegistry.finalize() uses ExtensionRegistryError (EXT-06 registry path) — two diagnostic paths intentionally distinct.
 - [Phase 05 Plan 05-05]: Phase 5 complete; all EXT-01–07 and MIGR-01–05 requirements satisfied across 5 plans.
+- [Phase 06 Plan 06-02]: evaluateSlimEligibility is the sole slim eligibility authority; eligible is always derived from gates[], never set independently (T-06-02-01).
+- [Phase 06 Plan 06-02]: typed-transitions and packet-sequencing gates always return indeterminate (fail-closed per D-02) until durable non-prose evidence surfaces exist.
+- [Phase 06 Plan 06-02]: optional parityIndexPath parameter avoids global fs mocking; production path is hardcoded (T-06-02-04 accepted).
+- [Phase 06 Plan 06-02]: parity index field is parityTier (not tier) — matched actual parity-workflow-index.json structure.
 
 ### Pending Todos
 
@@ -161,9 +166,9 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 ## Session Continuity
 
-Last session: 2026-04-29T01:40:00Z
-Stopped at: Phase 5 complete — all 5 plans executed; advisory index, diagnostic alignment, and phase docs updated
-Resume file: None — begin Phase 6 with /gsd-discuss-phase 6 or /gsd-plan-phase 6
+Last session: 2026-04-29T03:08:00Z
+Stopped at: Completed 06-02-PLAN.md (slim eligibility evaluator — SLIM-01)
+Resume file: None
 
 ## Session Note — 2026-04-28
 
