@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: "Phase 5 Plan 02 complete — AdvisoryControlEvent union, gate/hook wiring, billing boundary extension"
-last_updated: "2026-04-29T00:02:10Z"
+stopped_at: "Phase 5 Plan 03 complete — FsmTransitionHistoryEntry entryId/checkpoint fields, parseFsmRunStateOrControlEvent wrapper"
+last_updated: "2026-04-29T00:15:00Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 39
-  completed_plans: 36
-  percent: 92
+  completed_plans: 37
+  percent: 95
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 5 of 6 (extension API + migration hardening)
-Plan: 2/5 complete
+Plan: 3/5 complete
 Status: In progress
 Last activity: 2026-04-29
 
-Progress: [█████████░] Phase 5 executing — 2/5 plans done
+Progress: [█████████░] Phase 5 executing — 3/5 plans done
 
 ## Performance Metrics
 
@@ -72,6 +72,7 @@ Progress: [█████████░] Phase 5 executing — 2/5 plans done
 | Phase 04-parity-suite-gsd-post-update-retirement 04-05-generated-parity-fixtures | 8 min | 2 tasks | 5 files |
 | Phase 05-extension-api-migration-hardening 05-01-extension-slot-registry | 9 min | 2 tasks | 2 files |
 | Phase 05-extension-api-migration-hardening 05-02-advisory-control-events-wiring | 11 min | 3 tasks | 7 files |
+| Phase 05-extension-api-migration-hardening 05-03-fsm-history-hardening | 8 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -123,10 +124,14 @@ Recent decisions affecting current work:
 - [Phase 05 Plan 05-02]: gate-failed PhaseStepResult uses error='gate-failed' with data.controlEvent carrying the typed event.
 - [Phase 05 Plan 05-02]: lifecycle hooks silently skip when FSM state is unavailable (no throw on missing FSM for hook path).
 - [Phase 05 Plan 05-02]: WorkflowRunnerResult control variant requires narrowing fixes in all callers that switch on posture/error kinds.
+- [Phase 05 Plan 05-03]: parseFsmRunStateOrControlEvent is a wrapper over parseFsmRunState — base function unchanged so existing callers in query/fsm-state.ts require no change.
+- [Phase 05 Plan 05-03]: entryId is generated internally in advanceFsmState via randomUUID(); FsmTransitionInput does not accept entryId (T-05-03-01 threat mitigation).
+- [Phase 05 Plan 05-03]: detectedVersion defaults to -1 when stateSchemaVersion field is absent or non-numeric, triggering migration-required path.
+- [Phase 05 Plan 05-03]: checkpoint is omitted from history entry when FsmTransitionInput.checkpoint is falsy — no automatic checkpoint policy beyond explicit caller opt-in.
 
 ### Pending Todos
 
-- Execute Phase 5 — Extension API + Migration Hardening — Plans 03–05 remaining.
+- Execute Phase 5 — Extension API + Migration Hardening — Plans 04–05 remaining.
 
 ### Blockers/Concerns
 
@@ -147,9 +152,9 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 ## Session Continuity
 
-Last session: 2026-04-29T00:02:10Z
-Stopped at: Completed Phase 5 Plan 02 — advisory control events, gate/hook wiring, billing boundary extension
-Resume file: .planning/phases/05-extension-api-migration-hardening/05-03-PLAN.md
+Last session: 2026-04-29T00:15:00Z
+Stopped at: Completed Phase 5 Plan 03 — FsmTransitionHistoryEntry entryId/checkpoint fields, parseFsmRunStateOrControlEvent wrapper
+Resume file: .planning/phases/05-extension-api-migration-hardening/05-04-PLAN.md
 
 ## Session Note — 2026-04-28
 
