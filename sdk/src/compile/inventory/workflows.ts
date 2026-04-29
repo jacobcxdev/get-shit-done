@@ -196,8 +196,10 @@ export async function collectWorkflows(projectDir: string, diagnostics: CompileD
       // Validate launcher metadata and emit SLIM-02 diagnostics for invalid launchers.
       // isLauncher remains true even when metadata is invalid — the compiler will report
       // SLIM-02 but still process the workflow entry for other checks.
+      // Pass repo-relative path so diagnostics don't leak host filesystem paths (T-06-03-02).
       const raw = parsePostureYaml(launcherBlock);
-      validateLauncherMetadata(raw, absPath, diagnostics);
+      const repoRelPath = toRepoRelative(projectDir, absPath);
+      validateLauncherMetadata(raw, repoRelPath, diagnostics);
     }
 
     entries.push({
