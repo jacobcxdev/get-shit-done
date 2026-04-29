@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: "Phase 5 Plan 03 complete — FsmTransitionHistoryEntry entryId/checkpoint fields, parseFsmRunStateOrControlEvent wrapper"
-last_updated: "2026-04-29T00:15:00Z"
+stopped_at: "Phase 5 Plan 04 complete — rollbackFsmState and migrateFsmState append-only FSM rollback"
+last_updated: "2026-04-29T01:22:00Z"
 last_activity: 2026-04-29
 progress:
   total_phases: 6
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 5 of 6 (extension API + migration hardening)
-Plan: 3/5 complete
+Plan: 4/5 complete
 Status: In progress
 Last activity: 2026-04-29
 
-Progress: [█████████░] Phase 5 executing — 3/5 plans done
+Progress: [█████████░] Phase 5 executing — 4/5 plans done
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ Progress: [█████████░] Phase 5 executing — 3/5 plans done
 | Phase 05-extension-api-migration-hardening 05-01-extension-slot-registry | 9 min | 2 tasks | 2 files |
 | Phase 05-extension-api-migration-hardening 05-02-advisory-control-events-wiring | 11 min | 3 tasks | 7 files |
 | Phase 05-extension-api-migration-hardening 05-03-fsm-history-hardening | 8 min | 2 tasks | 3 files |
+| Phase 05-extension-api-migration-hardening 05-04-fsm-rollback | 7 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -125,13 +126,17 @@ Recent decisions affecting current work:
 - [Phase 05 Plan 05-02]: lifecycle hooks silently skip when FSM state is unavailable (no throw on missing FSM for hook path).
 - [Phase 05 Plan 05-02]: WorkflowRunnerResult control variant requires narrowing fixes in all callers that switch on posture/error kinds.
 - [Phase 05 Plan 05-03]: parseFsmRunStateOrControlEvent is a wrapper over parseFsmRunState — base function unchanged so existing callers in query/fsm-state.ts require no change.
+- [Phase 05 Plan 05-04]: rollbackFsmState returns RollbackBlockedEvent (not throws) when no checkpoint found — consistent with discriminated union control-event pattern.
+- [Phase 05 Plan 05-04]: migrateFsmState reads raw JSON directly; does NOT call parseFsmRunState to avoid version rejection on old-schema state (T-05-04-04).
+- [Phase 05 Plan 05-04]: Both fsm-rollback functions use heldLockPath on every writeFsmState call — prevents double-lock deadlock (T-05-04-02).
+- [Phase 05 Plan 05-04]: migrateFsmState returns already-current for v1 state without writing the file — idempotent no-op.
 - [Phase 05 Plan 05-03]: entryId is generated internally in advanceFsmState via randomUUID(); FsmTransitionInput does not accept entryId (T-05-03-01 threat mitigation).
 - [Phase 05 Plan 05-03]: detectedVersion defaults to -1 when stateSchemaVersion field is absent or non-numeric, triggering migration-required path.
 - [Phase 05 Plan 05-03]: checkpoint is omitted from history entry when FsmTransitionInput.checkpoint is falsy — no automatic checkpoint policy beyond explicit caller opt-in.
 
 ### Pending Todos
 
-- Execute Phase 5 — Extension API + Migration Hardening — Plans 04–05 remaining.
+- Execute Phase 5 — Extension API + Migration Hardening — Plan 05 remaining.
 
 ### Blockers/Concerns
 
@@ -152,9 +157,9 @@ Items acknowledged and carried forward; activate only after v1 parity gates pass
 
 ## Session Continuity
 
-Last session: 2026-04-29T00:15:00Z
-Stopped at: Completed Phase 5 Plan 03 — FsmTransitionHistoryEntry entryId/checkpoint fields, parseFsmRunStateOrControlEvent wrapper
-Resume file: .planning/phases/05-extension-api-migration-hardening/05-04-PLAN.md
+Last session: 2026-04-29T01:22:00Z
+Stopped at: Completed Phase 5 Plan 04 — rollbackFsmState and migrateFsmState append-only FSM rollback
+Resume file: .planning/phases/05-extension-api-migration-hardening/05-05-PLAN.md
 
 ## Session Note — 2026-04-28
 
