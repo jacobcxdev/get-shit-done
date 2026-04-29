@@ -49,6 +49,11 @@ function asRecord(value: unknown): JsonRecord {
     : {};
 }
 
+function isControlEvent(value: unknown): boolean {
+  const r = asRecord(value);
+  return r.kind === 'control' && typeof r.event === 'string';
+}
+
 function json(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
@@ -329,13 +334,25 @@ export function formatQueryOutput(input: FormatQueryOutputInput): FormattedQuery
   const result = input.result;
   const record = asRecord(result);
 
-  if (command === 'fsm.state') return scalar(record.currentState ?? result);
-  if (command === 'fsm.run-id') return scalar(record.runId ?? result);
-  if (command === 'fsm.confidence') return scalar(record.confidence ?? result);
+  if (command === 'fsm.state') {
+    if (isControlEvent(result)) return { stdout: json(result), stderr: '', exitCode: 0 };
+    return scalar(record.currentState ?? result);
+  }
+  if (command === 'fsm.run-id') {
+    if (isControlEvent(result)) return { stdout: json(result), stderr: '', exitCode: 0 };
+    return scalar(record.runId ?? result);
+  }
+  if (command === 'fsm.confidence') {
+    if (isControlEvent(result)) return { stdout: json(result), stderr: '', exitCode: 0 };
+    return scalar(record.confidence ?? result);
+  }
   if (command === 'thread.id') return scalar(record.threadId ?? result);
   if (command === 'thread.workstream') return scalar(record.workstream ?? result);
   if (command === 'thread.session') return formatThreadSession(result);
-  if (command === 'fsm.history') return formatHistory(result);
+  if (command === 'fsm.history') {
+    if (isControlEvent(result)) return { stdout: json(result), stderr: '', exitCode: 0 };
+    return formatHistory(result);
+  }
   if (command === 'fsm.transition') return formatTransition(result);
   if (command === 'phase.edit') return formatPhaseEdit(result);
 

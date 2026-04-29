@@ -16,6 +16,7 @@ function isNotFoundError(error: unknown): boolean {
   return error instanceof Error && (error as NodeJS.ErrnoException).code === 'ENOENT';
 }
 
+// D-06 (Phase 8): Thread handlers stay strict until thread-specific migration recovery hints exist.
 async function readThreadState(projectDir: string, workstream: string | undefined): Promise<FsmRunState> {
   const path = fsmStatePath(projectDir, workstream);
   let raw: string;

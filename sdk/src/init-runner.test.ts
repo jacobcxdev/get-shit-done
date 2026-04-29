@@ -160,7 +160,7 @@ function makeWorkflowRunner() {
         instruction: `Execute init step ${input.stepId}.`,
         requiredContext: [],
         allowedTools: [],
-        agents: [],
+        agents: ['gsd-executor'],
         expectedEvidence: [`init:${input.stepId}`],
         allowedOutcomes: ['success', 'failure', 'skipped'],
         reportCommand: 'gsd-sdk query fsm.transition <workstream> <onSuccess> success',

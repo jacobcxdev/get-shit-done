@@ -53,25 +53,83 @@ describe('FSM query handlers', () => {
     expect(JSON.parse(raw).autoMode).toEqual({ active: false, source: 'none' });
   });
 
-  it('rejects unsupported FSM schema versions for read and edit queries without mutating the file', async () => {
+  it('resolves read-only FSM commands with control events for schema-version mismatches', async () => {
     const registry = createRegistry();
     await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
     const statePath = join(projectDir, '.planning', 'fsm-state.json');
     const initialRaw = await readFile(statePath, 'utf-8');
-    const state = JSON.parse(initialRaw) as Record<string, unknown>;
-    state.stateSchemaVersion = 999;
-    const unsupportedRaw = `${JSON.stringify(state, null, 2)}\n`;
-    await writeFile(statePath, unsupportedRaw, 'utf-8');
 
-    for (const command of ['fsm.state', 'fsm.history', 'fsm.confidence']) {
-      await expect(registry.dispatch(command, [], projectDir))
-        .rejects.toMatchObject({ code: 'schema-version-mismatch' });
+    // Future schema (stateSchemaVersion > 1) → resume-blocked
+    const futureState = { ...(JSON.parse(initialRaw) as Record<string, unknown>), stateSchemaVersion: 999 };
+    await writeFile(statePath, `${JSON.stringify(futureState, null, 2)}\n`, 'utf-8');
+    const futureRaw = await readFile(statePath, 'utf-8');
+    for (const command of ['fsm.state', 'fsm.run-id', 'fsm.history', 'fsm.confidence']) {
+      const result = await registry.dispatch(command, [], projectDir);
+      expect(result.data).toMatchObject({ kind: 'control', event: 'resume-blocked' });
+      await expect(readFile(statePath, 'utf-8')).resolves.toBe(futureRaw);
     }
 
-    await expect(registry.dispatch('phase.edit', ['currentState', 'advance'], projectDir))
-      .rejects.toMatchObject({ code: 'schema-version-mismatch' });
+    // Past schema (stateSchemaVersion: 0 < 1) → migration-required
+    const pastState = { ...(JSON.parse(initialRaw) as Record<string, unknown>), stateSchemaVersion: 0 };
+    await writeFile(statePath, `${JSON.stringify(pastState, null, 2)}\n`, 'utf-8');
+    const pastRaw = await readFile(statePath, 'utf-8');
+    for (const command of ['fsm.state', 'fsm.run-id', 'fsm.history', 'fsm.confidence']) {
+      const result = await registry.dispatch(command, [], projectDir);
+      expect(result.data).toMatchObject({ kind: 'control', event: 'migration-required' });
+      await expect(readFile(statePath, 'utf-8')).resolves.toBe(pastRaw);
+    }
 
-    await expect(readFile(statePath, 'utf-8')).resolves.toBe(unsupportedRaw);
+    // Missing stateSchemaVersion field (detectedVersion = -1) → migration-required
+    const noVersionState = { ...(JSON.parse(initialRaw) as Record<string, unknown>) };
+    delete noVersionState.stateSchemaVersion;
+    await writeFile(statePath, `${JSON.stringify(noVersionState, null, 2)}\n`, 'utf-8');
+    const noVersionRaw = await readFile(statePath, 'utf-8');
+    for (const command of ['fsm.state', 'fsm.run-id', 'fsm.history', 'fsm.confidence']) {
+      const result = await registry.dispatch(command, [], projectDir);
+      expect(result.data).toMatchObject({ kind: 'control', event: 'migration-required' });
+      await expect(readFile(statePath, 'utf-8')).resolves.toBe(noVersionRaw);
+    }
+
+    // Non-numeric stateSchemaVersion field (detectedVersion = -1) → migration-required
+    const nonNumericState = { ...(JSON.parse(initialRaw) as Record<string, unknown>), stateSchemaVersion: 'legacy' };
+    await writeFile(statePath, `${JSON.stringify(nonNumericState, null, 2)}\n`, 'utf-8');
+    const nonNumericRaw = await readFile(statePath, 'utf-8');
+    for (const command of ['fsm.state', 'fsm.run-id', 'fsm.history', 'fsm.confidence']) {
+      const result = await registry.dispatch(command, [], projectDir);
+      expect(result.data).toMatchObject({ kind: 'control', event: 'migration-required' });
+      await expect(readFile(statePath, 'utf-8')).resolves.toBe(nonNumericRaw);
+    }
+  });
+
+  it('still rejects mutation commands for unsupported schema versions without mutating the file', async () => {
+    const registry = createRegistry();
+    await registry.dispatch('fsm.state.init', ['run-1', 'workflow-1', 'verify'], projectDir);
+    const statePath = join(projectDir, '.planning', 'fsm-state.json');
+    const initialRaw = await readFile(statePath, 'utf-8');
+    const mutationCases = [
+      { label: 'future', stateSchemaVersion: 999 },
+      { label: 'past', stateSchemaVersion: 0 },
+    ];
+    const mutationCommands: Array<{ command: string; args: string[] }> = [
+      { command: 'phase.edit', args: ['currentState', 'advance'] },
+      { command: 'fsm.transition', args: ['', 'advance', 'ok'] },
+      { command: 'fsm.auto-mode.set', args: ['true', 'auto_chain'] },
+    ];
+
+    for (const mutationCase of mutationCases) {
+      for (const mutationCommand of mutationCommands) {
+        const unsupportedState = {
+          ...(JSON.parse(initialRaw) as Record<string, unknown>),
+          stateSchemaVersion: mutationCase.stateSchemaVersion,
+        };
+        const unsupportedRaw = `${JSON.stringify(unsupportedState, null, 2)}\n`;
+        await writeFile(statePath, unsupportedRaw, 'utf-8');
+
+        await expect(registry.dispatch(mutationCommand.command, mutationCommand.args, projectDir))
+          .rejects.toMatchObject({ code: 'schema-version-mismatch' });
+        await expect(readFile(statePath, 'utf-8')).resolves.toBe(unsupportedRaw);
+      }
+    }
   });
 
   it('dispatches lock.status and lock status aliases', async () => {

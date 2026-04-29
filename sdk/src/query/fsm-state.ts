@@ -9,9 +9,11 @@ import {
   createInitialFsmRunState,
   fsmStatePath,
   parseFsmRunState,
+  parseFsmRunStateOrControlEvent,
   readFsmLockStatus,
   writeFsmState,
 } from '../advisory/fsm-state.js';
+import type { AdvisoryControlEvent } from '../advisory/control-events.js';
 import { deriveConfidenceFromHistory } from '../advisory/provider-availability.js';
 import { loadConfig } from '../config.js';
 import { GSDError, ErrorClassification } from '../errors.js';
@@ -152,17 +154,41 @@ async function readStateIfPresent(path: string): Promise<FsmRunState | null> {
   }
 }
 
+function isControlEvent(
+  value: FsmRunState | AdvisoryControlEvent,
+): value is AdvisoryControlEvent {
+  return (value as AdvisoryControlEvent).kind === 'control';
+}
+
+async function readStateOrControlEvent(
+  path: string,
+): Promise<FsmRunState | AdvisoryControlEvent> {
+  let raw: string;
+  try {
+    raw = await readFile(path, 'utf-8');
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      throw new FsmStateError('read-failed', `FSM state file not found: ${path}`);
+    }
+    throw new FsmStateError('read-failed', `Failed to read FSM state file: ${String(error)}`);
+  }
+  return parseFsmRunStateOrControlEvent(raw, path);
+}
+
 export const fsmStateRead: QueryHandler = async (args, projectDir, workstream) => {
   const target = targetWorkstream(workstream, args[0]);
   const path = fsmStatePath(projectDir, target);
-  const parsed = await readState(path);
+  const parsed = await readStateOrControlEvent(path);
   return { data: parsed };
 };
 
 export const fsmRunId: QueryHandler = async (args, projectDir, workstream) => {
   const target = targetWorkstream(workstream, args[0]);
   const path = fsmStatePath(projectDir, target);
-  const parsed = await readState(path);
+  const parsed = await readStateOrControlEvent(path);
+  if (isControlEvent(parsed)) {
+    return { data: parsed };
+  }
   return { data: { runId: parsed.runId, workstream: target ?? null } };
 };
 
@@ -188,13 +214,19 @@ export const fsmTransition: QueryHandler = async (args, projectDir, workstream) 
 
 export const fsmHistory: QueryHandler = async (args, projectDir, workstream) => {
   const target = targetWorkstream(workstream, args[0]);
-  const parsed = await readState(fsmStatePath(projectDir, target));
+  const parsed = await readStateOrControlEvent(fsmStatePath(projectDir, target));
+  if (isControlEvent(parsed)) {
+    return { data: parsed };
+  }
   return { data: { history: parsed.transitionHistory, workstream: target ?? null } };
 };
 
 export const fsmConfidence: QueryHandler = async (args, projectDir, workstream) => {
   const target = targetWorkstream(workstream, args[0]);
-  const parsed = await readState(fsmStatePath(projectDir, target));
+  const parsed = await readStateOrControlEvent(fsmStatePath(projectDir, target));
+  if (isControlEvent(parsed)) {
+    return { data: parsed };
+  }
   return { data: { confidence: deriveConfidenceFromHistory(parsed.transitionHistory), workstream: target ?? null } };
 };
 
