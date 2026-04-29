@@ -9,7 +9,7 @@ import {
   classifyCommands,
   matchingCategoriesForCommand,
 } from './classification.js';
-import type { CommandCategory, CommandEntry, CompileDiagnostic } from './types.js';
+import type { CommandCategory, CommandEntry, CompileDiagnostic, OutlierPostureRecord } from './types.js';
 
 function command(id: string, overrides: Partial<CommandEntry> = {}): CommandEntry {
   return {
@@ -189,5 +189,57 @@ describe('command classification', () => {
 
     expect(diagnostics).toEqual([]);
     expect(entries.map((entry) => entry.commandId)).toEqual(['/gsd-do', '/gsd-help', '/gsd-plan-phase']);
+  });
+
+  // Wave 0 RED: posture record wiring — these fail until Task 2 wires postureRecords into classifyCommands
+  it('attaches outlierPostureRecord to seed outlier entry when postureRecords Map is supplied', () => {
+    const diagnostics: CompileDiagnostic[] = [];
+    const postureRecord: OutlierPostureRecord = {
+      commandId: '/gsd-graphify',
+      classifiedAs: 'hard-outlier',
+      migrationDisposition: 'manual-posture-required',
+      rationale: 'Complex graph rendering',
+      emitsPacket: false,
+      reviewedAt: '2026-04-29',
+      owner: 'jacob',
+      workflowId: null,
+      posturePath: 'sdk/src/advisory/outlier-postures/gsd-graphify.yaml',
+    };
+    const postureRecords = new Map<string, OutlierPostureRecord>([['/gsd-graphify', postureRecord]]);
+
+    const entries = classifyCommands([command('/gsd-graphify')], diagnostics, undefined, postureRecords);
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.outlierPostureRecord).toEqual(postureRecord);
+    expect(entries[0]?.outlierPosture).toBe('seed-outlier');
+  });
+
+  it('seed outlier entry lacks outlierPostureRecord when postureRecords Map is empty', () => {
+    const diagnostics: CompileDiagnostic[] = [];
+    const postureRecords = new Map<string, OutlierPostureRecord>();
+
+    const entries = classifyCommands([command('/gsd-graphify')], diagnostics, undefined, postureRecords);
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.outlierPostureRecord).toBeUndefined();
+    expect(entries[0]?.outlierPosture).toBe('seed-outlier');
+  });
+
+  it('emits OUTL-01 when a seed outlier is missing from the postureRecords Map', () => {
+    const diagnostics: CompileDiagnostic[] = [];
+    const postureRecords = new Map<string, OutlierPostureRecord>();
+
+    classifyCommands([command('/gsd-graphify')], diagnostics, undefined, postureRecords);
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'OUTL-01',
+          kind: 'outlier',
+          id: '/gsd-graphify',
+          message: expect.stringContaining('missing a posture record'),
+        }),
+      ]),
+    );
   });
 });
