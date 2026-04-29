@@ -9,7 +9,7 @@
  * Per BILL-01 through BILL-04.
  */
 
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { mkError } from './diagnostics.js';
@@ -43,7 +43,15 @@ function normalizePath(filePath: string): string {
 
 function isCompileAdvisoryModule(filePath: string): boolean {
   const normalized = normalizePath(filePath);
-  return normalized.includes('/sdk/src/compile/') || normalized.includes('/compile/');
+  return normalized.includes('/sdk/src/compile/');
+}
+
+function isFile(filePath: string): boolean {
+  try {
+    return statSync(filePath).isFile();
+  } catch {
+    return false;
+  }
 }
 
 function shouldIncludeAdvisoryDynamic(filePath: string, opts?: WalkOptions): boolean {
@@ -67,15 +75,15 @@ function addMatches(content: string, pattern: RegExp, edges: ImportEdge[], seen:
 
 function extractImportEdges(content: string, includeAdvisoryDynamic = false): ImportEdge[] {
   const importPattern =
-    /^\s*import\s+(?!type\b)(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+['"]([^'"]+)['"]/gm;
+    /^\s*import\s+(?!type\b)(?:\w+\s*,\s*\{[^}]*\}|\w+\s*,\s*\*\s+as\s+\w+|\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+['"]([^'"]+)['"]/gm;
   const typeImportPattern =
-    /^\s*import\s+type\s+(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+['"]([^'"]+)['"]/gm;
+    /^\s*import\s+type\s+(?:\w+\s*,\s*\{[^}]*\}|\w+\s*,\s*\*\s+as\s+\w+|\{[^}]*\}|\*\s+as\s+\w+|\w+)\s+from\s+['"]([^'"]+)['"]/gm;
   const sideEffectImportPattern = /^\s*import\s+['"]([^'"]+)['"]/gm;
   const reExportPattern =
     /^\s*export\s+(?!type\b)(?:\{[^}]*\}|\*(?:\s+as\s+\w+)?)\s+from\s+['"]([^'"]+)['"]/gm;
   const typeReExportPattern =
     /^\s*export\s+type\s+(?:\{[^}]*\}|\*(?:\s+as\s+\w+)?)\s+from\s+['"]([^'"]+)['"]/gm;
-  const dynamicImportPattern = /\bawait\s+import\s*\(\s*['"]([^'"]+)['"]\s*\)/gm;
+  const dynamicImportPattern = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/gm;
 
   const edges: ImportEdge[] = [];
   const seen = new Set<string>();
@@ -102,14 +110,14 @@ export function resolveImportPath(fromFile: string, specifier: string): string |
   const basePath = resolve(dirname(fromFile), specifier);
   const candidates = [basePath];
   if (extname(basePath) === '') {
-    candidates.push(`${basePath}.ts`);
+    candidates.push(`${basePath}.ts`, join(basePath, 'index.ts'));
   }
   if (basePath.endsWith('.js')) {
     candidates.push(`${basePath.slice(0, -'.js'.length)}.ts`);
   }
 
   for (const candidate of [...new Set(candidates)]) {
-    if (existsSync(candidate)) return candidate;
+    if (isFile(candidate)) return candidate;
   }
   return null;
 }
@@ -166,10 +174,12 @@ export async function walkImports(
 export async function checkBillingBoundary(
   projectDir: string,
   diagnostics: CompileDiagnostic[],
+  extensionEntryFiles?: string[],
 ): Promise<BillingBoundaryReport> {
   const entrypointFiles = [
     join(projectDir, 'sdk', 'src', 'compile', 'cli.ts'),
     join(projectDir, 'sdk', 'src', 'query', 'index.ts'),
+    ...(extensionEntryFiles ?? []),
   ].filter(existsSync);
 
   const violations: BillingBoundaryReport['violations'] = [];

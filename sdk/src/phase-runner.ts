@@ -502,6 +502,36 @@ export class PhaseRunner {
       };
     }
 
+    // Lifecycle pre-hooks: run before handler() and FSM advance.
+    if (this.sealedGraph !== undefined) {
+      for (const hook of this.sealedGraph.lifecycleHooks()) {
+        if (hook.onBeforeTransition !== undefined) {
+          let preHookSnapshot: Readonly<FsmRunState> | undefined;
+          try {
+            const statePath = fsmStatePath(this.projectDir, this.activeWorkstream);
+            const raw = await readFile(statePath, 'utf-8');
+            preHookSnapshot = parseFsmRunState(raw) as Readonly<FsmRunState>;
+          } catch {
+            // If FSM state unavailable, skip hook
+          }
+          if (preHookSnapshot !== undefined) {
+            const vetoResult = hook.onBeforeTransition(preHookSnapshot);
+            if (vetoResult?.veto === true) {
+              const durationMs = Date.now() - stepStart;
+              return {
+                step,
+                success: false,
+                durationMs,
+                error: `hook-veto:${vetoResult.reason}`,
+                packet,
+                ...(providerMetadata ? { providerMetadata } : {}),
+              };
+            }
+          }
+        }
+      }
+    }
+
     let runtimeReport = await handler({
       packet,
       step,
@@ -622,6 +652,25 @@ export class PhaseRunner {
           runtimeEvents,
           ...(providerMetadata ? { providerMetadata } : {}),
         };
+      }
+    }
+
+    // Lifecycle post-hooks: run after advanceFsmState() completes.
+    if (this.sealedGraph !== undefined) {
+      for (const hook of this.sealedGraph.lifecycleHooks()) {
+        if (hook.onAfterTransition !== undefined) {
+          let postHookSnapshot: Readonly<FsmRunState> | undefined;
+          try {
+            const statePath = fsmStatePath(this.projectDir, this.activeWorkstream);
+            const raw = await readFile(statePath, 'utf-8');
+            postHookSnapshot = parseFsmRunState(raw) as Readonly<FsmRunState>;
+          } catch {
+            // If FSM state unavailable, skip post-hook
+          }
+          if (postHookSnapshot !== undefined) {
+            hook.onAfterTransition(postHookSnapshot);
+          }
+        }
       }
     }
 
