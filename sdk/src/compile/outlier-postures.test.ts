@@ -192,7 +192,7 @@ describe('loadOutlierPostureRecords', () => {
     }
   });
 
-  it('returns empty Map when posture directory is absent (no OUTL-01 from loader for missing dir)', async () => {
+  it('emits OUTL-01 for each seed outlier when posture directory is absent', async () => {
     tempDir = await mkdtemp(join(tmpdir(), 'outlier-postures-test-'));
 
     const diagnostics: CompileDiagnostic[] = [];
