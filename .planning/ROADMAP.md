@@ -138,7 +138,22 @@ Cross-cutting constraints:
   2. Retained launcher files contain only the advisory invocation after typed transitions, packet sequencing, provider routing, and parity coverage are proven
   3. CI blocks cleanup PRs until all parity gates exit zero
   4. All 5 hard outliers have documented posture records and are registered in the classification manifest with type `hard-outlier`
-**Plans**: TBD
+**Plans**: 5 plans across 4 waves
+
+Plans:
+
+**Wave 1**
+- [ ] 06-01-PLAN.md — Outlier posture YAML files, loader/validator, classification wiring (OUTL-01, OUTL-02)
+
+**Wave 2 *(blocked on Wave 1 completion)***
+- [ ] 06-02-PLAN.md — Slim eligibility evaluator and --check-slim-eligibility CLI flag (SLIM-01)
+- [ ] 06-03-PLAN.md — Thin launcher parser, isLauncher workflow flag (SLIM-02)
+
+**Wave 3 *(blocked on Wave 2 completion)***
+- [ ] 06-04-PLAN.md — Conditional slim-eligibility step in phase4-parity.cjs (SLIM-03)
+
+**Wave 4 *(blocked on Wave 3 completion)***
+- [ ] 06-05-PLAN.md — Eligibility scan, human-verify checkpoint, bounded pilot if pass verdicts exist (SLIM-01, SLIM-02, SLIM-03)
 
 ## Progress
 
@@ -154,4 +169,4 @@ Phase 6 (v2+) cannot begin before Phase 4 parity gates are green
 | 3. Advisory Runner + Query Integration | 13/13 | Complete | 2026-04-28 |
 | 4. Parity Suite + gsd-post-update Retirement | 10/10 | Complete | 2026-04-28 |
 | 5. Extension API + Migration Hardening (v1.x) | 5/5 | Complete | 2026-04-29 |
-| 6. Compatibility Cleanup + Hard Outlier Posturing (v2+) | 0/TBD | Not started | - |
+| 6. Compatibility Cleanup + Hard Outlier Posturing (v2+) | 0/5 | In progress | - |
