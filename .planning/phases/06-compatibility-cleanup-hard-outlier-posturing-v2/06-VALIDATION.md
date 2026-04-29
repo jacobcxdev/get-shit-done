@@ -1,10 +1,11 @@
 ---
 phase: 06
 slug: compatibility-cleanup-hard-outlier-posturing-v2
-status: draft
+status: complete
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-04-29
+updated: 2026-04-29
 ---
 
 # Phase 06 — Validation Strategy
@@ -77,3 +78,9 @@ All phase behaviours have automated verification. Pilot candidate choice require
 - [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** approved 2026-04-29
+
+## Reconciliation Note (Phase 9)
+
+- `wave_0_complete` advanced from `false` to `true` and `status` advanced from `draft` to `complete` retroactively by Phase 9 (2026-04-29) per D-14.
+- Evidence: `06-VERIFICATION-CLAUDE.md` recorded `passed` (7/7); `06-VERIFICATION-CODEX.md` recorded `PASS`. The Phase 6 bounded pilot was correctly BLOCKED (fail-closed slim-eligibility evaluation) — this is a verified successful outcome of the SLIM machinery, not a validation failure (D-11). ROADMAP.md records Phase 6 as Complete on 2026-04-29.
+- Per D-15, no re-execution of `/gsd-validate-phase` was performed for this correction. This is metadata reconciliation only.
