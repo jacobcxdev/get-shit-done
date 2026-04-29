@@ -256,6 +256,9 @@ jobs:
             exit 1
           fi
           echo "✓ Verified: get-shit-done-cc@$PRE_VERSION is live on npm"
+          # NOTE: @gsd-build/sdk is the upstream package name, retained for compatibility per D-02.
+          # This fork (jacobcxdev/get-shit-done) does not publish to that npm scope; adjust if
+          # a fork-scoped publish strategy is adopted in a future release phase.
           SDK_PUBLISHED=$(npm view @gsd-build/sdk@"$PRE_VERSION" version 2>/dev/null || echo "NOT_FOUND")
           if [ "$SDK_PUBLISHED" != "$PRE_VERSION" ]; then
             echo "::error::SDK version verification failed. Expected $PRE_VERSION, got $SDK_PUBLISHED"

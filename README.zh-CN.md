@@ -2,6 +2,12 @@
 
 # GET SHIT DONE
 
+> **Fork notice / フォーク通知 / 분기 안내 / Aviso de fork / 分支说明:**
+> This is Jacob Clayden's fork of upstream GSD. Install instructions in this translation may
+> reference the upstream repository and are NOT guaranteed to work for this fork. For
+> current install instructions see the English [README.md](README.md). Upstream:
+> https://github.com/gsd-build/get-shit-done
+
 [English](README.md) · [Português](README.pt-BR.md) · **简体中文** · [日本語](README.ja-JP.md) · [한국어](README.ko-KR.md)
 
 **一个轻量但强大的元提示、上下文工程与规格驱动开发系统，适用于 Claude Code、OpenCode、Gemini CLI、Kilo、Codex、Copilot、Cursor、Windsurf、Antigravity、Augment、Trae、CodeBuddy 和 Cline。**

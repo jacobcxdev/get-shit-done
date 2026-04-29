@@ -1,5 +1,11 @@
 # Documentação do GSD
 
+> **Fork notice / フォーク通知 / 분기 안내 / Aviso de fork / 分支说明:**
+> This is Jacob Clayden's fork of upstream GSD. Install instructions in this translation may
+> reference the upstream repository and are NOT guaranteed to work for this fork. For
+> current install instructions see the English [README.md](../../README.md). Upstream:
+> https://github.com/gsd-build/get-shit-done
+
 Documentação abrangente do framework Get Shit Done (GSD) — um sistema de meta-prompting, engenharia de contexto e desenvolvimento orientado por especificações para agentes de IA.
 
 ## Índice da documentação
