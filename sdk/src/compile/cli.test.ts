@@ -12,6 +12,7 @@ describe('compile CLI parsing', () => {
       check: false,
       write: false,
       checkBillingBoundary: true,
+      checkSlimEligibility: undefined,
       help: false,
     });
   });
@@ -39,6 +40,16 @@ describe('compile CLI parsing', () => {
     expect(COMPILE_USAGE).toContain('--json');
     expect(COMPILE_USAGE).toContain('--check');
     expect(COMPILE_USAGE).toContain('--write');
+    expect(COMPILE_USAGE).toContain('--check-slim-eligibility');
+  });
+
+  it('parses --check-slim-eligibility with a workflow ID string', () => {
+    expect(parseCompileArgs(['--check-slim-eligibility', '/workflows/add-phase']))
+      .toMatchObject({ checkSlimEligibility: '/workflows/add-phase' });
+  });
+
+  it('throws in strict mode when --check-slim-eligibility has no value', () => {
+    expect(() => parseCompileArgs(['--check-slim-eligibility'])).toThrow();
   });
 });
 
@@ -113,5 +124,24 @@ describe('runCompileCommand parser-only paths', () => {
       '  hooks:     0',
       '  outliers:  0',
     ].join('\n'));
+  });
+
+  it('--check-slim-eligibility for nonexistent workflow exits 1 with JSON status:fail', async () => {
+    const projectDir = join(tmpdir(), `gsd-compile-slim-${process.pid}-${Date.now()}-${Math.random()}`);
+    projects.push(projectDir);
+    await mkdir(join(projectDir, 'commands', 'gsd'), { recursive: true });
+    await mkdir(join(projectDir, 'get-shit-done', 'workflows'), { recursive: true });
+    await mkdir(join(projectDir, 'agents'), { recursive: true });
+    await mkdir(join(projectDir, 'hooks'), { recursive: true });
+    await mkdir(join(projectDir, '.planning'), { recursive: true });
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    process.exitCode = undefined;
+
+    await runCompileCommand(['--check-slim-eligibility', '/workflows/nonexistent', '--project-dir', projectDir]);
+
+    expect(process.exitCode).toBe(1);
+    const output = logSpy.mock.calls.flat().join('\n');
+    const parsed = JSON.parse(output) as { status: string };
+    expect(parsed.status).toBe('fail');
   });
 });
