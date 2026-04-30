@@ -21,7 +21,11 @@
 
 ## System Overview
 
-GSD is a **meta-prompting framework** that sits between the user and AI coding agents (Claude Code, Gemini CLI, OpenCode, Kilo, Codex, Copilot, Antigravity, Trae, Cline, Augment Code). It provides:
+GSD is a **meta-prompting framework** that sits between the user and AI coding agents (Claude Code, Gemini CLI, OpenCode, Kilo, Codex, Copilot, Antigravity, Trae, Cline, Augment Code). This fork's active differentiator is an SDK-owned deterministic advisory FSM: the SDK validates typed query/state transitions, emits atomic instruction packets, and lets the runtime execute while SDK advises.
+
+The default non-legacy path avoids Agent SDK/API billing because model execution remains in the host runtime. Agent SDK use is opt-in for programmatic integrations, not the default command path.
+
+GSD provides:
 
 1. **Context engineering** — Structured artifacts that give the AI everything it needs per task
 2. **Multi-agent orchestration** — Thin orchestrators that spawn specialized agents with fresh context windows
@@ -282,6 +286,24 @@ Node.js CLI utility (`gsd-tools.cjs`) with domain modules split across `get-shit
 | `profile-pipeline.cjs` | User behavioral profiling data pipeline, session file scanning                                      |
 | `profile-output.cjs`   | Profile rendering, USER-PROFILE.md and dev-preferences.md generation                                |
 
+
+---
+
+## SDK-Owned Advisory FSM
+
+This fork moves orchestration state into a deterministic SDK-owned advisory FSM rather than relying on loosely parsed shell output or runtime-local flags.
+
+The boundary is deliberately narrow:
+
+1. The SDK validates typed query/state transitions against the durable `.planning/` state contract.
+2. The SDK emits one atomic instruction packet describing the next runtime action.
+3. The runtime executes packet instructions with its normal tool/model session.
+4. The runtime returns a `RuntimeExecutionReport` with packet identity, outcome, and evidence.
+5. The SDK validates that report and advances or rejects the FSM transition.
+
+That means the runtime executes while SDK advises. The SDK owns deterministic state, packet contracts, and transition validation; the runtime owns side effects, tool execution, model calls, and user-visible work.
+
+The default non-legacy command path avoids Agent SDK/API billing because it does not open an SDK-owned model session. Agent SDK usage remains available for opt-in programmatic integrations through the SDK surface.
 
 ---
 

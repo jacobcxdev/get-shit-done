@@ -1,7 +1,7 @@
 {
   "name": "get-shit-done-cc",
   "version": "1.38.5",
-  "description": "Jacob Clayden's fork of upstream GSD — a meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini and Codex. Upstream: https://github.com/gsd-build/get-shit-done",
+  "description": "Source-first GSD fork with an SDK-owned deterministic advisory FSM; get-shit-done-cc is retained as a compatibility/upstream package name.",
   "bin": {
     "get-shit-done-cc": "bin/install.js",
     "gsd-sdk": "bin/gsd-sdk.js"

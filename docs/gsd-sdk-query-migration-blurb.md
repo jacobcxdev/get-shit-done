@@ -4,7 +4,7 @@ Copy-paste friendly for Discord and GitHub comments.
 
 ---
 
-**@gsd-build/sdk** replaces the untyped, monolithic `gsd-tools.cjs` subprocess with a typed, tested, registry-based query system and **`gsd-sdk query`**, giving GSD structured results, classified errors (`GSDError` with `ErrorClassification`), and golden-verified parity with the old CLI. That gives the framework one stable contract instead of a fragile, very large CLI that every workflow had to spawn and parse by hand.
+**@gsd-build/sdk** is the compatibility/upstream package name for the SDK in source metadata; this fork is source-first unless future npm ownership is explicitly documented. The SDK replaces the untyped, monolithic `gsd-tools.cjs` subprocess with a typed, tested, registry-based query system and **`gsd-sdk query`**, giving GSD structured results, classified errors (`GSDError` with `ErrorClassification`), golden-verified parity with the old CLI, and an SDK-owned deterministic advisory FSM that emits atomic instruction packets while the runtime executes.
 
 **What users can expect**
 

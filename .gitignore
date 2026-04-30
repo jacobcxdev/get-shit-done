@@ -25,6 +25,7 @@ animation/
 *.gif
 
 # Internal planning documents
+.planning/
 reports/
 RAILROAD_ARCHITECTURE.md
 analysis/

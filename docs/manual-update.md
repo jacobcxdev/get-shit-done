@@ -1,33 +1,41 @@
-# Manual Update (Non-npm Install)
+# Source Install and Update
 
-Use this procedure when `npx get-shit-done-cc@latest` is unavailable — e.g. during a publish outage or if you are working directly from the source repo.
+This is the canonical install and update path for this fork at `jacobcxdev/get-shit-done`.
+
+The npm package name `get-shit-done-cc` is retained in source metadata as a compatibility/upstream name. Unless a future publish document proves fork-owned npm package ownership, do not use the npm latest entrypoint as the install path for this fork.
 
 ## Prerequisites
 
 - Node.js installed
-- This repo cloned locally (`git clone https://github.com/jacobcxdev/get-shit-done`)
+- This repo cloned locally
 
-## Steps
+## Fresh install
 
 ```bash
-# 1. Pull latest code
+git clone https://github.com/jacobcxdev/get-shit-done.git
+cd get-shit-done
+npm ci
+npm run build:hooks
+npm run build:sdk
+node bin/install.js --codex --global   # replace runtime flag as needed
+```
+
+## Update an existing checkout
+
+```bash
 git pull --rebase origin main
-
-# 2. Build the hooks dist (required — hooks/dist/ is generated, not checked in as source)
-node scripts/build-hooks.js
-
-# 3. Run the installer directly
-node bin/install.js --claude --global
-
-# 4. Clear the update cache so the statusline indicator resets
+npm ci
+npm run build:hooks
+npm run build:sdk
+node bin/install.js --codex --global   # replace runtime flag as needed
 rm -f ~/.cache/gsd/gsd-update-check.json
 ```
 
-**Step 5 — Restart your runtime** to pick up the new commands and agents.
+Restart your runtime after reinstalling so commands, skills, agents, hooks, and SDK files are reloaded.
 
 ## Runtime flags
 
-Replace `--claude` with the flag for your runtime:
+Replace `--codex` with the flag for your runtime:
 
 | Runtime | Flag |
 |---|---|
@@ -40,6 +48,10 @@ Replace `--claude` with the flag for your runtime:
 | Cursor | `--cursor` |
 | Windsurf | `--windsurf` |
 | Augment | `--augment` |
+| Trae | `--trae` |
+| Qwen Code | `--qwen` |
+| CodeBuddy | `--codebuddy` |
+| Cline | `--cline` |
 | All runtimes | `--all` |
 
 Use `--local` instead of `--global` for a project-scoped install.

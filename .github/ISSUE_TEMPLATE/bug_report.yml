@@ -17,7 +17,7 @@ body:
     id: version
     attributes:
       label: GSD Version
-      description: "Run: `npm list -g get-shit-done-cc` or check `npx get-shit-done-cc --version`"
+      description: "For this fork, check the source checkout version in package.json and mention whether you installed from source or a compatibility npm path."
       placeholder: "e.g., 1.18.0"
     validations:
       required: true
@@ -78,9 +78,11 @@ body:
     attributes:
       label: Installation Method
       options:
-        - npx get-shit-done-cc@latest (fresh run)
-        - npm install -g get-shit-done-cc
-        - Updated from a previous version
+        - Source install from jacobcxdev/get-shit-done
+        - Source update from an existing fork checkout
+        - Compatibility npm path: npx get-shit-done-cc
+        - Compatibility npm path: npm install -g get-shit-done-cc
+        - Other (describe below)
     validations:
       required: true
 
@@ -109,7 +111,7 @@ body:
       description: |
         Exact steps to reproduce the issue. Include the GSD command used.
       placeholder: |
-        1. Install GSD with `npx get-shit-done-cc@latest`
+        1. Install this fork from source with `node bin/install.js --claude --global`
         2. Select runtime: Claude Code
         3. Run `/gsd-init` with a new project
         4. Run `/gsd-plan`
@@ -215,7 +217,8 @@ body:
         Anything else — screenshots, screen recordings, related issues, or links.
 
         **Useful diagnostics to include (if applicable):**
-        - `npm list -g get-shit-done-cc` — confirms installed version
+        - Source checkout commit and `package.json` version
+        - Whether you used source install or a compatibility npm path
         - `ls -la ~/.claude/get-shit-done/` — confirms installation files (Claude Code)
         - `cat ~/.claude/get-shit-done/gsd-file-manifest.json` — file manifest for debugging install issues
         - `ls -la .planning/` — confirms planning directory state

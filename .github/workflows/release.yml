@@ -20,6 +20,11 @@ on:
         required: false
         type: boolean
         default: false
+      publish_npm:
+        description: 'Publish compatibility/upstream npm names; requires explicit ownership proof'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: release-${{ inputs.version }}
@@ -195,8 +200,10 @@ jobs:
       - name: Verify tarball ships sdk/dist/cli.js (bug #2647)
         run: bash scripts/verify-tarball-sdk-dist.sh
 
-      - name: Dry-run publish validation
+      - name: Dry-run compatibility publish validation
+        if: ${{ inputs.publish_npm }}
         run: |
+          # get-shit-done-cc and @gsd-build/sdk are compatibility/upstream names; only run with explicit ownership proof.
           npm publish --dry-run --tag next
           cd sdk && npm publish --dry-run --tag next
         env:
@@ -221,14 +228,14 @@ jobs:
           fi
           git push origin "$BRANCH" --tags
 
-      - name: Publish to npm (next)
-        if: ${{ !inputs.dry_run }}
+      - name: Publish compatibility npm package (next)
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         run: npm publish --provenance --access public --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish SDK to npm (next)
-        if: ${{ !inputs.dry_run }}
+      - name: Publish compatibility SDK package (next)
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         run: cd sdk && npm publish --provenance --access public --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -244,8 +251,8 @@ jobs:
             --generate-notes \
             --prerelease
 
-      - name: Verify publish
-        if: ${{ !inputs.dry_run }}
+      - name: Verify compatibility npm publish
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         env:
           PRE_VERSION: ${{ steps.prerelease.outputs.pre_version }}
         run: |
@@ -255,19 +262,15 @@ jobs:
             echo "::error::Published version verification failed. Expected $PRE_VERSION, got $PUBLISHED"
             exit 1
           fi
-          echo "✓ Verified: get-shit-done-cc@$PRE_VERSION is live on npm"
-          # NOTE: @gsd-build/sdk is the upstream package name, retained for compatibility per D-02.
-          # This fork (jacobcxdev/get-shit-done) does not publish to that npm scope; adjust if
-          # a fork-scoped publish strategy is adopted in a future release phase.
+          echo "✓ Verified compatibility package: get-shit-done-cc@$PRE_VERSION is live on npm"
           SDK_PUBLISHED=$(npm view @gsd-build/sdk@"$PRE_VERSION" version 2>/dev/null || echo "NOT_FOUND")
           if [ "$SDK_PUBLISHED" != "$PRE_VERSION" ]; then
             echo "::error::SDK version verification failed. Expected $PRE_VERSION, got $SDK_PUBLISHED"
             exit 1
           fi
-          echo "✓ Verified: @gsd-build/sdk@$PRE_VERSION is live on npm"
-          # Also verify dist-tag
+          echo "✓ Verified compatibility SDK package: @gsd-build/sdk@$PRE_VERSION is live on npm"
           NEXT_TAG=$(npm dist-tag ls get-shit-done-cc 2>/dev/null | grep "next:" | awk '{print $2}')
-          echo "✓ next tag points to: $NEXT_TAG"
+          echo "✓ compatibility next tag points to: $NEXT_TAG"
 
       - name: Summary
         env:
@@ -276,11 +279,15 @@ jobs:
         run: |
           echo "## Pre-release v${PRE_VERSION}" >> "$GITHUB_STEP_SUMMARY"
           if [ "$DRY_RUN" = "true" ]; then
-            echo "**DRY RUN** — npm publish, tagging, and push skipped" >> "$GITHUB_STEP_SUMMARY"
+            echo "**DRY RUN** — tagging and push skipped" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "- Published to npm as \`next\`" >> "$GITHUB_STEP_SUMMARY"
-            echo "- SDK also published: \`@gsd-build/sdk@${PRE_VERSION}\` on \`next\`" >> "$GITHUB_STEP_SUMMARY"
-            echo "- Install: \`npx get-shit-done-cc@next\`" >> "$GITHUB_STEP_SUMMARY"
+            if [ "${{ inputs.publish_npm }}" = "true" ]; then
+              echo "- Published compatibility npm package as \`next\`" >> "$GITHUB_STEP_SUMMARY"
+              echo "- Compatibility SDK also published: \`@gsd-build/sdk@${PRE_VERSION}\` on \`next\`" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "- npm publish skipped; this fork is source-first" >> "$GITHUB_STEP_SUMMARY"
+              echo "- Install from source: \`git clone https://github.com/jacobcxdev/get-shit-done.git\`" >> "$GITHUB_STEP_SUMMARY"
+            fi
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "To publish another pre-release: run \`rc\` again" >> "$GITHUB_STEP_SUMMARY"
@@ -342,8 +349,10 @@ jobs:
       - name: Verify tarball ships sdk/dist/cli.js (bug #2647)
         run: bash scripts/verify-tarball-sdk-dist.sh
 
-      - name: Dry-run publish validation
+      - name: Dry-run compatibility publish validation
+        if: ${{ inputs.publish_npm }}
         run: |
+          # get-shit-done-cc and @gsd-build/sdk are compatibility/upstream names; only run with explicit ownership proof.
           npm publish --dry-run
           cd sdk && npm publish --dry-run
         env:
@@ -359,8 +368,8 @@ jobs:
         run: |
           # Non-fatal: repos that disable "Allow GitHub Actions to create and
           # approve pull requests" cause this step to fail with GraphQL 403.
-          # The release itself (tag + npm publish + GitHub Release) must still
-          # proceed. Open the merge-back PR manually afterwards with:
+          # The source release itself (tag + GitHub Release) must still proceed.
+          # Open the merge-back PR manually afterwards with:
           #   gh pr create --base main --head release/${VERSION} \
           #     --title "chore: merge release v${VERSION} to main"
           EXISTING_PR=$(gh pr list --base main --head "$BRANCH" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
@@ -398,14 +407,14 @@ jobs:
           fi
           git push origin "$BRANCH" --tags
 
-      - name: Publish to npm (latest)
-        if: ${{ !inputs.dry_run }}
+      - name: Publish compatibility npm package (latest)
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish SDK to npm (latest)
-        if: ${{ !inputs.dry_run }}
+      - name: Publish compatibility SDK package (latest)
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         run: cd sdk && npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -421,20 +430,19 @@ jobs:
             --generate-notes \
             --latest
 
-      - name: Clean up next dist-tag
-        if: ${{ !inputs.dry_run }}
+      - name: Clean up compatibility next dist-tag
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         env:
           VERSION: ${{ inputs.version }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # Point next to the stable release so @next never returns something
-          # older than @latest. This prevents stale pre-release installs.
+          # get-shit-done-cc and @gsd-build/sdk are compatibility/upstream names; only run with explicit ownership proof.
           npm dist-tag add "get-shit-done-cc@${VERSION}" next 2>/dev/null || true
           npm dist-tag add "@gsd-build/sdk@${VERSION}" next 2>/dev/null || true
-          echo "✓ next dist-tag updated to v${VERSION}"
+          echo "✓ compatibility next dist-tags updated to v${VERSION}"
 
-      - name: Verify publish
-        if: ${{ !inputs.dry_run }}
+      - name: Verify compatibility npm publish
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         env:
           VERSION: ${{ inputs.version }}
         run: |
@@ -444,16 +452,15 @@ jobs:
             echo "::error::Published version verification failed. Expected $VERSION, got $PUBLISHED"
             exit 1
           fi
-          echo "✓ Verified: get-shit-done-cc@$VERSION is live on npm"
+          echo "✓ Verified compatibility package: get-shit-done-cc@$VERSION is live on npm"
           SDK_PUBLISHED=$(npm view @gsd-build/sdk@"$VERSION" version 2>/dev/null || echo "NOT_FOUND")
           if [ "$SDK_PUBLISHED" != "$VERSION" ]; then
             echo "::error::SDK version verification failed. Expected $VERSION, got $SDK_PUBLISHED"
             exit 1
           fi
-          echo "✓ Verified: @gsd-build/sdk@$VERSION is live on npm"
-          # Verify latest tag
+          echo "✓ Verified compatibility SDK package: @gsd-build/sdk@$VERSION is live on npm"
           LATEST_TAG=$(npm dist-tag ls get-shit-done-cc 2>/dev/null | grep "latest:" | awk '{print $2}')
-          echo "✓ latest tag points to: $LATEST_TAG"
+          echo "✓ compatibility latest tag points to: $LATEST_TAG"
 
       - name: Summary
         env:
@@ -462,11 +469,15 @@ jobs:
         run: |
           echo "## Release v${VERSION}" >> "$GITHUB_STEP_SUMMARY"
           if [ "$DRY_RUN" = "true" ]; then
-            echo "**DRY RUN** — npm publish, tagging, and push skipped" >> "$GITHUB_STEP_SUMMARY"
+            echo "**DRY RUN** — tagging and push skipped" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "- Published to npm as \`latest\`" >> "$GITHUB_STEP_SUMMARY"
-            echo "- SDK also published: \`@gsd-build/sdk@${VERSION}\` as \`latest\`" >> "$GITHUB_STEP_SUMMARY"
+            if [ "${{ inputs.publish_npm }}" = "true" ]; then
+              echo "- Published compatibility npm package as \`latest\`" >> "$GITHUB_STEP_SUMMARY"
+              echo "- Compatibility SDK also published: \`@gsd-build/sdk@${VERSION}\` as \`latest\`" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "- npm publish skipped; this fork is source-first" >> "$GITHUB_STEP_SUMMARY"
+              echo "- Install from source: \`git clone https://github.com/jacobcxdev/get-shit-done.git\`" >> "$GITHUB_STEP_SUMMARY"
+            fi
             echo "- Tagged \`v${VERSION}\`" >> "$GITHUB_STEP_SUMMARY"
             echo "- PR created to merge back to main" >> "$GITHUB_STEP_SUMMARY"
-            echo "- Install: \`npx get-shit-done-cc@latest\`" >> "$GITHUB_STEP_SUMMARY"
           fi

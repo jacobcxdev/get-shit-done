@@ -19,6 +19,11 @@ on:
         required: false
         type: boolean
         default: false
+      publish_npm:
+        description: 'Publish compatibility/upstream npm names; requires explicit ownership proof'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: hotfix-${{ inputs.version }}
@@ -184,8 +189,8 @@ jobs:
             git push origin "v${VERSION}"
           fi
 
-      - name: Publish to npm (latest)
-        if: ${{ !inputs.dry_run }}
+      - name: Publish compatibility npm package (latest)
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -200,19 +205,18 @@ jobs:
             --title "v${VERSION} (hotfix)" \
             --generate-notes
 
-      - name: Clean up next dist-tag
-        if: ${{ !inputs.dry_run }}
+      - name: Clean up compatibility next dist-tag
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         env:
           VERSION: ${{ inputs.version }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # Point next to the stable release so @next never returns something
-          # older than @latest. This prevents stale pre-release installs.
+          # get-shit-done-cc is a compatibility/upstream name; only run with explicit ownership proof.
           npm dist-tag add "get-shit-done-cc@${VERSION}" next 2>/dev/null || true
-          echo "✓ next dist-tag updated to v${VERSION}"
+          echo "✓ compatibility next dist-tag updated to v${VERSION}"
 
-      - name: Verify publish
-        if: ${{ !inputs.dry_run }}
+      - name: Verify compatibility npm publish
+        if: ${{ !inputs.dry_run && inputs.publish_npm }}
         env:
           VERSION: ${{ inputs.version }}
         run: |
@@ -222,7 +226,7 @@ jobs:
             echo "::error::Published version verification failed. Expected $VERSION, got $PUBLISHED"
             exit 1
           fi
-          echo "✓ Verified: get-shit-done-cc@$VERSION is live on npm"
+          echo "✓ Verified compatibility package: get-shit-done-cc@$VERSION is live on npm"
 
       - name: Summary
         env:
@@ -231,9 +235,13 @@ jobs:
         run: |
           echo "## Hotfix v${VERSION}" >> "$GITHUB_STEP_SUMMARY"
           if [ "$DRY_RUN" = "true" ]; then
-            echo "**DRY RUN** — npm publish, tagging, and push skipped" >> "$GITHUB_STEP_SUMMARY"
+            echo "**DRY RUN** — tagging and push skipped" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "- Published to npm as \`latest\`" >> "$GITHUB_STEP_SUMMARY"
             echo "- Tagged \`v${VERSION}\`" >> "$GITHUB_STEP_SUMMARY"
             echo "- PR created to merge back to main" >> "$GITHUB_STEP_SUMMARY"
+            if [ "${{ inputs.publish_npm }}" = "true" ]; then
+              echo "- Published compatibility npm package as \`latest\`" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "- npm publish skipped; this fork is source-first" >> "$GITHUB_STEP_SUMMARY"
+            fi
           fi

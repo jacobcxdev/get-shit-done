@@ -38,6 +38,10 @@ node gsd-tools.cjs <command> [args] [--raw] [--cwd <path>]
 
 Use this when authoring workflows, not when you only need the command list below.
 
+This fork is source-first. Build the SDK from the repository checkout (`cd sdk && npm ci && npm run build`) or install it locally with `npm install /path/to/get-shit-done/sdk`. The package name `@gsd-build/sdk` is retained as a compatibility/upstream metadata name unless future fork publishing is explicitly documented.
+
+The SDK owns the deterministic advisory FSM: it validates typed query/state transitions, emits atomic instruction packets, and lets the runtime execute while SDK advises.
+
 **1. CLI — `gsd-sdk query <argv…>`**
 
 - Resolves argv with the same **longest-prefix** rules as the typed registry (`resolveQueryArgv` in `sdk/src/query/registry.ts`). Unregistered commands **fail fast** — use `node …/gsd-tools.cjs` only for handlers not in the registry.

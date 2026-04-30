@@ -3,10 +3,7 @@
 # GET SHIT DONE
 
 > **Fork notice / フォーク通知 / 분기 안내 / Aviso de fork / 分支说明:**
-> This is Jacob Clayden's fork of upstream GSD. Install instructions in this translation may
-> reference the upstream repository and are NOT guaranteed to work for this fork. For
-> current install instructions see the English [README.md](README.md). Upstream:
-> https://github.com/gsd-build/get-shit-done
+> This translation may lag behind the English docs. Install and update this fork from source only; follow [README.md](README.md) and [docs/manual-update.md](docs/manual-update.md). The npm package `get-shit-done-cc` is a compatibility/upstream name unless future fork publishing is documented.
 
 [English](README.md) · **Português** · [简体中文](README.zh-CN.md) · [日本語](README.ja-JP.md)
 
@@ -14,19 +11,22 @@
 
 **Resolve context rot — a degradação de qualidade que acontece conforme o Claude enche a janela de contexto.**
 
-[![npm version](https://img.shields.io/npm/v/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![npm downloads](https://img.shields.io/npm/dm/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/gsd-build/get-shit-done/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/gsd-build/get-shit-done/actions/workflows/test.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/jacobcxdev/get-shit-done/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/jacobcxdev/get-shit-done/actions/workflows/test.yml)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/mYgfVNfA2r)
 [![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
 [![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
-[![GitHub stars](https://img.shields.io/github/stars/gsd-build/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/gsd-build/get-shit-done)
+[![GitHub stars](https://img.shields.io/github/stars/jacobcxdev/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/jacobcxdev/get-shit-done)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
 
 ```bash
-npx get-shit-done-cc@latest
+git clone https://github.com/jacobcxdev/get-shit-done.git
+cd get-shit-done
+npm ci
+npm run build:hooks
+npm run build:sdk
+node bin/install.js --claude --global
 ```
 
 **Funciona em Mac, Windows e Linux.**
@@ -94,7 +94,12 @@ Quality gates embutidos capturam problemas reais: detecção de schema drift sin
 ## Primeiros passos
 
 ```bash
-npx get-shit-done-cc@latest
+git clone https://github.com/jacobcxdev/get-shit-done.git
+cd get-shit-done
+npm ci
+npm run build:hooks
+npm run build:sdk
+node bin/install.js --claude --global
 ```
 
 O instalador pede:
@@ -116,7 +121,12 @@ Verifique com:
 ### Mantendo atualizado
 
 ```bash
-npx get-shit-done-cc@latest
+git clone https://github.com/jacobcxdev/get-shit-done.git
+cd get-shit-done
+npm ci
+npm run build:hooks
+npm run build:sdk
+node bin/install.js --claude --global
 ```
 
 <details>
@@ -124,49 +134,49 @@ npx get-shit-done-cc@latest
 
 ```bash
 # Claude Code
-npx get-shit-done-cc --claude --global
-npx get-shit-done-cc --claude --local
+node bin/install.js --claude --global
+node bin/install.js --claude --local
 
 # OpenCode
-npx get-shit-done-cc --opencode --global
+node bin/install.js --opencode --global
 
 # Gemini CLI
-npx get-shit-done-cc --gemini --global
+node bin/install.js --gemini --global
 
 # Kilo
-npx get-shit-done-cc --kilo --global
-npx get-shit-done-cc --kilo --local
+node bin/install.js --kilo --global
+node bin/install.js --kilo --local
 
 # Codex
-npx get-shit-done-cc --codex --global
-npx get-shit-done-cc --codex --local
+node bin/install.js --codex --global
+node bin/install.js --codex --local
 
 # Copilot
-npx get-shit-done-cc --copilot --global
-npx get-shit-done-cc --copilot --local
+node bin/install.js --copilot --global
+node bin/install.js --copilot --local
 
 # Cursor
-npx get-shit-done-cc --cursor --global
-npx get-shit-done-cc --cursor --local
+node bin/install.js --cursor --global
+node bin/install.js --cursor --local
 
 # Antigravity
-npx get-shit-done-cc --antigravity --global
-npx get-shit-done-cc --antigravity --local
+node bin/install.js --antigravity --global
+node bin/install.js --antigravity --local
 
 # Augment
-npx get-shit-done-cc --augment --global     # Install to ~/.augment/
-npx get-shit-done-cc --augment --local      # Install to ./.augment/
+node bin/install.js --augment --global     # Install to ~/.augment/
+node bin/install.js --augment --local      # Install to ./.augment/
 
 # Trae
-npx get-shit-done-cc --trae --global        # Install to ~/.trae/
-npx get-shit-done-cc --trae --local         # Install to ./.trae/
+node bin/install.js --trae --global        # Install to ~/.trae/
+node bin/install.js --trae --local         # Install to ./.trae/
 
 # Cline
-npx get-shit-done-cc --cline --global       # Install to ~/.cline/
-npx get-shit-done-cc --cline --local        # Install to ./.clinerules
+node bin/install.js --cline --global       # Install to ~/.cline/
+node bin/install.js --cline --local        # Install to ./.clinerules
 
 # Todos
-npx get-shit-done-cc --all --global
+node bin/install.js --all --global
 ```
 
 Use `--global` (`-g`) ou `--local` (`-l`) para pular a pergunta de local.
@@ -419,50 +429,50 @@ Adicione padrões sensíveis ao deny list do Claude Code:
 
 **Comandos não funcionam como esperado?**
 - Rode `/gsd-help`
-- Reinstale com `npx get-shit-done-cc@latest`
+- Reinstale a partir do checkout do fork com `node bin/install.js`
 
 **Em Docker/container?**
 - Defina `CLAUDE_CONFIG_DIR` antes da instalação:
 
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
+CLAUDE_CONFIG_DIR=/home/youruser/.claude node bin/install.js --global
 ```
 
 ### Desinstalar
 
 ```bash
 # Instalações globais
-npx get-shit-done-cc --claude --global --uninstall
-npx get-shit-done-cc --opencode --global --uninstall
-npx get-shit-done-cc --gemini --global --uninstall
-npx get-shit-done-cc --kilo --global --uninstall
-npx get-shit-done-cc --codex --global --uninstall
-npx get-shit-done-cc --copilot --global --uninstall
-npx get-shit-done-cc --cursor --global --uninstall
-npx get-shit-done-cc --antigravity --global --uninstall
-npx get-shit-done-cc --augment --global --uninstall
-npx get-shit-done-cc --trae --global --uninstall
-npx get-shit-done-cc --cline --global --uninstall
+node bin/install.js --claude --global --uninstall
+node bin/install.js --opencode --global --uninstall
+node bin/install.js --gemini --global --uninstall
+node bin/install.js --kilo --global --uninstall
+node bin/install.js --codex --global --uninstall
+node bin/install.js --copilot --global --uninstall
+node bin/install.js --cursor --global --uninstall
+node bin/install.js --antigravity --global --uninstall
+node bin/install.js --augment --global --uninstall
+node bin/install.js --trae --global --uninstall
+node bin/install.js --cline --global --uninstall
 
 # Instalações locais (projeto atual)
-npx get-shit-done-cc --claude --local --uninstall
-npx get-shit-done-cc --opencode --local --uninstall
-npx get-shit-done-cc --gemini --local --uninstall
-npx get-shit-done-cc --kilo --local --uninstall
-npx get-shit-done-cc --codex --local --uninstall
-npx get-shit-done-cc --copilot --local --uninstall
-npx get-shit-done-cc --cursor --local --uninstall
-npx get-shit-done-cc --antigravity --local --uninstall
-npx get-shit-done-cc --augment --local --uninstall
-npx get-shit-done-cc --trae --local --uninstall
-npx get-shit-done-cc --cline --local --uninstall
+node bin/install.js --claude --local --uninstall
+node bin/install.js --opencode --local --uninstall
+node bin/install.js --gemini --local --uninstall
+node bin/install.js --kilo --local --uninstall
+node bin/install.js --codex --local --uninstall
+node bin/install.js --copilot --local --uninstall
+node bin/install.js --cursor --local --uninstall
+node bin/install.js --antigravity --local --uninstall
+node bin/install.js --augment --local --uninstall
+node bin/install.js --trae --local --uninstall
+node bin/install.js --cline --local --uninstall
 ```
 
 ---
 
 ## Community Ports
 
-OpenCode, Gemini CLI, Kilo e Codex agora são suportados nativamente via `npx get-shit-done-cc`.
+OpenCode, Gemini CLI, Kilo e Codex são suportados pelo instalador de código-fonte deste fork. `get-shit-done-cc` é um nome npm de compatibilidade/upstream.
 
 | Projeto | Plataforma | Descrição |
 |---------|------------|-----------|

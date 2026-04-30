@@ -1,10 +1,7 @@
 # GSD ドキュメント
 
 > **Fork notice / フォーク通知 / 분기 안내 / Aviso de fork / 分支说明:**
-> This is Jacob Clayden's fork of upstream GSD. Install instructions in this translation may
-> reference the upstream repository and are NOT guaranteed to work for this fork. For
-> current install instructions see the English [README.md](../../README.md). Upstream:
-> https://github.com/gsd-build/get-shit-done
+> This translation may lag behind the English docs. Install and update this fork from source only; follow the root [README.md](../../README.md) and [docs/manual-update.md](../manual-update.md). The npm package `get-shit-done-cc` is a compatibility/upstream name unless future fork publishing is documented.
 
 Get Shit Done（GSD）フレームワークの包括的なドキュメントです。GSD は、AI コーディングエージェント向けのメタプロンプティング、コンテキストエンジニアリング、仕様駆動開発システムです。
 

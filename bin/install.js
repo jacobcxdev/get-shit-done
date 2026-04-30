@@ -440,7 +440,7 @@ const banner = '\n' +
   '  Get Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
   '  A meta-prompting, context engineering and spec-driven\n' +
   '  development system for Claude Code, OpenCode, Gemini, Kilo, Codex, Copilot, Antigravity, Cursor, Windsurf, Augment, Trae, Qwen Code, Cline and CodeBuddy.\n' +
-  '  Jacob Clayden\'s fork of upstream GSD by TÂCHES.\n';
+  '  Source-first fork of upstream GSD by TÂCHES.\n';
 
 // Parse --config-dir argument
 function parseConfigDirArg() {
