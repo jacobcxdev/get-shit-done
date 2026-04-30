@@ -197,18 +197,31 @@ function cmdInitExecutePhase(cwd, phase, raw, options = {}) {
   output(withProjectRoot(cwd, result), raw);
 }
 
+function readFsmAutoChainActiveSync(cwd) {
+  const fsmPath = path.join(planningDir(cwd), 'fsm-state.json');
+  let raw;
+  try {
+    raw = fs.readFileSync(fsmPath, 'utf-8');
+  } catch {
+    return false;
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    process.stderr.write(`gsd-tools: warning: cannot parse ${fsmPath}\n`);
+    return false;
+  }
+  const source = parsed.autoMode?.source;
+  return Boolean(parsed.autoMode?.active && (source === 'auto_chain' || source === 'both'));
+}
+
 function cmdInitPlanPhase(cwd, phase, raw, options = {}) {
   if (!phase) {
     error('phase required for init plan-phase');
   }
 
   const config = loadConfig(cwd);
-  const rawConfigPath = path.join(planningDir(cwd), 'config.json');
-  let rawConfig = {};
-  try {
-    rawConfig = JSON.parse(fs.readFileSync(rawConfigPath, 'utf-8'));
-  } catch { /* intentionally empty */ }
-  const legacyAutoChainKey = ['_auto', 'chain', 'active'].join('_');
   let phaseInfo = findPhaseInternal(cwd, phase);
 
   const roadmapPhase = getRoadmapPhaseInternal(cwd, phase);
@@ -264,7 +277,7 @@ function cmdInitPlanPhase(cwd, phase, raw, options = {}) {
     // calls for these values, which causes infinite config-read loops on some models
     // (e.g. Kimi K2.5). See #2192.
     auto_advance: !!(config.auto_advance),
-    auto_chain_active: !!(rawConfig.workflow?.[legacyAutoChainKey]),
+    auto_chain_active: readFsmAutoChainActiveSync(cwd),
     mode: config.mode || 'interactive',
 
     // Phase info

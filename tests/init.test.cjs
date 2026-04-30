@@ -1474,15 +1474,120 @@ describe('#2192: init plan-phase includes auto-advance config to prevent separat
     assert.strictEqual(output.auto_advance, true, 'auto_advance should reflect config value');
   });
 
-  test('init plan-phase reflects auto_chain_active true when set in config', () => {
-    const configPath = path.join(tmpDir, '.planning', 'config.json');
-    const cfg = { workflow: { _auto_chain_active: true } };
-    fs.writeFileSync(configPath, JSON.stringify(cfg, null, 2));
+  describe('#STAT-04 gap closure: auto_chain_active derives from FSM state, not config', () => {
+    test('stale _auto_chain_active in config without FSM state returns false', () => {
+      fs.writeFileSync(
+        path.join(tmpDir, '.planning', 'config.json'),
+        JSON.stringify({ workflow: { _auto_chain_active: true } })
+      );
+      // No fsm-state.json — missing FSM must return false (D-05)
+      const result = runGsdTools('init plan-phase 1', tmpDir);
+      assert.ok(result.success, `Command failed: ${result.error}`);
+      assert.strictEqual(JSON.parse(result.output).auto_chain_active, false,
+        'stale config must not enable auto-chain when FSM state is absent');
+    });
 
-    const result = runGsdTools('init plan-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
-    const output = JSON.parse(result.output);
-    assert.strictEqual(output.auto_chain_active, true, 'auto_chain_active should reflect config value');
+    test('stale _auto_chain_active in config with FSM active=false returns false', () => {
+      fs.writeFileSync(
+        path.join(tmpDir, '.planning', 'config.json'),
+        JSON.stringify({ workflow: { _auto_chain_active: true } })
+      );
+      fs.writeFileSync(
+        path.join(tmpDir, '.planning', 'fsm-state.json'),
+        JSON.stringify({ autoMode: { active: false, source: 'none' }, stateSchemaVersion: 1 })
+      );
+      const result = runGsdTools('init plan-phase 1', tmpDir);
+      assert.ok(result.success, `Command failed: ${result.error}`);
+      assert.strictEqual(JSON.parse(result.output).auto_chain_active, false,
+        'FSM active=false must override stale config');
+    });
+
+    test('FSM autoMode active=true source=auto_chain returns true', () => {
+      fs.writeFileSync(
+        path.join(tmpDir, '.planning', 'fsm-state.json'),
+        JSON.stringify({ autoMode: { active: true, source: 'auto_chain' }, stateSchemaVersion: 1 })
+      );
+      const result = runGsdTools('init plan-phase 1', tmpDir);
+      assert.ok(result.success, `Command failed: ${result.error}`);
+      assert.strictEqual(JSON.parse(result.output).auto_chain_active, true,
+        'FSM auto_chain source must enable auto-chain');
+    });
+
+    test('FSM autoMode active=true source=both returns true', () => {
+      fs.writeFileSync(
+        path.join(tmpDir, '.planning', 'fsm-state.json'),
+        JSON.stringify({ autoMode: { active: true, source: 'both' }, stateSchemaVersion: 1 })
+      );
+      const result = runGsdTools('init plan-phase 1', tmpDir);
+      assert.ok(result.success, `Command failed: ${result.error}`);
+      assert.strictEqual(JSON.parse(result.output).auto_chain_active, true,
+        'FSM both source must enable auto-chain');
+    });
+
+    test('malformed fsm-state.json with stale config returns false (D-06 fail-closed)', () => {
+      fs.writeFileSync(
+        path.join(tmpDir, '.planning', 'config.json'),
+        JSON.stringify({ workflow: { _auto_chain_active: true } })
+      );
+      fs.writeFileSync(
+        path.join(tmpDir, '.planning', 'fsm-state.json'),
+        'this is not valid { json }'
+      );
+      const result = runGsdTools('init plan-phase 1', tmpDir);
+      assert.ok(result.success, `Command failed: ${result.error}`);
+      assert.strictEqual(JSON.parse(result.output).auto_chain_active, false,
+        'malformed FSM JSON must fail closed and not fall back to stale config');
+    });
+
+    test('GSD_WORKSTREAM=myws reads workstream FSM path and returns true (D-07/D-08)', () => {
+      // Write active FSM under workstream path only; root .planning/fsm-state.json absent
+      fs.mkdirSync(path.join(tmpDir, '.planning', 'workstreams', 'myws'), { recursive: true });
+      fs.writeFileSync(
+        path.join(tmpDir, '.planning', 'workstreams', 'myws', 'fsm-state.json'),
+        JSON.stringify({ autoMode: { active: true, source: 'auto_chain' }, stateSchemaVersion: 1 })
+      );
+      // gsd-tools sets GSD_WORKSTREAM before dispatch when --ws is passed
+      const result = runGsdTools('init plan-phase 1 --ws myws', tmpDir);
+      assert.ok(result.success, `Command failed: ${result.error}`);
+      assert.strictEqual(JSON.parse(result.output).auto_chain_active, true,
+        'workstream FSM active must be returned when --ws is passed');
+    });
+
+    test('GSD_WORKSTREAM=myws with missing workstream FSM does not fall back to root FSM', () => {
+      // Root FSM is active, but --ws myws must read only the workstream path
+      fs.writeFileSync(
+        path.join(tmpDir, '.planning', 'fsm-state.json'),
+        JSON.stringify({ autoMode: { active: true, source: 'auto_chain' }, stateSchemaVersion: 1 })
+      );
+      // No .planning/workstreams/myws/fsm-state.json written
+      const result = runGsdTools('init plan-phase 1 --ws myws', tmpDir);
+      assert.ok(result.success, `Command failed: ${result.error}`);
+      assert.strictEqual(JSON.parse(result.output).auto_chain_active, false,
+        'workstream mode must not fall back to root FSM autoMode when workstream FSM is absent');
+    });
+
+    test('D-11: init.cjs contains neither the literal legacy key nor a join-reconstruction of it', () => {
+      const initPath = path.join(__dirname, '..', 'get-shit-done', 'bin', 'lib', 'init.cjs');
+      const lines = fs.readFileSync(initPath, 'utf-8').split('\n');
+      // Filter out comment-only lines before scanning
+      const nonCommentLines = lines.filter(line => {
+        const trimmed = line.trim();
+        return !trimmed.startsWith('//') && !trimmed.startsWith('*') && !trimmed.startsWith('/*');
+      });
+      const content = nonCommentLines.join('\n');
+      const compactContent = content.replace(/\s+/g, '');
+      const literalKey = '_auto_chain_active';
+      const joinPatternSQ = "['_auto','chain','active'].join('_')";
+      const joinPatternDQ = '["_auto","chain","active"].join("_")';
+      assert.ok(
+        !content.includes(literalKey),
+        `init.cjs must not contain '${literalKey}' in non-comment lines (D-11 literal guard)`
+      );
+      assert.ok(
+        !compactContent.includes(joinPatternSQ) && !compactContent.includes(joinPatternDQ),
+        'init.cjs must not contain whitespace-tolerant join-reconstruction of the legacy key (D-11 computed guard)'
+      );
+    });
   });
 });
 
