@@ -1,5 +1,5 @@
 <purpose>
-Check for GSD updates via npm, display changelog for versions between installed and latest, obtain user confirmation, and execute clean installation with cache clearing.
+Update this source-first fork from a local `jacobcxdev/get-shit-done` checkout, display the source diff or changelog preview before updating, obtain user confirmation, rebuild hooks/SDK/package binaries, reinstall into the detected runtime, and clear update caches.
 </purpose>
 
 <required_reading>
@@ -268,86 +268,111 @@ Running fresh install...
 Proceed to install step (treat as version 0.0.0 for comparison).
 </step>
 
+<step name="check_source_checkout">
+This fork is source-first. Do not check npm for the latest version and do not use `npx get-shit-done-cc` as the canonical update path.
+
+Find the source checkout:
+
+1. If the current working directory contains `package.json`, `bin/install.js`, and `.git`, use the current working directory.
+2. Otherwise, if the installed workflow path is inside a cloned repo, walk upward until a directory containing `package.json`, `bin/install.js`, and `.git` is found.
+3. Otherwise ask the user to run `/gsd-update` from a local `jacobcxdev/get-shit-done` checkout.
+
+If no checkout is found, display:
+
+```
+## GSD Update
+
+This fork updates from source, not npm.
+
+Run from a local checkout:
+
+    git clone https://github.com/jacobcxdev/get-shit-done.git
+    cd get-shit-done
+    /gsd-update
+```
+
+Exit.
+</step>
+
 <step name="check_latest_version">
-Check npm for latest version:
+Fetch source updates from the checkout remote:
 
 ```bash
-npm view get-shit-done-cc version 2>/dev/null
+git fetch --tags origin main
 ```
 
-**If npm check fails:**
-```
-Couldn't check for updates (offline or npm unavailable).
+Derive:
+- `INSTALLED_VERSION` from the detected runtime install, as above.
+- `CURRENT_COMMIT` from `git rev-parse HEAD` in the source checkout.
+- `REMOTE_COMMIT` from `git rev-parse origin/main`.
+- `LATEST_VERSION` from `node -p "require('./package.json').version"` after fetch if already on `origin/main`, otherwise from `git show origin/main:package.json`.
 
-To update manually: `npx get-shit-done-cc --global`
+If fetch fails, show:
+
+```
+Couldn't check for source updates (offline or remote unavailable).
+
+To update manually later:
+
+    git pull --rebase origin main
+    npm ci
+    npm run build:hooks
+    npm run build:sdk
+    npm install -g .
+    get-shit-done-cc --claude --global
 ```
 
 Exit.
 </step>
 
 <step name="compare_versions">
-Compare installed vs latest:
+Compare local source commit vs `origin/main`:
 
-**If installed == latest:**
+**If `CURRENT_COMMIT == REMOTE_COMMIT`:**
 ```
 ## GSD Update
 
 **Installed:** X.Y.Z
-**Latest:** X.Y.Z
+**Source:** up to date at CURRENT_COMMIT
 
-You're already on the latest version.
+Your source checkout is already up to date. Re-run the installer only if you need to resync runtime files.
 ```
 
-Exit.
+Ask whether to reinstall from the current source checkout. If the user declines, exit.
 
-**If installed > latest:**
+**If the local checkout has commits not in `origin/main`:**
 ```
 ## GSD Update
 
-**Installed:** X.Y.Z
-**Latest:** A.B.C
+Your checkout contains local commits that are not on `origin/main`.
 
-You're ahead of the latest release — this looks like a dev install.
+Do not auto-update because rebasing could disturb local work. Update manually after reviewing:
 
-If you see a "⚠ dev install — re-run installer to sync hooks" warning in
-your statusline, your hook files are older than your VERSION file. Fix it
-by re-running the local installer from your dev branch:
-
-    node bin/install.js --global --claude
-
-Running /gsd-update would install the npm release (A.B.C) and downgrade
-your dev version — do NOT use it to resolve this warning.
+    git status
+    git log --oneline origin/main..HEAD
+    git pull --rebase origin main
 ```
 
 Exit.
 </step>
 
 <step name="show_changes_and_confirm">
-**If update available**, fetch and show what's new BEFORE updating:
+**If source updates are available**, show what's new BEFORE updating:
 
-1. Fetch changelog from GitHub raw URL
-2. Extract entries between installed and latest versions
+1. Show `git log --oneline HEAD..origin/main`.
+2. If `CHANGELOG.md` changed, show the relevant diff with `git diff HEAD..origin/main -- CHANGELOG.md`.
 3. Display preview and ask for confirmation:
 
 ```
-## GSD Update Available
+## GSD Source Update Available
 
 **Installed:** 1.5.10
-**Latest:** 1.5.15
+**Source package version:** 1.5.15
 
-### What's New
+### Commits to apply
 ────────────────────────────────────────────────────────────
-
-## [1.5.15] - 2026-01-20
-
-### Added
-- Feature X
-
-## [1.5.14] - 2026-01-18
-
-### Fixed
-- Bug fix Y
-
+abc1234 fix: example change
+def5678 docs: example docs update
 ────────────────────────────────────────────────────────────
 
 ⚠️  **Note:** The installer performs a clean install of GSD folders:
@@ -466,29 +491,41 @@ Then inform the user:
 </step>
 
 <step name="run_update">
-Run the update using the install type detected in step 1:
+Run the update from the source checkout using the install type detected in step 1:
 
-Build runtime flag from step 1:
+Build runtime and scope flags from step 1:
 ```bash
 RUNTIME_FLAG="--$TARGET_RUNTIME"
+if [ "$INSTALL_SCOPE" = "LOCAL" ]; then
+  SCOPE_FLAG="--local"
+else
+  SCOPE_FLAG="--global"
+fi
 ```
 
-**If LOCAL install:**
+Update source and rebuild:
+
 ```bash
-npx -y get-shit-done-cc@latest "$RUNTIME_FLAG" --local
+git pull --rebase origin main
+npm ci
+npm run build:hooks
+npm run build:sdk
+npm install -g .
+get-shit-done-cc "$RUNTIME_FLAG" "$SCOPE_FLAG"
 ```
 
-**If GLOBAL install:**
+If install scope is `UNKNOWN`, use `--claude --global`:
+
 ```bash
-npx -y get-shit-done-cc@latest "$RUNTIME_FLAG" --global
+git pull --rebase origin main
+npm ci
+npm run build:hooks
+npm run build:sdk
+npm install -g .
+get-shit-done-cc --claude --global
 ```
 
-**If UNKNOWN install:**
-```bash
-npx -y get-shit-done-cc@latest --claude --global
-```
-
-Capture output. If install fails, show error and exit.
+Capture output. If any command fails, show error and exit.
 
 Clear the update cache so statusline indicator disappears:
 
@@ -554,7 +591,7 @@ Format completion message (changelog was already shown in confirmation step):
 
 ⚠️  Restart your runtime to pick up the new commands.
 
-[View full changelog](https://github.com/gsd-build/get-shit-done/blob/main/CHANGELOG.md)
+[View full changelog](https://github.com/jacobcxdev/get-shit-done/blob/main/CHANGELOG.md)
 ```
 </step>
 
@@ -577,11 +614,12 @@ Run /gsd-reapply-patches to merge your modifications into the new version.
 
 <success_criteria>
 - [ ] Installed version read correctly
-- [ ] Latest version checked via npm
-- [ ] Update skipped if already current
-- [ ] Changelog fetched and displayed BEFORE update
+- [ ] Local source checkout detected
+- [ ] Latest source commit checked via git remote, not npm
+- [ ] Update skipped or reinstall offered if source is already current
+- [ ] Source commits or changelog diff displayed BEFORE update
 - [ ] Clean install warning shown
 - [ ] User confirmation obtained
-- [ ] Update executed successfully
+- [ ] Source pull, build, local global package install, and runtime reinstall executed successfully
 - [ ] Restart reminder shown
 </success_criteria>
