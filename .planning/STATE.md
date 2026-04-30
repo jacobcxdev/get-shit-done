@@ -174,7 +174,7 @@ Recent decisions affecting current work:
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
-| 20260430 | Audit metadata cleanup | 2026-04-30 | pending | [20260430-audit-metadata-cleanup](./quick/20260430-audit-metadata-cleanup/) |
+| 20260430 | Audit metadata cleanup | 2026-04-30 | d9b27399 | [20260430-audit-metadata-cleanup](./quick/20260430-audit-metadata-cleanup/) |
 
 ## Deferred Items
 
