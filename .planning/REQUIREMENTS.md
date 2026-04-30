@@ -247,10 +247,10 @@ Deferred until v1 parity suite passes at 100% gate coverage. These clean up the 
 | OUTL-01–02 | Phase 6 (Compatibility Cleanup + Hard Outlier Posturing (v2+)) | Complete |
 
 **Coverage:**
-- v1 requirements: 114 total
-- Complete: 113
-- Pending: 1 (STAT-04, Phase 11 gap closure)
-- Mapped to phases: 114
+- Milestone requirements: 116 total
+- Complete: 116
+- Pending: 0
+- Mapped to phases: 116
 - Unmapped: 0 ✓
 - Reduced-confidence note: Gemini unavailable during requirements roundtable; Claude and Codex agreed on moving parity-critical routing/provider/agent/hook requirements before or into parity.
 

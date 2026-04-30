@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: FSM Migration Control Event Read Path (gap closure)** - Normal FSM query reads surface migration-required and resume-blocked recovery events for schema mismatches (completed 2026-04-29)
 - [x] **Phase 9: Milestone Audit Metadata Reconciliation (gap closure)** - Requirements traceability, SUMMARY frontmatter, validation metadata, and roadmap status are reconciled after implementation gaps close (completed 2026-04-29)
 - [x] **Phase 10: Repo Cleanup + Fork Identity** - Clean up git-tracked and filesystem artefacts, discard ephemeral/stale files, refresh documentation/meta files, and make this repository read as a clear fork of upstream GSD with updated install instructions (completed 2026-04-30)
-- [ ] **Phase 11: CJS Init Auto-Chain State Parity (gap closure)** - Remove the remaining legacy flat `_auto_chain_active` read from CJS `init plan-phase` so plan-phase auto-chain state is derived only from FSM-scoped autoMode
+- [x] **Phase 11: CJS Init Auto-Chain State Parity (gap closure)** - Remove the remaining legacy flat `_auto_chain_active` read from CJS `init plan-phase` so plan-phase auto-chain state is derived only from FSM-scoped autoMode
 
 ## Phase Details
 
@@ -221,14 +221,14 @@ Plans:
 Plans:
 
 **Wave 1**
-- [ ] 10-01-PLAN.md — Artefact hygiene: remove .release-monitor.sh and .plans/1755-install-audit-fix.md, add .omc/ to .gitignore, lock D-05 translated-docs policy in STATE.md
+- [x] 10-01-PLAN.md — Artefact hygiene: remove .release-monitor.sh and .plans/1755-install-audit-fix.md, add .omc/ to .gitignore, lock D-05 translated-docs policy in STATE.md
 
 **Wave 2 *(blocked on Wave 1 completion; 10-02 and 10-03 run in parallel — zero file overlap)***
-- [ ] 10-02-PLAN.md — Root + SDK identity surface updates: README.md, package.json, sdk/package.json, sdk/README.md, CONTRIBUTING.md, docs/manual-update.md (D-01, D-02, D-03, D-04)
-- [ ] 10-03-PLAN.md — Translated docs D-05 fork-notice block + GitHub config: README.{ja-JP,ko-KR,pt-BR,zh-CN}.md, docs/{ja-JP,ko-KR,pt-BR,zh-CN}/README.md (where present), .github/CODEOWNERS, .github/FUNDING.yml, .github/workflows/release.yml (comment-only)
+- [x] 10-02-PLAN.md — Root + SDK identity surface updates: README.md, package.json, sdk/package.json, sdk/README.md, CONTRIBUTING.md, docs/manual-update.md (D-01, D-02, D-03, D-04)
+- [x] 10-03-PLAN.md — Translated docs D-05 fork-notice block + GitHub config: README.{ja-JP,ko-KR,pt-BR,zh-CN}.md, docs/{ja-JP,ko-KR,pt-BR,zh-CN}/README.md (where present), .github/CODEOWNERS, .github/FUNDING.yml, .github/workflows/release.yml (comment-only)
 
 **Wave 3 *(blocked on Waves 1 and 2)***
-- [ ] 10-04-PLAN.md — Validation gate: npm run build:sdk + npm test + node scripts/phase4-parity.cjs + bash scripts/secret-scan.sh + tests/cline-support.test.cjs isolated; record results in STATE.md per D-11 (D-09, D-11, D-12)
+- [x] 10-04-PLAN.md — Validation gate: npm run build:sdk + npm test + node scripts/phase4-parity.cjs + bash scripts/secret-scan.sh + tests/cline-support.test.cjs isolated; record results in STATE.md per D-11 (D-09, D-11, D-12)
 
 Cross-cutting constraints:
 - D-02: package and bin names (`get-shit-done-cc`, `@gsd-build/sdk`) MUST NOT change in Phase 10. Defer scoped npm rename to a separate release/publishing phase.
@@ -250,7 +250,7 @@ Cross-cutting constraints:
 **Plans**: 1 plan in 1 wave
 
 Plans:
-- [ ] 11-01-PLAN.md — FSM-sourced auto_chain_active helper and D-10 regression proof
+- [x] 11-01-PLAN.md — FSM-sourced auto_chain_active helper and D-10 regression proof
 
 ## Progress
 
@@ -274,6 +274,6 @@ Phase 11 executes after Phase 10 to close the v1.0 milestone audit's remaining C
 | 8. FSM Migration Control Event Read Path (gap closure) | 2/2 | Complete    | 2026-04-29 |
 | 9. Milestone Audit Metadata Reconciliation (gap closure) | 1/1 | Complete | 2026-04-29 |
 | 10. Repo Cleanup + Fork Identity | 4/4 | Complete | 2026-04-30 |
-| 11. CJS Init Auto-Chain State Parity (gap closure) | 0/1 | In progress | — |
+| 11. CJS Init Auto-Chain State Parity (gap closure) | 1/1 | Complete | 2026-04-30 |
 </content>
 </invoke>
