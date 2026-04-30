@@ -247,7 +247,10 @@ Cross-cutting constraints:
   3. Regression tests prove stale `.planning/config.json` `workflow._auto_chain_active` cannot enable auto-chain when FSM autoMode is absent or false.
   4. Existing plan-phase auto-advance behaviour remains correct when FSM autoMode is active.
   5. A milestone re-audit no longer reports `STAT-04` or `CG-STAT04-CJS-INIT-LEGACY-AUTO-CHAIN` as open.
-**Plans**: TBD — run `/gsd-plan-phase 11 --auto`.
+**Plans**: 1 plan in 1 wave
+
+Plans:
+- [ ] 11-01-PLAN.md — FSM-sourced auto_chain_active helper and D-10 regression proof
 
 ## Progress
 
@@ -271,6 +274,6 @@ Phase 11 executes after Phase 10 to close the v1.0 milestone audit's remaining C
 | 8. FSM Migration Control Event Read Path (gap closure) | 2/2 | Complete    | 2026-04-29 |
 | 9. Milestone Audit Metadata Reconciliation (gap closure) | 1/1 | Complete | 2026-04-29 |
 | 10. Repo Cleanup + Fork Identity | 4/4 | Complete | 2026-04-30 |
-| 11. CJS Init Auto-Chain State Parity (gap closure) | 0/TBD | Gap closure needed | — |
+| 11. CJS Init Auto-Chain State Parity (gap closure) | 0/1 | In progress | — |
 </content>
 </invoke>
