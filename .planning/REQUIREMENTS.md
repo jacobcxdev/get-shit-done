@@ -63,7 +63,7 @@
 - [x] **STAT-01**: Each workstream's FSM run-state is stored under the existing `planningPaths` convention: flat mode uses `.planning/fsm-state.json`; workstream mode uses `.planning/workstreams/<workstream>/fsm-state.json`
 - [x] **STAT-02**: Every FSM run-state file includes `runId`, `stateSchemaVersion`, current state, config snapshot hash, and transition history from its first write
 - [x] **STAT-03**: `gsd-sdk query check.auto-mode <workstream>` returns the auto-mode flag scoped to the specified workstream, not a global shared value
-- [ ] **STAT-04**: `workflow._auto_chain_active` no longer exists as a flat shared key; its semantics are captured per-workstream inside FSM run-state
+- [x] **STAT-04**: `workflow._auto_chain_active` no longer exists as a flat shared key; its semantics are captured per-workstream inside FSM run-state
 - [x] **STAT-05**: `STATE.md` mirror sync is executed only while the workstream FSM write-lock is held; a concurrent sync attempt returns a typed `lock-conflict` error
 - [x] **STAT-06**: `gsd-sdk query lock.status <workstream>` returns lock holder, acquisition timestamp, age, and `stale: true/false`
 - [x] **STAT-07**: FSM run-state files are valid JSON, human-readable, and produce clean text diffs
@@ -227,7 +227,7 @@ Deferred until v1 parity suite passes at 100% gate coverage. These clean up the 
 | PCKT-01–08 | Phase 2 (Packet Schema + State Contracts) | Complete |
 | CONF-01–07 | Phase 2 (Packet Schema + State Contracts) | Complete |
 | STAT-01–03, STAT-05–10 | Phase 2 (Packet Schema + State Contracts) | Complete |
-| STAT-04 | Phase 11 (CJS Init Auto-Chain State Parity — gap closure) | Pending |
+| STAT-04 | Phase 11 (CJS Init Auto-Chain State Parity — gap closure) | Complete |
 | WFSM-01–08 | Phase 2 (Packet Schema + State Contracts) | Complete |
 | RNNR-01–10 | Phase 3 (Advisory Runner + Query Integration) | Complete |
 | QREG-01–07 | Phase 3 (Advisory Runner + Query Integration) | Complete |
